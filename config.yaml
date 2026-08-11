@@ -204,6 +204,12 @@ sources:
     max_results_per_topic: 45
     delay_seconds: 3
     num_retries: 4
+    timeout_seconds: 30
+    # Shared CI addresses are sometimes rate-limited by the query API.
+    # Category RSS is filtered locally with the same category+keyword intent.
+    rss_enabled: true
+    rss_base_url: "https://rss.arxiv.org/rss"
+    rss_announce_types: ["new", "cross"]
   semantic_scholar:
     enabled: true
     base_url: "https://api.semanticscholar.org/graph/v1"

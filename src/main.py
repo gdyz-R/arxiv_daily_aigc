@@ -14,7 +14,7 @@ from zoneinfo import ZoneInfo
 try:
     from archive import report_paths
     from config import PROJECT_ROOT, load_config
-    from crawl import crawl_papers, enrich_selected_figures
+    from crawl import crawl_papers_with_diagnostics, enrich_selected_figures
     from filter import (
         coarse_classify_papers,
         generate_editorial_content,
@@ -25,7 +25,7 @@ try:
 except ImportError:  # pragma: no cover
     from .archive import report_paths
     from .config import PROJECT_ROOT, load_config
-    from .crawl import crawl_papers, enrich_selected_figures
+    from .crawl import crawl_papers_with_diagnostics, enrich_selected_figures
     from .filter import (
         coarse_classify_papers,
         generate_editorial_content,
@@ -72,32 +72,65 @@ def _update_reports_index(config: dict[str, Any]) -> None:
     )
 
 
+def _empty_report_error(
+    target_date: date, source_diagnostics: dict[str, Any], stage: str
+) -> RuntimeError:
+    source_summary = ", ".join(
+        f"{name}={details.get('status', 'unknown')}:{details.get('result_count', 0)}"
+        for name, details in source_diagnostics.items()
+        if isinstance(details, dict) and name != "semantic_scholar"
+    )
+    return RuntimeError(
+        f"Refusing to publish an empty report for {target_date} at {stage}; "
+        f"source diagnostics: {source_summary or 'unavailable'}"
+    )
+
+
 def generate_daily_report(
     target_date: date,
     config: dict[str, Any],
     *,
     force: bool = False,
     offline_render: bool = False,
+    allow_empty: bool = False,
 ) -> tuple[Path, Path]:
     json_path, html_path = _report_paths(target_date, config)
     if json_path.exists() and not force:
-        LOGGER.info(
-            "Using existing JSON report: %s", json_path.relative_to(PROJECT_ROOT)
-        )
-        report = normalize_report_payload(
+        existing_report = normalize_report_payload(
             json.loads(json_path.read_text(encoding="utf-8")), json_path, config
         )
+        if offline_render or existing_report.get("papers") or allow_empty:
+            LOGGER.info(
+                "Using existing JSON report: %s", json_path.relative_to(PROJECT_ROOT)
+            )
+            report = existing_report
+        else:
+            LOGGER.warning(
+                "Existing report is empty; regenerating instead of reusing: %s",
+                json_path.relative_to(PROJECT_ROOT),
+            )
+            force = True
     elif offline_render:
         raise FileNotFoundError(
             f"Offline render requested but report does not exist: {json_path}"
         )
-    else:
+    if force or not json_path.exists():
         LOGGER.info("Crawling papers for %s", target_date)
-        candidates = crawl_papers(target_date, config)
+        candidates, source_diagnostics = crawl_papers_with_diagnostics(
+            target_date, config
+        )
         LOGGER.info("Crawled %s candidates", len(candidates))
+        LOGGER.info(
+            "Source diagnostics: %s",
+            json.dumps(source_diagnostics, ensure_ascii=False, sort_keys=True),
+        )
+        if not candidates and not allow_empty:
+            raise _empty_report_error(target_date, source_diagnostics, "crawl")
         candidates = coarse_classify_papers(candidates, config)
         selected, meta = select_daily_papers(candidates, target_date, config)
         LOGGER.info("Selected %s papers (%s)", len(selected), meta["distribution_note"])
+        if not selected and not allow_empty:
+            raise _empty_report_error(target_date, source_diagnostics, "selection")
         selected = enrich_selected_figures(selected, config, target_date)
         selected = generate_editorial_content(selected, config)
         topic_id = meta["focus_topic"]
@@ -111,6 +144,7 @@ def generate_daily_report(
                 "focus_topic_name": config["topics"][topic_id]["name"],
                 "focus_topic_name_en": config["topics"][topic_id]["name_en"],
                 "generated_at": datetime.now(timezone.utc).isoformat(),
+                "source_diagnostics": source_diagnostics,
                 **meta,
             },
             "papers": selected,
@@ -136,6 +170,11 @@ def main() -> None:
         action="store_true",
         help="Only render an existing JSON; never call APIs",
     )
+    parser.add_argument(
+        "--allow-empty",
+        action="store_true",
+        help="Permit an empty report (disabled by default to protect public output)",
+    )
     args = parser.parse_args()
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -154,6 +193,7 @@ def main() -> None:
         config,
         force=args.force,
         offline_render=args.offline_render,
+        allow_empty=args.allow_empty,
     )
     LOGGER.info(
         "Done: %s and %s",

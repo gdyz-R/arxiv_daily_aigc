@@ -15,10 +15,12 @@ import time
 from collections.abc import Iterable
 from datetime import date, datetime, timedelta, timezone
 from datetime import time as datetime_time
+from email.utils import parsedate_to_datetime
 from io import BytesIO
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
+from xml.etree import ElementTree
 
 import arxiv
 import requests
@@ -118,22 +120,311 @@ def _contains_topic_keyword(title: str, topics: dict[str, Any]) -> list[str]:
     ]
 
 
+def _matching_topics(
+    title: str,
+    summary: str,
+    categories: Iterable[str],
+    topics: dict[str, Any],
+) -> list[str]:
+    """Match the same category-and-keyword intent used by the arXiv API query."""
+
+    searchable = f"{title} {summary}".lower()
+    paper_categories = set(categories)
+    return [
+        topic_id
+        for topic_id, topic in topics.items()
+        if (
+            not topic.get("categories")
+            or bool(paper_categories & set(topic.get("categories", [])))
+        )
+        and any(
+            str(keyword).lower() in searchable for keyword in topic.get("keywords", [])
+        )
+    ]
+
+
+class _TimeoutSession(requests.Session):
+    """Requests session that applies a default timeout to library-owned calls."""
+
+    def __init__(self, timeout_seconds: float):
+        super().__init__()
+        self.timeout_seconds = timeout_seconds
+
+    def request(self, method: str, url: str, **kwargs: Any) -> requests.Response:
+        kwargs.setdefault("timeout", self.timeout_seconds)
+        return super().request(method, url, **kwargs)
+
+
+class ArxivRSSSource:
+    """Fallback adapter for arXiv category RSS feeds.
+
+    RSS remains available when the query API rate-limits shared CI addresses.
+    The broad category feeds are filtered locally with the configured topic
+    categories and keywords, preserving the intent of :func:`build_arxiv_query`.
+    """
+
+    ARXIV_NAMESPACE = "http://arxiv.org/schemas/atom"
+    DC_NAMESPACE = "http://purl.org/dc/elements/1.1/"
+
+    def __init__(self, config: dict[str, Any], session: requests.Session | None = None):
+        self.app_config = config
+        self.config = config["sources"]["arxiv"]
+        self.session = session or requests.Session()
+        self.session.headers.update({"User-Agent": config["sources"]["user_agent"]})
+
+    @staticmethod
+    def _clean_summary(description: str) -> str:
+        text = BeautifulSoup(description or "", "html.parser").get_text(" ", strip=True)
+        text = re.sub(
+            r"^arXiv:\S+\s+Announce Type:\s*\S+\s+Abstract:\s*",
+            "",
+            text,
+            flags=re.IGNORECASE,
+        )
+        return re.sub(r"\s+", " ", text).strip()
+
+    def _paper_from_item(
+        self, item: ElementTree.Element, feed_category: str, target_date: date
+    ) -> dict[str, Any] | None:
+        title = str(item.findtext("title") or "").strip()
+        link = str(item.findtext("link") or "").strip()
+        arxiv_id = extract_arxiv_id(link or item.findtext("guid"))
+        if not title or not arxiv_id:
+            return None
+        summary = self._clean_summary(str(item.findtext("description") or ""))
+        categories = sorted(
+            {
+                feed_category,
+                *(
+                    str(category.text).strip()
+                    for category in item.findall("category")
+                    if category.text
+                ),
+            }
+        )
+        announce_type = str(
+            item.findtext(f"{{{self.ARXIV_NAMESPACE}}}announce_type") or "new"
+        ).lower()
+        allowed_types = {
+            str(value).lower()
+            for value in self.config.get("rss_announce_types", ["new", "cross"])
+        }
+        if announce_type not in allowed_types:
+            return None
+        try:
+            published = parsedate_to_datetime(str(item.findtext("pubDate") or ""))
+            if not published.tzinfo:
+                published = published.replace(tzinfo=timezone.utc)
+        except (TypeError, ValueError):
+            return None
+        lookback_days = int(self.config.get("lookback_days", 3))
+        start_date = target_date - timedelta(days=max(lookback_days - 1, 0))
+        if not start_date <= published.date() <= target_date:
+            return None
+        topic_ids = _matching_topics(
+            title, summary, categories, self.app_config["topics"]
+        )
+        if not topic_ids:
+            return None
+        creators = str(item.findtext(f"{{{self.DC_NAMESPACE}}}creator") or "").strip()
+        return {
+            "paper_id": f"arxiv:{arxiv_id}",
+            "source": "arxiv_rss",
+            "sources": ["arxiv_rss"],
+            "source_id": arxiv_id,
+            "arxiv_id": arxiv_id,
+            "title": title,
+            "summary": summary,
+            "url": link or f"https://arxiv.org/abs/{arxiv_id}",
+            "abstract_url": link or f"https://arxiv.org/abs/{arxiv_id}",
+            "pdf_url": f"https://arxiv.org/pdf/{arxiv_id}",
+            "published_date": published.astimezone(timezone.utc).isoformat(),
+            "updated_date": None,
+            "categories": categories,
+            "authors": [
+                name.strip() for name in re.split(r",| and ", creators) if name.strip()
+            ],
+            "candidate_topics": topic_ids,
+            "citation_count": 0,
+            "venue": "",
+            "venue_tags": [],
+            "presentation_type": "",
+            "figure_url": None,
+            "figure_caption": "",
+            "figure_status": "not_requested",
+            "rss_announce_type": announce_type,
+        }
+
+    def fetch_with_diagnostics(
+        self, target_date: date
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        configured_categories = sorted(
+            {
+                str(category)
+                for topic in self.app_config["topics"].values()
+                for category in topic.get("categories", [])
+            }
+        )
+        diagnostics: dict[str, Any] = {
+            "status": "empty",
+            "feed_count": len(configured_categories),
+            "feeds_succeeded": 0,
+            "feeds_failed": 0,
+            "parsed_item_count": 0,
+            "result_count": 0,
+            "errors": [],
+        }
+        papers: dict[str, dict[str, Any]] = {}
+        per_topic_counts = {topic_id: 0 for topic_id in self.app_config["topics"]}
+        limit = min(
+            int(self.config.get("max_results_per_topic", 45)),
+            int(self.app_config["selection"].get("candidate_limit_per_topic", 45)),
+        )
+        base_url = str(
+            self.config.get("rss_base_url", "https://rss.arxiv.org/rss")
+        ).rstrip("/")
+        for category in configured_categories:
+            url = f"{base_url}/{category}"
+            try:
+                response = self.session.get(
+                    url, timeout=float(self.config.get("timeout_seconds", 30))
+                )
+                response.raise_for_status()
+                root = ElementTree.fromstring(response.content)
+                diagnostics["feeds_succeeded"] += 1
+            except (
+                requests.RequestException,
+                ElementTree.ParseError,
+                ValueError,
+            ) as exc:
+                diagnostics["feeds_failed"] += 1
+                diagnostics["errors"].append(
+                    {"category": category, "type": type(exc).__name__}
+                )
+                LOGGER.warning(
+                    "arXiv RSS category=%s failed: %s",
+                    category,
+                    type(exc).__name__,
+                )
+                continue
+            channel = root.find("channel")
+            if channel is None:
+                diagnostics["feeds_failed"] += 1
+                diagnostics["errors"].append(
+                    {"category": category, "type": "MissingChannel"}
+                )
+                continue
+            for item in channel.findall("item"):
+                diagnostics["parsed_item_count"] += 1
+                paper = self._paper_from_item(item, category, target_date)
+                if not paper:
+                    continue
+                available_topics = [
+                    topic_id
+                    for topic_id in paper["candidate_topics"]
+                    if per_topic_counts[topic_id] < limit
+                ]
+                if not available_topics:
+                    continue
+                paper["candidate_topics"] = available_topics
+                identity = paper_identity(paper)
+                if identity in papers:
+                    current = papers[identity]
+                    new_topics = set(available_topics) - set(
+                        current["candidate_topics"]
+                    )
+                    current["candidate_topics"] = sorted(
+                        set(current["candidate_topics"]) | set(available_topics)
+                    )
+                    current["categories"] = sorted(
+                        set(current["categories"]) | set(paper["categories"])
+                    )
+                else:
+                    papers[identity] = paper
+                    new_topics = set(available_topics)
+                for topic_id in new_topics:
+                    per_topic_counts[topic_id] += 1
+        result = list(papers.values())
+        diagnostics["result_count"] = len(result)
+        if result:
+            diagnostics["status"] = "available"
+        elif diagnostics["feeds_succeeded"] == 0:
+            diagnostics["status"] = "failed"
+        return result, diagnostics
+
+    def fetch(self, target_date: date) -> list[dict[str, Any]]:
+        papers, _ = self.fetch_with_diagnostics(target_date)
+        return papers
+
+
 class ArxivSource:
-    def __init__(self, config: dict[str, Any]):
+    def __init__(
+        self,
+        config: dict[str, Any],
+        client: Any | None = None,
+        rss_source: ArxivRSSSource | None = None,
+    ):
         self.config = config
         source_config = config["sources"]["arxiv"]
         self.source_config = source_config
-        self.client = arxiv.Client(
+        self.client = client or arxiv.Client(
             delay_seconds=float(source_config.get("delay_seconds", 3)),
-            num_retries=int(source_config.get("num_retries", 4)),
+            # Retry here so 429 can trip the RSS circuit breaker immediately.
+            num_retries=0,
         )
+        if client is None and hasattr(self.client, "_session"):
+            self.client._session = _TimeoutSession(
+                float(source_config.get("timeout_seconds", 30))
+            )
+        self.rss_source = rss_source or ArxivRSSSource(config)
 
-    def fetch(self, target_date: date) -> list[dict[str, Any]]:
+    @staticmethod
+    def _paper_from_result(result: Any, topic_id: str) -> dict[str, Any]:
+        arxiv_id = extract_arxiv_id(result.entry_id)
+        return {
+            "paper_id": f"arxiv:{arxiv_id}" if arxiv_id else result.entry_id,
+            "source": "arxiv",
+            "sources": ["arxiv"],
+            "source_id": arxiv_id or result.entry_id,
+            "arxiv_id": arxiv_id,
+            "title": result.title.strip(),
+            "summary": result.summary.strip(),
+            "url": result.entry_id,
+            "abstract_url": result.entry_id,
+            "pdf_url": result.pdf_url,
+            "published_date": _iso_datetime(result.published),
+            "updated_date": _iso_datetime(result.updated),
+            "categories": list(result.categories),
+            "authors": [author.name for author in result.authors],
+            "candidate_topics": [topic_id],
+            "citation_count": 0,
+            "venue": "",
+            "venue_tags": [],
+            "presentation_type": "",
+            "figure_url": None,
+            "figure_caption": "",
+            "figure_status": "not_requested",
+        }
+
+    def fetch_with_diagnostics(
+        self, target_date: date
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         papers: dict[str, dict[str, Any]] = {}
+        diagnostics: dict[str, Any] = {
+            "status": "empty",
+            "api_topics_attempted": 0,
+            "api_topics_succeeded": 0,
+            "api_topics_failed": 0,
+            "api_result_count": 0,
+            "fallback_used": False,
+            "result_count": 0,
+            "errors": [],
+        }
         limit = min(
             int(self.source_config.get("max_results_per_topic", 45)),
             int(self.config["selection"].get("candidate_limit_per_topic", 45)),
         )
+        fallback_reason = ""
         for topic_id, topic in self.config["topics"].items():
             query = build_arxiv_query(
                 topic,
@@ -147,48 +438,94 @@ class ArxivSource:
                 sort_by=arxiv.SortCriterion.SubmittedDate,
                 sort_order=arxiv.SortOrder.Descending,
             )
-            try:
-                for result in self.client.results(search):
-                    arxiv_id = extract_arxiv_id(result.entry_id)
-                    paper = {
-                        "paper_id": f"arxiv:{arxiv_id}"
-                        if arxiv_id
-                        else result.entry_id,
-                        "source": "arxiv",
-                        "sources": ["arxiv"],
-                        "source_id": arxiv_id or result.entry_id,
-                        "arxiv_id": arxiv_id,
-                        "title": result.title.strip(),
-                        "summary": result.summary.strip(),
-                        "url": result.entry_id,
-                        "abstract_url": result.entry_id,
-                        "pdf_url": result.pdf_url,
-                        "published_date": _iso_datetime(result.published),
-                        "updated_date": _iso_datetime(result.updated),
-                        "categories": list(result.categories),
-                        "authors": [author.name for author in result.authors],
-                        "candidate_topics": [topic_id],
-                        "citation_count": 0,
-                        "venue": "",
-                        "venue_tags": [],
-                        "presentation_type": "",
-                        "figure_url": None,
-                        "figure_caption": "",
-                        "figure_status": "not_requested",
+            diagnostics["api_topics_attempted"] += 1
+            attempts = max(int(self.source_config.get("num_retries", 1)), 1)
+            for attempt in range(attempts):
+                try:
+                    topic_results = list(self.client.results(search))
+                    diagnostics["api_topics_succeeded"] += 1
+                    diagnostics["api_result_count"] += len(topic_results)
+                    for result in topic_results:
+                        paper = self._paper_from_result(result, topic_id)
+                        identity = paper_identity(paper)
+                        if identity in papers:
+                            current = papers[identity]
+                            current["candidate_topics"] = sorted(
+                                set(current["candidate_topics"]) | {topic_id}
+                            )
+                        else:
+                            papers[identity] = paper
+                    break
+                except Exception as exc:  # arxiv exposes transport errors by version
+                    status = getattr(exc, "status", None)
+                    terminal = status == 429 or isinstance(
+                        exc,
+                        (
+                            requests.Timeout,
+                            requests.ConnectionError,
+                        ),
+                    )
+                    if not terminal and attempt + 1 < attempts:
+                        time.sleep(min(2**attempt, 10))
+                        continue
+                    diagnostics["api_topics_failed"] += 1
+                    error: dict[str, Any] = {
+                        "topic": topic_id,
+                        "type": type(exc).__name__,
                     }
-                    identity = paper_identity(paper)
-                    if identity in papers:
-                        current = papers[identity]
-                        current["candidate_topics"] = sorted(
-                            set(current["candidate_topics"]) | {topic_id}
-                        )
-                    else:
-                        papers[identity] = paper
-            except Exception as exc:  # arxiv library exposes several transport errors
-                LOGGER.warning(
-                    "arXiv query failed for %s: %s", topic_id, type(exc).__name__
-                )
-        return list(papers.values())
+                    if status is not None:
+                        error["http_status"] = int(status)
+                    diagnostics["errors"].append(error)
+                    LOGGER.warning(
+                        "arXiv API topic=%s failed type=%s status=%s; switching to RSS",
+                        topic_id,
+                        type(exc).__name__,
+                        status or "n/a",
+                    )
+                    fallback_reason = (
+                        f"http_{status}" if status is not None else type(exc).__name__
+                    )
+                    break
+            if fallback_reason:
+                break
+
+        if (fallback_reason or not papers) and self.source_config.get(
+            "rss_enabled", True
+        ):
+            diagnostics["fallback_used"] = True
+            diagnostics["fallback_reason"] = fallback_reason or "api_empty"
+            rss_papers, rss_diagnostics = self.rss_source.fetch_with_diagnostics(
+                target_date
+            )
+            diagnostics["rss"] = rss_diagnostics
+            for paper in rss_papers:
+                identity = paper_identity(paper)
+                if identity in papers:
+                    current = papers[identity]
+                    current["candidate_topics"] = sorted(
+                        set(current["candidate_topics"])
+                        | set(paper["candidate_topics"])
+                    )
+                    current["categories"] = sorted(
+                        set(current.get("categories", []))
+                        | set(paper.get("categories", []))
+                    )
+                else:
+                    papers[identity] = paper
+
+        result = list(papers.values())
+        diagnostics["result_count"] = len(result)
+        if result and diagnostics["fallback_used"]:
+            diagnostics["status"] = "fallback_rss"
+        elif result:
+            diagnostics["status"] = "available"
+        elif diagnostics["api_topics_failed"]:
+            diagnostics["status"] = "failed"
+        return result, diagnostics
+
+    def fetch(self, target_date: date) -> list[dict[str, Any]]:
+        papers, _ = self.fetch_with_diagnostics(target_date)
+        return papers
 
 
 class SemanticScholarEnricher:
@@ -909,13 +1246,13 @@ def derive_venue_tags(paper: dict[str, Any], config: dict[str, Any]) -> list[str
     return tags
 
 
-def crawl_papers(
+def crawl_papers_with_diagnostics(
     target_date: date,
     config: dict[str, Any] | None = None,
     *,
     enrich_semantic_scholar: bool = True,
-) -> list[dict[str, Any]]:
-    """Fetch and merge configured paper sources.
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Fetch configured sources and return papers plus public-safe diagnostics.
 
     Figure extraction is intentionally deferred until after selection via
     :func:`enrich_selected_figures`, avoiding hundreds of arXiv HTML requests.
@@ -923,18 +1260,54 @@ def crawl_papers(
 
     config = config or load_config()
     source_papers: list[dict[str, Any]] = []
+    diagnostics: dict[str, Any] = {}
     if config["sources"]["arxiv"].get("enabled", True):
-        source_papers.extend(ArxivSource(config).fetch(target_date))
+        arxiv_papers, arxiv_diagnostics = ArxivSource(config).fetch_with_diagnostics(
+            target_date
+        )
+        source_papers.extend(arxiv_papers)
+        diagnostics["arxiv"] = arxiv_diagnostics
+    else:
+        diagnostics["arxiv"] = {"status": "disabled", "result_count": 0}
     if config["sources"]["neurips"].get("enabled", True):
-        source_papers.extend(NeurIPSSource(config).fetch(target_date))
+        neurips_papers = NeurIPSSource(config).fetch(target_date)
+        source_papers.extend(neurips_papers)
+        diagnostics["neurips"] = {
+            "status": "available" if neurips_papers else "empty",
+            "result_count": len(neurips_papers),
+        }
+    else:
+        diagnostics["neurips"] = {"status": "disabled", "result_count": 0}
     if config["sources"].get("openalex", {}).get("enabled", True):
-        source_papers.extend(OpenAlexSource(config).fetch(target_date))
+        openalex_papers = OpenAlexSource(config).fetch(target_date)
+        source_papers.extend(openalex_papers)
+        diagnostics["openalex"] = {
+            "status": "available" if openalex_papers else "empty",
+            "result_count": len(openalex_papers),
+        }
+    else:
+        diagnostics["openalex"] = {"status": "disabled", "result_count": 0}
     papers = merge_papers(source_papers)
+    diagnostics["merged_candidate_count"] = len(papers)
 
     if enrich_semantic_scholar and config["sources"]["semantic_scholar"].get(
         "enabled", True
     ):
         papers = SemanticScholarEnricher(config).enrich_many(papers)
+        status_counts: dict[str, int] = {}
+        for paper in papers:
+            status = str(paper.get("semantic_scholar_status") or "unknown")
+            status_counts[status] = status_counts.get(status, 0) + 1
+        diagnostics["semantic_scholar"] = {
+            "status": "completed",
+            "paper_count": len(papers),
+            "status_counts": status_counts,
+        }
+    else:
+        diagnostics["semantic_scholar"] = {
+            "status": "disabled" if not enrich_semantic_scholar else "skipped",
+            "paper_count": len(papers),
+        }
     for paper in papers:
         paper["venue_tags"] = sorted(
             set(paper.get("venue_tags", [])) | set(derive_venue_tags(paper, config))
@@ -942,6 +1315,22 @@ def crawl_papers(
         paper["metadata_quality_score"] = round(
             math.log1p(max(int(paper.get("citation_count", 0)), 0)), 3
         )
+    return papers, diagnostics
+
+
+def crawl_papers(
+    target_date: date,
+    config: dict[str, Any] | None = None,
+    *,
+    enrich_semantic_scholar: bool = True,
+) -> list[dict[str, Any]]:
+    """Backward-compatible wrapper returning only merged papers."""
+
+    papers, _ = crawl_papers_with_diagnostics(
+        target_date,
+        config,
+        enrich_semantic_scholar=enrich_semantic_scholar,
+    )
     return papers
 
 

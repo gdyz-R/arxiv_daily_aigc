@@ -14,6 +14,8 @@ from PIL import Image
 from src.config import load_config
 from src.crawl import (
     ArxivFigureEnricher,
+    ArxivRSSSource,
+    ArxivSource,
     NeurIPSSource,
     OpenAlexSource,
     SemanticScholarEnricher,
@@ -70,6 +72,34 @@ class RoutingSession:
         return self.responses[url]
 
 
+class FakeArxivHTTPError(RuntimeError):
+    status = 429
+
+
+class RateLimitedArxivClient:
+    def __init__(self):
+        self.calls = 0
+
+    def results(self, search):
+        del search
+        self.calls += 1
+        raise FakeArxivHTTPError("rate limited")
+
+
+class FakeRSSSource:
+    def __init__(self, papers):
+        self.papers = papers
+        self.calls = 0
+
+    def fetch_with_diagnostics(self, target_date):
+        del target_date
+        self.calls += 1
+        return self.papers, {
+            "status": "available",
+            "result_count": len(self.papers),
+        }
+
+
 class CrawlTests(unittest.TestCase):
     def setUp(self):
         self.config = load_config()
@@ -86,6 +116,63 @@ class CrawlTests(unittest.TestCase):
         self.assertIn("cat:cs.DC", query)
         self.assertIn('ti:"KV cache"', query)
         self.assertIn("submittedDate:[202608080000 TO 202608110000]", query)
+
+    def test_arxiv_rss_parses_matching_recent_paper(self):
+        rss = b"""<?xml version="1.0" encoding="UTF-8"?>
+        <rss xmlns:arxiv="http://arxiv.org/schemas/atom"
+             xmlns:dc="http://purl.org/dc/elements/1.1/">
+          <channel>
+            <item>
+              <title>Efficient Agent Memory with Tool Use</title>
+              <link>https://arxiv.org/abs/2608.01234</link>
+              <description>arXiv:2608.01234v1 Announce Type: new Abstract: We propose an AI agent memory system for tool calling.</description>
+              <guid isPermaLink="false">oai:arXiv.org:2608.01234v1</guid>
+              <category>cs.AI</category>
+              <pubDate>Mon, 10 Aug 2026 00:00:00 -0400</pubDate>
+              <arxiv:announce_type>new</arxiv:announce_type>
+              <dc:creator>Ada Lovelace, Alan Turing</dc:creator>
+            </item>
+          </channel>
+        </rss>"""
+        config = deepcopy(self.config)
+        config["topics"] = {"cot_agentic_ai": config["topics"]["cot_agentic_ai"]}
+        session = FakeSession(FakeResponse(content=rss))
+        source = ArxivRSSSource(config, session=cast(requests.Session, session))
+        papers, diagnostics = source.fetch_with_diagnostics(date(2026, 8, 11))
+        self.assertEqual(len(papers), 1)
+        self.assertEqual(papers[0]["arxiv_id"], "2608.01234")
+        self.assertEqual(papers[0]["candidate_topics"], ["cot_agentic_ai"])
+        self.assertEqual(papers[0]["authors"], ["Ada Lovelace", "Alan Turing"])
+        self.assertEqual(diagnostics["status"], "available")
+
+    def test_arxiv_429_trips_rss_fallback_once(self):
+        fallback_paper = {
+            "paper_id": "arxiv:2608.01234",
+            "source": "arxiv_rss",
+            "sources": ["arxiv_rss"],
+            "arxiv_id": "2608.01234",
+            "title": "Efficient Agent Memory",
+            "summary": "AI agent memory and tool use.",
+            "url": "https://arxiv.org/abs/2608.01234",
+            "categories": ["cs.AI"],
+            "candidate_topics": ["cot_agentic_ai"],
+            "citation_count": 0,
+            "venue_tags": [],
+        }
+        client = RateLimitedArxivClient()
+        rss_source = FakeRSSSource([fallback_paper])
+        source = ArxivSource(
+            self.config,
+            client=client,
+            rss_source=cast(ArxivRSSSource, rss_source),
+        )
+        papers, diagnostics = source.fetch_with_diagnostics(date(2026, 8, 11))
+        self.assertEqual(client.calls, 1)
+        self.assertEqual(rss_source.calls, 1)
+        self.assertEqual(len(papers), 1)
+        self.assertEqual(diagnostics["status"], "fallback_rss")
+        self.assertEqual(diagnostics["fallback_reason"], "http_429")
+        self.assertEqual(diagnostics["errors"][0]["http_status"], 429)
 
     def test_semantic_scholar_enrichment(self):
         session = FakeSession(

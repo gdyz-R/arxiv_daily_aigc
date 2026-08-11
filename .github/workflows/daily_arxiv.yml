@@ -62,7 +62,7 @@ jobs:
         if [ -n "$REPORT_DATE" ]; then
           python src/main.py --date "$REPORT_DATE" --force
         else
-          python src/main.py
+          python src/main.py --force
         fi
 
     - name: Check public outputs for secrets and local paths

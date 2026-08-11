@@ -7,14 +7,564 @@
     "focus_topic": "subquadratic_attention",
     "focus_topic_name": "亚二次方注意力探索",
     "focus_topic_name_en": "Sub-quadratic Attention",
-    "generated_at": "2026-08-11T01:29:07.574730+00:00",
+    "generated_at": "2026-08-11T04:26:28.291460+00:00",
+    "source_diagnostics": {
+      "arxiv": {
+        "status": "available",
+        "api_topics_attempted": 4,
+        "api_topics_succeeded": 4,
+        "api_topics_failed": 0,
+        "api_result_count": 90,
+        "fallback_used": false,
+        "result_count": 86,
+        "errors": []
+      },
+      "neurips": {
+        "status": "empty",
+        "result_count": 0
+      },
+      "openalex": {
+        "status": "empty",
+        "result_count": 0
+      },
+      "merged_candidate_count": 86,
+      "semantic_scholar": {
+        "status": "completed",
+        "paper_count": 86,
+        "status_counts": {
+          "request_failed": 57,
+          "not_found": 29
+        }
+      }
+    },
     "target_focus_count": 6,
     "target_cross_topic_count": 1,
-    "actual_focus_count": 0,
-    "actual_cross_topic_count": 0,
-    "candidate_count": 0,
-    "selected_count": 0,
-    "distribution_note": "按 6+1 主/跨主题策略选取。"
+    "actual_focus_count": 3,
+    "actual_cross_topic_count": 4,
+    "candidate_count": 58,
+    "selected_count": 7,
+    "distribution_note": "主主题候选不足，已按综合评分回填。"
   },
-  "papers": []
+  "papers": [
+    {
+      "paper_id": "arxiv:2608.09468",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09468",
+      "arxiv_id": "2608.09468",
+      "title": "MixFormer: Linear Transformer with Mixture of Memory Experts",
+      "summary": "State Space Models (SSMs), as a mainstream research direction of linear Transformers, aim to achieve higher efficiency than standard Transformers in long-context modeling. However, existing SSMs suffer from limited input adaptivity and constrained memory capacity, leading to information loss when modeling ultra-long sequences. To address these limitations, we propose MixFormer, a novel linear Transformer that integrates a Mixture-of-Memory-Experts (MoE) mechanism. Specifically, the model maintains differentiated memory states through multiple collaborating memory experts and employs a novel Time-Aware Linear Attention (TALA) mechanism, which leverages learnable exponential decay functions and positional biases to dynamically update memory. This design enables the model to selectively reinforce important historical information while effectively mitigating memory dilution, substantially improving long-range dependency modeling. Experiments on long-sequence text and image generation tasks demonstrate that MixFormer not only achieves significant performance gains but also provides a more sustainable computational backbone for the next generation of web infrastructure.",
+      "url": "http://arxiv.org/abs/2608.09468v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09468v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09468v1",
+      "published_date": "2026-08-10T11:38:30+00:00",
+      "updated_date": "2026-08-10T11:38:30+00:00",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "authors": [
+        "Yu Guo",
+        "Lei Duan"
+      ],
+      "candidate_topics": [
+        "subquadratic_attention"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": "assets/figures/2026-08/2026-08-11-AI研究日报/2608.09468-figure1.png",
+      "figure_caption": "Figure 1: Linear Attention vs SSMs. (a) is the workflow of the Linear Attention, and (b) is the State Space Models.",
+      "figure_status": "available",
+      "semantic_scholar_status": "request_failed",
+      "metadata_quality_score": 0.0,
+      "is_relevant": true,
+      "primary_topic": "subquadratic_attention",
+      "topic_scores": {
+        "engineering_deployment": 5.0,
+        "subquadratic_attention": 9.0,
+        "cot_agentic_ai": 1.0,
+        "theory_loss_landscape": 3.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 7.0,
+      "clarity_score": 7.0,
+      "coarse_rationale": "该论文提出了一种结合混合记忆专家和线性注意力的新型线性Transformer，属于亚二次注意力机制，并针对长上下文建模进行了优化。",
+      "contribution_tags": [
+        "SSM",
+        "Linear Attention",
+        "Long Context"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 8.815,
+      "major_candidate": true,
+      "major_reason": "editor_pick",
+      "breakthrough": false,
+      "content_tier": "major",
+      "is_hero": true,
+      "arxiv_html_url": "https://arxiv.org/html/2608.09468",
+      "figure_source_url": "https://arxiv.org/html/2608.09468v1/x1.png",
+      "figure_http_status": 200,
+      "figure_cache_path": "assets/figures/2026-08/2026-08-11-AI研究日报/2608.09468-figure1.png",
+      "figure_status_detail": "cached_local_copy",
+      "newspaper_title": "MixFormer试图为超长上下文保留更多记忆",
+      "dek": "MixFormer将多记忆专家与时间感知线性注意力结合，试图在不恢复标准注意力二次成本的前提下，改善超长序列中的历史信息保留与动态更新。",
+      "background_and_pain": "标准Transformer在序列长度扩展时，注意力计算与存储开销通常随长度呈二次增长，因而促使研究者寻找线性复杂度的替代架构。状态空间模型是其中一条主线，但论文指出，现有方案在输入自适应性和记忆容量上仍有限制：面对超长上下文，历史表征可能被不断写入的新信息稀释，关键线索也可能丢失。问题不只是降低成本，更在于如何让有限状态以更有选择性的方式保存长期依赖；这对长文本和图像生成中的跨跨度一致性尤为重要。",
+      "core_innovations": [
+        "模型引入多个协作的记忆专家以维持差异化状态，而非将全部历史压入单一记忆通道；其设计目标是在可控计算下扩大记忆的分工与容量。",
+        "时间感知线性注意力机制（TALA）将可学习的指数衰减函数与位置偏置结合，用于动态更新记忆，使模型能够按时间关系调整历史信息的影响。",
+        "通过对重要历史信息进行选择性强化，并抑制持续写入造成的记忆稀释，架构旨在提升超长序列中的长程依赖建模能力。",
+        "该方案将混合专家式记忆组织嵌入线性Transformer框架，试图同时回应线性架构的效率诉求与固定状态容量受限之间的张力。"
+      ],
+      "experimental_findings": "论文报告了长序列文本和图像生成任务的实验结果，称MixFormer相较所比较的方法取得显著性能提升，并将收益归因于对长程依赖的更好建模。作者同时主张，该架构可提供更可持续的下一代网络基础设施计算骨干。由于所给材料未提供数据集名称、比较对象、具体指标、序列长度、训练与推理成本或消融结果，尚无法据此判断收益幅度、效率边界及其在不同负载下的稳健性；这些细节将是评估实际部署价值的关键。",
+      "brief_points": [],
+      "editorial_model_status": "available",
+      "figure_explanation": "图1对比线性注意力与状态空间模型：在(a)中，输入的 Q、K^T 和 V 经乘法形成中间矩阵表示，随后由 φ(Q) 与该表示相乘得到输出 A；在(b)中，当前输入 X_n 生成 V_n、K_n、Q_n，并与上一状态 S_{n-1} 共同更新为 S_n，同时产生输出 O_n。结合摘要，论文声称在此类线性序列建模框架上引入多记忆专家及时间感知线性注意力，以增强对长程历史信息的选择性保留。",
+      "figure_model_status": "available"
+    },
+    {
+      "paper_id": "arxiv:2608.09432",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09432",
+      "arxiv_id": "2608.09432",
+      "title": "ZetaGPT: A Reference Implementation of Positional--Encoding--Free State--Space--Attention Language Models",
+      "summary": "Transformer-based language models rely on self-attention, whose computation is permutation-equivariant and therefore lacks an intrinsic mechanism for representing token order. Existing architectures address this limitation by explicitly incorporating positional information through learned positional embeddings or hand-crafted positional encodings, such as rotary positional encoding (RoPE), treating positional information as an architecturally acquired capability rather than an inherent property of the model. Motivated by the pursuit of positional-encoding-free architectures, this work explores a language model architecture that integrates causal state-space equations to implicitly encode positional information before attention computation. Specifically, each model block applies a causal state-space equation before self-attention, allowing recurrent state dynamics to encode sequential information into token representations. Consequently, subsequent attention layers operate on position-aware representations without requiring explicit positional encodings while retaining the expressive modeling capacity of self-attention. We present \\textsc{ZetaGPT}, a compact hybrid language model designed for research, rapid prototyping, algorithm verification, and educational applications. In addition to the proposed architecture, \\textsc{ZetaGPT} provides a fully open-source, end-to-end training pipeline encompassing dataset construction, tokenizer training, pretraining, supervised fine-tuning, reinforcement learning from human feedback (RLHF), and chain-of-thought (CoT) reasoning via pure reinforcement learning. To the best of our knowledge, \\textsc{ZetaGPT} is the first open-source small language model without explicit positional encoding and establishes a compact, reproducible reference implementation for the development and empirical study of positional-encoding-free language models.",
+      "url": "http://arxiv.org/abs/2608.09432v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09432v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09432v1",
+      "published_date": "2026-08-10T11:05:16+00:00",
+      "updated_date": "2026-08-10T11:05:16+00:00",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "authors": [
+        "Róisín Luo"
+      ],
+      "candidate_topics": [
+        "cot_agentic_ai",
+        "theory_loss_landscape"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "semantic_scholar_status": "request_failed",
+      "metadata_quality_score": 0.0,
+      "is_relevant": true,
+      "primary_topic": "subquadratic_attention",
+      "topic_scores": {
+        "engineering_deployment": 6.0,
+        "subquadratic_attention": 9.0,
+        "cot_agentic_ai": 3.0,
+        "theory_loss_landscape": 4.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 7.0,
+      "clarity_score": 7.0,
+      "coarse_rationale": "提出无位置编码的混合状态空间-注意力架构，并开源完整训练流程，具创新性但应用场景有限。",
+      "contribution_tags": [
+        "SSM",
+        "Recurrent",
+        "Chain-of-Thought",
+        "Reasoning"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 8.815,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "ZetaGPT试探撤去位置编码：以状态空间动态为注意力补序",
+      "dek": "该开源参考实现尝试在自注意力之前引入因果状态空间方程，让序列顺序由递归状态而非显式位置编码承载。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "Transformer的自注意力本身对置换等变，通常需借助学习式位置嵌入或RoPE等机制识别词元顺序。",
+        "ZetaGPT在每个模块的注意力计算前加入因果状态空间方程，旨在将顺序信息写入词元表示，随后仍保留注意力的建模能力。",
+        "项目同时开放从数据、分词器与预训练到监督微调、RLHF及纯强化学习CoT推理的端到端流程；“首个”定位为作者主张。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.09031",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09031",
+      "arxiv_id": "2608.09031",
+      "title": "HOPPER: Learnable Hop Extraction for Linearized Graph Sequence Models",
+      "summary": "Graph neural networks typically propagate information through repeated message-passing layers, coupling the distance over which information travels with the number of nonlinear transformations applied. This coupling can make deep architectures difficult to optimize and can lead to over-smoothing, over-squashing, and the loss of long-range information. Linearized Graph Sequence Models (LGSMs) address this issue by separating information depth from processing depth and treating the successive propagation states of each node as a sequence. However, existing LGSMs construct these sequences using fixed graph operators, limiting their ability to adapt propagation to the input graph, node features, and downstream task. We introduce HOPPER, an end-to-end learnable extension of LGSM that learns how hop sequences should be extracted before they are processed by a modern state-space model. Our framework supports feature-conditioned, structure-aware, graph- and hop-adaptive propagation mechanisms while preserving permutation equivariance. Standard adjacency-based and non-backtracking LGSM sequences arise as special cases of our proposed extractor family. We show that HOPPER is state-of-the-art or competitive across the ECHO-Synth benchmark, and that varying the maximum neighborhood size of message backtracking cancellation (i.e. structural memory window) can optimize accuracy on the LRIM physics-based long-range dependency benchmark. These results demonstrate that learnable sequence extraction provides a flexible and effective approach to long-range graph representation learning.",
+      "url": "http://arxiv.org/abs/2608.09031v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09031v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09031v1",
+      "published_date": "2026-08-10T02:31:46+00:00",
+      "updated_date": "2026-08-10T02:31:46+00:00",
+      "categories": [
+        "cs.LG"
+      ],
+      "authors": [
+        "Isuru Herath",
+        "Arin Gopakumar",
+        "Sharan Sahu"
+      ],
+      "candidate_topics": [
+        "subquadratic_attention"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "semantic_scholar_status": "request_failed",
+      "metadata_quality_score": 0.0,
+      "is_relevant": true,
+      "primary_topic": "subquadratic_attention",
+      "topic_scores": {
+        "engineering_deployment": 2.0,
+        "subquadratic_attention": 8.0,
+        "cot_agentic_ai": 0.0,
+        "theory_loss_landscape": 3.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 7.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "这篇论文提出了一种可学习的跳数提取方法，用于线性化图序列模型，结合状态空间模型处理长距离依赖，解决了图神经网络中的过度平滑和长程信息丢失问题。",
+      "contribution_tags": [
+        "SSM",
+        "Long Context"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 8.475,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "HOPPER为图模型引入可学习的跳数提取",
+      "dek": "该方法在状态空间模型处理前自适应构建图传播序列，试图改善长程图表征。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "传统图神经网络将传播距离与非线性层数绑定，深层训练易受过平滑、过挤压及长程信息损失影响。",
+        "HOPPER在处理节点传播序列前学习跳数提取器，可依据特征、结构、图及跳数调整传播，并保持置换等变性。",
+        "论文称其在ECHO-Synth上达到领先或具竞争力表现；在LRIM中，调整回溯取消的结构记忆窗口可优化准确率。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.09444",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09444",
+      "arxiv_id": "2608.09444",
+      "title": "Depth-adaptive Inference of Looped Language Models via Continuous Depth Batching",
+      "summary": "A main promise of looped language models (LMs) is depth-adaptive inference. By iterating a block of shared layers a variable number of times, the model can use less compute for \"easy\" tokens and more for \"hard\" ones. However, this adaptivity breaks standard batching: tokens in the same batch now require a different number of loops, so there is no unified forward pass, making efficient inference difficult. Standard inference frameworks like vLLM schedule on the token level and cannot handle this because tokens need to be removed from the batch within the forward pass. Loop-level scheduling has been proposed as a solution, but never implemented end to end. The key challenge is that looped architectures also contain non-looped boundary stages (e.g., token embedding and LM head) that must be scheduled at different frequencies than the loop. We introduce continuous depth batching (CDB), which schedules at the granularity of individual loop iterations. CDB handles boundary stages and loop steps in separate priority queues, makes exit decisions one step ahead, and overlaps all scheduling work with GPU computation. On Ouro 1.4B and Huginn 3.5B, CDB can realize up to $99\\%$ of the theoretical maximum speed-up from adaptive-depth, translating to $1.5$-$1.9\\times$ higher offline throughput and $45$-$90\\%$ lower normalized latency under dynamic serving load.",
+      "url": "http://arxiv.org/abs/2608.09444v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09444v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09444v1",
+      "published_date": "2026-08-10T11:20:14+00:00",
+      "updated_date": "2026-08-10T11:20:14+00:00",
+      "categories": [
+        "cs.LG",
+        "cs.CL",
+        "cs.DC"
+      ],
+      "authors": [
+        "Kristian Schwethelm",
+        "Daniel Rueckert",
+        "Georgios Kaissis"
+      ],
+      "candidate_topics": [
+        "engineering_deployment"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "semantic_scholar_status": "request_failed",
+      "metadata_quality_score": 0.0,
+      "is_relevant": true,
+      "primary_topic": "engineering_deployment",
+      "topic_scores": {
+        "engineering_deployment": 9.0,
+        "subquadratic_attention": 2.0,
+        "cot_agentic_ai": 1.0,
+        "theory_loss_landscape": 2.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 9.0,
+      "clarity_score": 7.0,
+      "coarse_rationale": "该论文提出一种针对循环语言模型的深度自适应推理调度方法，属于推理优化与部署技术，能显著提升吞吐量和降低延迟。",
+      "contribution_tags": [
+        "Serving",
+        "Inference Acceleration",
+        "Recurrent"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 7.975,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "连续深度批处理破解循环语言模型的自适应推理瓶颈",
+      "dek": "研究以逐循环调度协调不同计算深度的 token，使循环语言模型的动态推理更接近理论效率上限。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "循环语言模型可为难易不同的 token 分配不同循环次数，但这使同一批次失去统一前向路径，常规 token 级调度难以执行。",
+        "连续深度批处理按单次循环迭代调度，将边界阶段与循环步骤置于独立优先队列，并提前一步作出退出决定。",
+        "在 Ouro 1.4B 与 Huginn 3.5B 上，该方法最高实现理论自适应深度加速的 99%，离线吞吐提高 1.5 至 1.9 倍。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.08878",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.08878",
+      "arxiv_id": "2608.08878",
+      "title": "DistillCache: KL-Guided Adaptive KV-Cache Eviction for Memory-Efficient LLM Inference",
+      "summary": "Transformer-based large language models (LLMs) achieve strong performance across many tasks, but their Key-Value (KV) cache grows linearly with sequence length, creating a severe memory bottleneck for long-context inference. Existing heuristic eviction methods (e.g., H$_2$O and SnapKV) rely on static attention or positional signals that often fail to capture a token's future predictive influence. We propose DistillCache, a reinforcement learning framework that formulates KV-cache eviction as a sequential decision problem. DistillCache learns a lightweight policy network using rich internal model signals (attention statistics, value norms, entropy, and position) and trains it with REINFORCE via a per-step KL-divergence reward to preserve the full-cache output distribution. On a 7B-parameter instruction-tuned Transformer (Mistral-7B-Instruct-v0.3), DistillCache retains 94.2% of full-cache accuracy on LongBench at a 25% cache budget, outperforming both strong heuristic baselines (H$_2$O, SnapKV) by up to 2.7 absolute points and, under our re-implementations, concurrent RL-based methods (ForesightKV, RLKV) by up to 1.4 points on long-context tasks. On reasoning benchmarks, DistillCache is competitive with the best concurrent method and surpasses it under aggressive compression. It also delivers up to 2.1x full-cache throughput while maintaining competitive practical efficiency. These results highlight the effectiveness of learned, distribution-aware policies for memory-efficient long-context LLM inference.",
+      "url": "http://arxiv.org/abs/2608.08878v1",
+      "abstract_url": "http://arxiv.org/abs/2608.08878v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.08878v1",
+      "published_date": "2026-08-09T19:33:43+00:00",
+      "updated_date": "2026-08-09T19:33:43+00:00",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.PF"
+      ],
+      "authors": [
+        "Asaad Althoubi"
+      ],
+      "candidate_topics": [
+        "engineering_deployment"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "semantic_scholar_status": "request_failed",
+      "metadata_quality_score": 0.0,
+      "is_relevant": true,
+      "primary_topic": "engineering_deployment",
+      "topic_scores": {
+        "engineering_deployment": 10.0,
+        "subquadratic_attention": 2.0,
+        "cot_agentic_ai": 1.0,
+        "theory_loss_landscape": 2.0
+      },
+      "novelty_score": 7.0,
+      "potential_impact_score": 8.0,
+      "clarity_score": 9.0,
+      "coarse_rationale": "该论文提出基于强化学习的自适应KV缓存驱逐方法，属于工程部署领域，旨在提升长上下文推理的内存效率。",
+      "contribution_tags": [
+        "KV Cache",
+        "Long Context",
+        "Inference Acceleration",
+        "Reasoning"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 7.87,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "让KV缓存“学会取舍”",
+      "dek": "DistillCache以强化学习决定逐步驱逐哪些KV缓存，在压缩长上下文推理内存的同时尽量维持全缓存输出分布。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "方法将KV缓存驱逐建模为序列决策：轻量策略网络读取注意力统计、价值向量范数、熵及位置信息，并以逐步KL散度奖励通过REINFORCE训练。",
+        "在Mistral-7B-Instruct-v0.3上，25%缓存预算下其LongBench准确率保留全缓存的94.2%，较H₂O与SnapKV最高提升2.7个百分点。",
+        "论文称，该方法在长上下文任务上也超过其复现的ForesightKV、RLKV最高1.4个百分点，并实现最高2.1倍于全缓存的吞吐量。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.09732",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09732",
+      "arxiv_id": "2608.09732",
+      "title": "ColluSkill: Adversarial Cross-Skill Composition for Evading Agent Skill Scanners",
+      "summary": "Agent skills are emerging as an important attack surface in LLM-based agent systems. Through an empirical study of existing skill scanners, we find that current defenses mainly inspect individual skills, leaving risks from cross-skill composition insufficiently examined. This creates a practical blind spot: multiple locally plausible skills may pass security checks while collectively forming a harmful workflow during agent execution. To investigate this threat, we propose ColluSkill, a collusive multi-skill-chain attack framework that decomposes a complete malicious intent into interdependent sub-payloads embedded in independently packaged skills. The attack does not rely on any single malicious skill, but emerges from the ordered composition of locally plausible behaviors through contextual dependencies, artifact passing, and execution handoffs. ColluSkill further employs LLM-based chain planning and scanner-feedback refinement to preserve chain-level attack semantics while reducing suspicious signals in individual sub-skills. To defend against such attacks, we propose ChainGuard, a context-aware skill-chain scanner that jointly analyzes a candidate skill and the skills already installed in the agent environment. ChainGuard reconstructs cross-skill dependencies, artifact flows, capability compositions, and downstream behaviors to identify risks that emerge only at the workflow level. Experiments on six representative skill scanners show that ColluSkill achieves an average attack success rate of 96.0% and consistently outperforms the evaluated single-skill and multi-skill attack baselines. Meanwhile, ChainGuard reduces the attack success rate to 22.5% while allowing 99.5% of benign workflows to pass, highlighting the importance of chain-level security analysis for agent skill ecosystems.",
+      "url": "http://arxiv.org/abs/2608.09732v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09732v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09732v1",
+      "published_date": "2026-08-10T15:32:44+00:00",
+      "updated_date": "2026-08-10T15:32:44+00:00",
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "authors": [
+        "Puyu Zeng",
+        "Simeng Qin",
+        "Jingzhi Li",
+        "Ju Jia",
+        "Zheli Liu",
+        "Xiaojun Jia"
+      ],
+      "candidate_topics": [
+        "cot_agentic_ai"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "semantic_scholar_status": "request_failed",
+      "metadata_quality_score": 0.0,
+      "is_relevant": true,
+      "primary_topic": "cot_agentic_ai",
+      "topic_scores": {
+        "engineering_deployment": 2.0,
+        "subquadratic_attention": 1.0,
+        "cot_agentic_ai": 9.0,
+        "theory_loss_landscape": 3.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 8.0,
+      "clarity_score": 7.0,
+      "coarse_rationale": "该论文针对LLM代理系统中的技能安全漏洞，提出跨技能组合攻击与防御方法，属于代理AI领域。",
+      "contribution_tags": [
+        "Tool Use",
+        "Planning"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 7.795,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "代理技能安全的盲区，藏在“合规”组件的组合之中",
+      "dek": "ColluSkill显示，逐项审查难以识别由多个看似合理技能串联而成的风险工作流。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "研究发现，现有技能扫描器主要检查单个技能，可能忽略技能间的上下文依赖、产物传递与执行交接所形成的风险。",
+        "ColluSkill将完整恶意意图拆分至多个独立封装的子技能；论文提出ChainGuard，对候选技能及既有环境进行链级联合分析。",
+        "在六种代表性扫描器上，ColluSkill平均攻击成功率为96.0%；ChainGuard将其降至22.5%，良性工作流通过率为99.5%。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.09412",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09412",
+      "arxiv_id": "2608.09412",
+      "title": "KVDiagnosis: A Diagnostic Benchmark for KV-Cache Compression in Long-Context Language Models",
+      "summary": "KV-cache compression reduces long-context memory, but aggregate task scores reveal neither which correct executions fail nor why. We present KVDiagnosis, a diagnostic dataset and benchmark with three contributions. First, a 25-method taxonomy groups methods into five mechanism families and links them to eight verified implementations and their valid diagnostic measurements. Second, for every supported method setting, we evaluate all sources in each fixed split against a per-source FullCache control before selecting FullCache-correct/compressed-wrong (C-to-W) rows separately for each method-setting, so no compressor defines another's test set. Third, a common record format links paired outputs and run metadata to cache, likelihood, attention, and decoding measurements with explicit applicability states. On Qwen3-8B, four evidence-aware workloads yield 59 800 supported compressed runs over 2600 sources and 12 520 C-to-W rows. Under fixed diagnostic rules, 63.2% have low or partial measured/projected coverage. Only 19 rows (0.2%) combine high measured/projected coverage with strong likelihood drift; another 2,126 (17.0%) preserve structural position addressability, for which representation fidelity remains unknown, while showing the same drift. Against C-to-C success controls, all ten diagnostics separate failed from successful compression (stratified AUROC 0.684-0.871). Among 96 reproducible low-EAR failures, a controlled 4x evidence-attention boost repairs 29.2%, versus 6.3% under a count-matched sham intervention and 3.3% degradation on matched C-to-C controls. Code and data are available at https://github.com/ChosenQC/KVDiagnosis.",
+      "url": "http://arxiv.org/abs/2608.09412v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09412v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09412v1",
+      "published_date": "2026-08-10T10:38:05+00:00",
+      "updated_date": "2026-08-10T10:38:05+00:00",
+      "categories": [
+        "cs.AI"
+      ],
+      "authors": [
+        "Chen Qiu",
+        "Ziwu Liu",
+        "Chao Fei",
+        "Guozhong Li",
+        "Panos Kalnis"
+      ],
+      "candidate_topics": [
+        "engineering_deployment"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "semantic_scholar_status": "request_failed",
+      "metadata_quality_score": 0.0,
+      "is_relevant": true,
+      "primary_topic": "engineering_deployment",
+      "topic_scores": {
+        "engineering_deployment": 9.0,
+        "subquadratic_attention": 2.0,
+        "cot_agentic_ai": 1.0,
+        "theory_loss_landscape": 3.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 8.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "该论文构建KV缓存压缩的诊断基准，通过细粒度失效分析提升评估精度，对长上下文模型部署优化有重要参考价值。",
+      "contribution_tags": [
+        "KV Cache",
+        "Long Context",
+        "Inference Acceleration",
+        "Mechanistic Interpretability"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 7.795,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "KV缓存压缩迎来“体检”：长上下文失效不再只看总分",
+      "dek": "KVDiagnosis以逐样本对照和可追溯测量，试图回答压缩后的正确答案究竟为何丢失。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "该基准将25种KV缓存压缩方法归入五类机制，并关联八个经验证实现及其适用测量。",
+        "对每一方法配置分别以FullCache为逐源对照，筛出“原始正确、压缩错误”的C-to-W样本，避免由某一压缩器定义测试集。",
+        "在Qwen3-8B的四类任务中，59,800次压缩运行产生12,520条C-to-W记录；受控提升证据注意力后，96例可复现低EAR失效中29.2%得到修复。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    }
+  ]
 }

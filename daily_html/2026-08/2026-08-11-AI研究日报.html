@@ -19,115 +19,106 @@
         </header>
         <div class="focus-strip">
             <div><strong>今日焦点 · 亚二次方注意力探索</strong><br>Sub-quadratic Attention</div>
-            <div><b>3</b> 主主题 / <b>4</b> 跨主题</div>
-            <div><b>58</b> 候选论文</div>
+            <div><b>2</b> 主主题 / <b>5</b> 跨主题</div>
+            <div><b>57</b> 候选论文</div>
             <div>主主题候选不足，已按综合评分回填。</div>
         </div>
 <div class="section-kicker">Lead Story · 今日头条</div>
-        <article class="hero">
-<div class="hero-media" data-figure-media>
-                <figure>
-                    <div class="figure-frame"><img src="../../assets/figures/2026-08/2026-08-11-AI研究日报/2608.09468-figure1.png" alt="MixFormer: Linear Transformer with Mixture of Memory Experts Figure 1"
-                            loading="eager" referrerpolicy="no-referrer"
-                            onerror="this.closest('.hero').classList.add('no-figure');this.closest('[data-figure-media]').remove()">
-                    </div><figcaption>Figure 1: Linear Attention vs SSMs. (a) is the workflow of the Linear Attention, and (b) is the State Space Models.</figcaption>                </figure>
-            </div>            <div class="hero-copy">
-                <div class="eyebrow">Sub-quadratic Attention</div>
-                <h2>MixFormer试图为超长上下文保留更多记忆</h2>
-                <p class="dek">MixFormer将多记忆专家与时间感知线性注意力结合，试图在不恢复标准注意力二次成本的前提下，改善超长序列中的历史信息保留与动态更新。</p>
-                <div class="tags"><span class="tag">SSM</span><span class="tag">Linear Attention</span><span class="tag">Long Context</span></div>
-                <div class="meta-line">引用 0 · 创新度 8.0/10 ·
-                    综合优先级 8.815</div>
+        <article class="hero no-figure">
+            <div class="hero-copy">
+                <div class="eyebrow">CoT &amp; Agentic AI · Breakthrough Headline</div>
+                <h2>加密推理轨迹暴露模型供应链的安全缺口</h2>
+                <p class="dek">一项研究称，部分专有大模型将推理内容以加密区块交由客户端续传，但区块可跨会话、用户及模型互换；攻击者可借较弱模型解出原本受保护的内容。</p>
+                <div class="tags"><span class="tag breakthrough">重大突破</span><span class="tag">Chain-of-Thought</span><span class="tag">Reasoning</span><span class="tag">Tool Use</span></div>
+                <div class="meta-line">引用 0 · 创新度 9.0/10 ·
+                    综合优先级 8.555</div>
                 <div class="analysis-grid">
                     <section>
                         <h4>背景与痛点</h4>
-                        <p>标准Transformer在序列长度扩展时，注意力计算与存储开销通常随长度呈二次增长，因而促使研究者寻找线性复杂度的替代架构。状态空间模型是其中一条主线，但论文指出，现有方案在输入自适应性和记忆容量上仍有限制：面对超长上下文，历史表征可能被不断写入的新信息稀释，关键线索也可能丢失。问题不只是降低成本，更在于如何让有限状态以更有选择性的方式保存长期依赖；这对长文本和图像生成中的跨跨度一致性尤为重要。</p>
+                        <p>为保护知识产权、减少敏感信息外泄，主流大语言模型供应商正逐步隐藏逐步推理过程。研究所述的一种实现路径并非在服务端保存这些内容，而是将其封装为加密文本区块返回客户端，并在后续请求中由客户端带回。这种设计减轻了状态管理负担，却把安全边界延伸至应用侧：一旦区块的适用范围缺乏严格绑定，原本不可见的推理内容、用户数据和代理执行上下文都可能成为可被转运和滥用的对象。</p>
                     </section>
                     <section>
                         <h4>核心创新</h4>
-                        <ul><li>模型引入多个协作的记忆专家以维持差异化状态，而非将全部历史压入单一记忆通道；其设计目标是在可控计算下扩大记忆的分工与容量。</li><li>时间感知线性注意力机制（TALA）将可学习的指数衰减函数与位置偏置结合，用于动态更新记忆，使模型能够按时间关系调整历史信息的影响。</li><li>通过对重要历史信息进行选择性强化，并抑制持续写入造成的记忆稀释，架构旨在提升超长序列中的长程依赖建模能力。</li><li>该方案将混合专家式记忆组织嵌入线性Transformer框架，试图同时回应线性架构的效率诉求与固定状态容量受限之间的张力。</li></ul>
+                        <ul><li>研究识别出加密推理区块的架构性兼容问题：同一供应商体系内，这些区块可在不同会话、用户及模型之间互换，而非仅对原始上下文有效。</li><li>作者构造可规模化的“解密越狱”路径，将目标模型生成的加密推理区块注入保护较弱的同系模型，诱使后者逐字输出明文，无须直接越狱目标模型。</li><li>该方法把传统针对单一模型的提示攻击，转化为跨模型的安全边界绕行；模型能力与防护强度的不对称因而成为提取受保护内容的通道。</li><li>论文还将风险延伸至代理系统：攻击载荷可被完全嵌入加密区块，在可公开取得的代理运行记录中形成不易察觉的提示注入与投毒媒介。</li></ul>
                     </section>
                     <section>
                         <h4>实验结论</h4>
-                        <p>论文报告了长序列文本和图像生成任务的实验结果，称MixFormer相较所比较的方法取得显著性能提升，并将收益归因于对长程依赖的更好建模。作者同时主张，该架构可提供更可持续的下一代网络基础设施计算骨干。由于所给材料未提供数据集名称、比较对象、具体指标、序列长度、训练与推理成本或消融结果，尚无法据此判断收益幅度、效率边界及其在不同负载下的稳健性；这些细节将是评估实际部署价值的关键。</p>
+                        <p>论文报告称，研究者在 Anthropic、OpenAI 和 Google 的相关系统中演示了绕过反蒸馏措施、提取专有推理内容的可能性。对公开代码库抓取的315,320个推理区块进行解码后，作者称发现367项个人可识别信息痕迹及182项凭证。研究还指出，即使模型对恶意请求的最终可见回答是拒绝，其隐藏推理过程仍可能含有危险信息。作者表示已进行负责任披露，并提出以密码学绑定和系统级隔离加强客户端推理保护。</p>
                     </section>
                     <section>
                         <h4>论文信息</h4>
-                        <p>Yu Guo、Lei Duan</p>
-                        <p>cs.LG, cs.AI</p>
+                        <p>Alexander Panfilov、David Schmotz、Ilia Shumailov、Luca Beurer-Kellner、Joachim Schaeffer、Ameya Prabhu、Jonas Geiping、Maksym Andriushchenko</p>
+                        <p>cs.CR, cs.AI, cs.LG</p>
                     </section>
                 </div>
-<div class="figure-note">
-                    <h4>图解</h4>
-                    <p>图1对比线性注意力与状态空间模型：在(a)中，输入的 Q、K^T 和 V 经乘法形成中间矩阵表示，随后由 φ(Q) 与该表示相乘得到输出 A；在(b)中，当前输入 X_n 生成 V_n、K_n、Q_n，并与上一状态 S_{n-1} 共同更新为 S_n，同时产生输出 O_n。结合摘要，论文声称在此类线性序列建模框架上引入多记忆专家及时间感知线性注意力，以增强对长程历史信息的选择性保留。</p>
-                </div>                <div class="read-links"><a href="http://arxiv.org/abs/2608.09468v1" target="_blank" rel="noopener">Abstract
-                        ↗</a><a href="https://arxiv.org/pdf/2608.09468v1" target="_blank" rel="noopener">PDF ↗</a></div>
-                <div class="byline">Original title: MixFormer: Linear Transformer with Mixture of Memory Experts</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.09867v1" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="https://arxiv.org/pdf/2608.09867v1" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: Stealing Reasoning Traces from Proprietary LLM APIs</div>
             </div>
         </article><div class="section-kicker">Research Briefs · 论文快讯</div>
         <section class="briefs-grid"><article class="brief">
                 <div class="eyebrow">Sub-quadratic Attention</div>
-                <h3>ZetaGPT试探撤去位置编码：以状态空间动态为注意力补序</h3>
-                <div class="tags"><span class="tag">SSM</span><span class="tag">Recurrent</span><span class="tag">Chain-of-Thought</span><span class="tag">Reasoning</span></div><ul><li>Transformer的自注意力本身对置换等变，通常需借助学习式位置嵌入或RoPE等机制识别词元顺序。
-                    </li><li>ZetaGPT在每个模块的注意力计算前加入因果状态空间方程，旨在将顺序信息写入词元表示，随后仍保留注意力的建模能力。
-                    </li><li>项目同时开放从数据、分词器与预训练到监督微调、RLHF及纯强化学习CoT推理的端到端流程；“首个”定位为作者主张。
+                <h3>ZetaGPT尝试让状态空间机制接管语言模型的位置信息</h3>
+                <div class="tags"><span class="tag">SSM</span><span class="tag">Recurrent</span><span class="tag">Chain-of-Thought</span><span class="tag">Reasoning</span></div><ul><li>Transformer自注意力本身对输入置换等变，通常须借助学习式位置嵌入或RoPE等显式机制识别词元顺序。
+                    </li><li>ZetaGPT在每个模块的自注意力前加入因果状态空间方程，利用递归状态动态将序列信息写入词元表示。
+                    </li><li>项目提供从数据集、分词器和预训练到监督微调、RLHF及纯强化学习CoT推理的端到端开源流程，定位于研究与教学验证。
                     </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.CL, cs.AI</div>
                 <div class="read-links"><a href="http://arxiv.org/abs/2608.09432v1" target="_blank" rel="noopener">Read ↗</a>
                 </div>
                 <div class="original-title">ZetaGPT: A Reference Implementation of Positional--Encoding--Free State--Space--Attention Language Models</div>
             </article><article class="brief">
                 <div class="eyebrow">Sub-quadratic Attention</div>
-                <h3>HOPPER为图模型引入可学习的跳数提取</h3>
-                <div class="tags"><span class="tag">SSM</span><span class="tag">Long Context</span></div><ul><li>传统图神经网络将传播距离与非线性层数绑定，深层训练易受过平滑、过挤压及长程信息损失影响。
-                    </li><li>HOPPER在处理节点传播序列前学习跳数提取器，可依据特征、结构、图及跳数调整传播，并保持置换等变性。
-                    </li><li>论文称其在ECHO-Synth上达到领先或具竞争力表现；在LRIM中，调整回溯取消的结构记忆窗口可优化准确率。
-                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.LG</div>
-                <div class="read-links"><a href="http://arxiv.org/abs/2608.09031v1" target="_blank" rel="noopener">Read ↗</a>
+                <h3>MixFormer以记忆专家机制押注超长序列建模</h3>
+                <div class="tags"><span class="tag">SSM</span><span class="tag">Linear Attention</span><span class="tag">Long Context</span></div><ul><li>MixFormer为多个协作的记忆专家维持差异化状态，而非依赖单一记忆通道。
+                    </li><li>其时间感知线性注意力（TALA）结合可学习指数衰减与位置偏置，动态更新记忆。
+                    </li><li>论文称，该方法在线序列文本与图像生成实验中取得性能提升，并改善长程依赖建模。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 7.0/10 · cs.LG, cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.09468v1" target="_blank" rel="noopener">Read ↗</a>
                 </div>
-                <div class="original-title">HOPPER: Learnable Hop Extraction for Linearized Graph Sequence Models</div>
+                <div class="original-title">MixFormer: Linear Transformer with Mixture of Memory Experts</div>
             </article><article class="brief">
                 <div class="eyebrow">Engineering &amp; Deployment</div>
-                <h3>连续深度批处理破解循环语言模型的自适应推理瓶颈</h3>
-                <div class="tags"><span class="tag">Serving</span><span class="tag">Inference Acceleration</span><span class="tag">Recurrent</span></div><ul><li>循环语言模型可为难易不同的 token 分配不同循环次数，但这使同一批次失去统一前向路径，常规 token 级调度难以执行。
-                    </li><li>连续深度批处理按单次循环迭代调度，将边界阶段与循环步骤置于独立优先队列，并提前一步作出退出决定。
-                    </li><li>在 Ouro 1.4B 与 Huginn 3.5B 上，该方法最高实现理论自适应深度加速的 99%，离线吞吐提高 1.5 至 1.9 倍。
-                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.LG, cs.CL, cs.DC</div>
-                <div class="read-links"><a href="http://arxiv.org/abs/2608.09444v1" target="_blank" rel="noopener">Read ↗</a>
+                <h3>为 KV 缓存加上租户边界</h3>
+                <div class="tags"><span class="tag">KV Cache</span><span class="tag">Serving</span></div><ul><li>共享前缀缓存可显著提升 LLM 推理吞吐，但缓存命中与否的首 token 延迟差异，也可能让租户借由探测推断他人提示词前缀。
+                    </li><li>论文称，KVGov 用基于 principal_id 的 HMAC 盐值分隔块哈希链，覆盖三类已发表攻击所利用的前缀缓存路径。
+                    </li><li>作者在 A100/vLLM 与 Apple Metal/llama.cpp 上复现可观测时延差；防御效果则在据此校准的模拟中评估。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.CR, cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.09225v1" target="_blank" rel="noopener">Read ↗</a>
                 </div>
-                <div class="original-title">Depth-adaptive Inference of Looped Language Models via Continuous Depth Batching</div>
+                <div class="original-title">Governing the KV Cache: Preventing Timing Side-Channel Leakage in Multi-Tenant LLM Inference</div>
             </article><article class="brief">
                 <div class="eyebrow">Engineering &amp; Deployment</div>
-                <h3>让KV缓存“学会取舍”</h3>
-                <div class="tags"><span class="tag">KV Cache</span><span class="tag">Long Context</span><span class="tag">Inference Acceleration</span><span class="tag">Reasoning</span></div><ul><li>方法将KV缓存驱逐建模为序列决策：轻量策略网络读取注意力统计、价值向量范数、熵及位置信息，并以逐步KL散度奖励通过REINFORCE训练。
-                    </li><li>在Mistral-7B-Instruct-v0.3上，25%缓存预算下其LongBench准确率保留全缓存的94.2%，较H₂O与SnapKV最高提升2.7个百分点。
-                    </li><li>论文称，该方法在长上下文任务上也超过其复现的ForesightKV、RLKV最高1.4个百分点，并实现最高2.1倍于全缓存的吞吐量。
-                    </li></ul><div class="meta-line">引用 0 · 创新度 7.0/10 · cs.LG, cs.AI, cs.PF</div>
-                <div class="read-links"><a href="http://arxiv.org/abs/2608.08878v1" target="_blank" rel="noopener">Read ↗</a>
+                <h3>A-PACK将音频压缩推迟到大模型内部</h3>
+                <div class="tags"><span class="tag">KV Cache</span><span class="tag">Inference Acceleration</span><span class="tag">Serving</span></div><ul><li>论文认为，音频令牌的任务相关信息密度与表征多样性高于视频，因此在进入LLM前保留音频、优先压缩视频。
+                    </li><li>A-PACK利用局部音视频动态而非逐令牌匹配选择视觉信息，并在LLM内继续按相关性修剪音视频令牌及其KV缓存。
+                    </li><li>在Qwen2.5-Omni-7B/3B上的四项基准中，该方法在所评既有方案中平均表现最强；预填充FLOPs最高降78%，解码吞吐最高提升2.21倍。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.AI, cs.MM, cs.SD</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.08794v1" target="_blank" rel="noopener">Read ↗</a>
                 </div>
-                <div class="original-title">DistillCache: KL-Guided Adaptive KV-Cache Eviction for Memory-Efficient LLM Inference</div>
+                <div class="original-title">Deferred Audio Pruning with Local Audio-Visual Dynamics for Omni-LLMs</div>
             </article><article class="brief">
                 <div class="eyebrow">CoT &amp; Agentic AI</div>
-                <h3>代理技能安全的盲区，藏在“合规”组件的组合之中</h3>
-                <div class="tags"><span class="tag">Tool Use</span><span class="tag">Planning</span></div><ul><li>研究发现，现有技能扫描器主要检查单个技能，可能忽略技能间的上下文依赖、产物传递与执行交接所形成的风险。
-                    </li><li>ColluSkill将完整恶意意图拆分至多个独立封装的子技能；论文提出ChainGuard，对候选技能及既有环境进行链级联合分析。
-                    </li><li>在六种代表性扫描器上，ColluSkill平均攻击成功率为96.0%；ChainGuard将其降至22.5%，良性工作流通过率为99.5%。
-                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.CR, cs.AI</div>
-                <div class="read-links"><a href="http://arxiv.org/abs/2608.09732v1" target="_blank" rel="noopener">Read ↗</a>
+                <h3>模型懂规则，却未必读得懂人心</h3>
+                <div class="tags"><span class="tag">Reasoning</span><span class="tag">Chain-of-Thought</span><span class="tag">Mechanistic Interpretability</span><span class="tag">Multi-Agent</span></div><ul><li>基准以认知／动机、推断／行动构成2×2分类，并用人工设计、视角受限的问题测试28个大模型。
+                    </li><li>模型游戏规则理解较强，但心智理论较弱；线性探针准确率达77%—82%，高于其思维链输出的62%—70%。
+                    </li><li>专门的推理训练平均提升11.0分，测试时思维链仅提升1.1分，显示关键或在学习到的推理策略。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.AI, cs.CL, cs.CY, cs.GT</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.09638v1" target="_blank" rel="noopener">Read ↗</a>
                 </div>
-                <div class="original-title">ColluSkill: Adversarial Cross-Skill Composition for Evading Agent Skill Scanners</div>
+                <div class="original-title">Avalon-ToM-Bench: Evaluating Fine-Grained Theory of Mind via Asymmetric Game Mechanics</div>
             </article><article class="brief">
                 <div class="eyebrow">Engineering &amp; Deployment</div>
-                <h3>KV缓存压缩迎来“体检”：长上下文失效不再只看总分</h3>
-                <div class="tags"><span class="tag">KV Cache</span><span class="tag">Long Context</span><span class="tag">Inference Acceleration</span><span class="tag">Mechanistic Interpretability</span></div><ul><li>该基准将25种KV缓存压缩方法归入五类机制，并关联八个经验证实现及其适用测量。
-                    </li><li>对每一方法配置分别以FullCache为逐源对照，筛出“原始正确、压缩错误”的C-to-W样本，避免由某一压缩器定义测试集。
-                    </li><li>在Qwen3-8B的四类任务中，59,800次压缩运行产生12,520条C-to-W记录；受控提升证据注意力后，96例可复现低EAR失效中29.2%得到修复。
+                <h3>KV缓存压缩不只看分数：一套追查长上下文失效的新基准</h3>
+                <div class="tags"><span class="tag">KV Cache</span><span class="tag">Long Context</span><span class="tag">Mechanistic Interpretability</span></div><ul><li>论文将25种方法归入五类机制，并连接8个经验证实现；每个压缩设定均以自身的FullCache正确样本筛选“正确转错误”案例，避免方法间共用偏置测试集。
+                    </li><li>在Qwen3-8B的四项证据感知任务中，研究覆盖2,600个来源、59,800次受支持压缩运行，得到12,520条正确转错误记录；63.2%呈现低或部分覆盖。
+                    </li><li>十项诊断均能区分压缩失败与成功对照；对96个可复现低EAR失败案例，4倍证据注意力增强修复29.2%，高于6.3%的等计数伪干预。
                     </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.AI</div>
                 <div class="read-links"><a href="http://arxiv.org/abs/2608.09412v1" target="_blank" rel="noopener">Read ↗</a>
                 </div>
                 <div class="original-title">KVDiagnosis: A Diagnostic Benchmark for KV-Cache Compression in Long-Context Language Models</div>
             </article></section>        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
                 appear
-                only when officially verified.</span><span>Generated 2026-08-11 04:26 UTC</span></footer>
+                only when officially verified.</span><span>Generated 2026-08-11 05:37 UTC</span></footer>
     </main>
 </body>
 

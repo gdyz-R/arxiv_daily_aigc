@@ -32,3 +32,4 @@ daily_html/preview*.html
 # dev files
 TODO.md
 project_introduction.md
+tests/

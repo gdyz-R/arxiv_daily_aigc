@@ -1,234 +1,766 @@
-import os
-import requests
-import time
+"""Paper classification, selection, headline judgement and editorial generation."""
+
+from __future__ import annotations
+
 import json
 import logging
+import math
+import re
+import time
+from datetime import date, datetime, timezone
+from typing import Any
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+import requests
 
-# 从环境变量中获取 OpenRouter API Key
-# 在 GitHub Actions 中，这应该设置为 Secret
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+try:
+    from config import load_config, secret_from
+except ImportError:  # pragma: no cover
+    from .config import load_config, secret_from
 
-# 可以选择一个合适的模型，例如免费或低成本的模型进行分类任务
-# 查阅 OpenRouter 文档获取可用模型列表: https://openrouter.ai/docs#models
-# 例如使用 'mistralai/mistral-7b-instruct:free'
-# MODEL_NAME = "google/gemini-2.0-flash-001"
-MODEL_NAME = "google/gemini-3.1-flash-lite"
 
-def call_openrouter_api(prompt: str, max_tokens: int = 5) -> str | None:
-    """调用 OpenRouter API 并返回模型的响应。
+LOGGER = logging.getLogger(__name__)
+WEEKDAY_NAMES = (
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+)
 
-    Args:
-        prompt (str): 发送给模型的提示。
-        max_tokens (int): 限制模型响应的最大 token 数。
 
-    Returns:
-        str | None: 模型的响应文本，如果发生错误则返回 None。
-    """
-    if not OPENROUTER_API_KEY:
-        logging.error("未设置 OPENROUTER_API_KEY 环境变量。无法调用 API。")
+def focus_topic_for_date(target_date: date, config: dict[str, Any]) -> str:
+    return config["topic_rotation"][WEEKDAY_NAMES[target_date.weekday()]]
+
+
+def _parse_datetime(value: Any) -> datetime | None:
+    if isinstance(value, datetime):
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    if not value:
         return None
-
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json",
-    }
-
-    data = {
-        "model": MODEL_NAME,
-        "messages": [
-            {"role": "user", "content": prompt}
-        ],
-        "max_tokens": max_tokens
-    }
-
     try:
-        response = requests.post(OPENROUTER_API_URL, headers=headers, json=data, timeout=30) # 设置超时
-        response.raise_for_status()  # 如果请求失败 (状态码 >= 400)，则抛出 HTTPError
-
-        result = response.json()
-        ai_response = result['choices'][0]['message']['content'].strip()
-        return ai_response
-
-    except requests.exceptions.RequestException as e:
-        logging.error(f"调用 OpenRouter API 时出错: {e}")
-        return None
-    except (KeyError, IndexError) as e:
-        logging.error(f"解析 OpenRouter API 响应时出错: {e}")
-        return None
-    except Exception as e:
-        logging.error(f"调用 OpenRouter API 时发生意外错误: {e}", exc_info=True)
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+    except ValueError:
         return None
 
-def filter_papers_by_topic(papers: list, topic: str = "image or video or multimodal generation") -> list:
-    """使用 OpenRouter API 过滤论文列表，只保留与指定主题相关的论文。
 
-    Args:
-        papers (list): 包含论文信息的字典列表，每个字典应包含 'title' 和 'summary'。
-        topic (str): 需要过滤的主题，默认为 "image or video generation"。
-
-    Returns:
-        list: 只包含与主题相关论文的字典列表。
-    """
-    if not OPENROUTER_API_KEY:
-        logging.error("未设置 OPENROUTER_API_KEY 环境变量。无法进行过滤。")
-        # 在没有 API Key 的情况下，可以选择返回原始列表或空列表
-        # 这里返回原始列表，以便流程继续，但会跳过过滤
-        return papers
-
-    filtered_papers = []
-    logging.info(f"开始使用 OpenRouter API 过滤 {len(papers)} 篇论文，主题: '{topic}'...")
-
-    for i, paper in enumerate(papers):
-        title = paper.get('title', 'N/A')
-        summary = paper.get('summary', 'N/A')
-
-        # 构建 Prompt
-        prompt = f"Is the following paper primarily about '{topic}'? Answer with only 'yes' or 'no'.\n\nTitle: {title}\nAbstract: {summary}"
-
-        # 调用封装好的 API 函数
-        ai_response = call_openrouter_api(prompt, max_tokens=5)
-
-        if ai_response is not None:
-            logging.info(f"论文 {i+1}/{len(papers)}: '{title[:50]}...' - AI 回复: {ai_response}")
-            if 'yes' in ai_response.lower():
-                filtered_papers.append(paper)
-            # OpenRouter 对免费模型的速率有限制，可以考虑在 call_openrouter_api 内部或外部添加延时
-            # time.sleep(1) # 暂停 1 秒
-        else:
-            logging.warning(f"无法获取论文 '{title[:50]}...' 的 AI 回复，跳过此论文。")
-            continue # 跳过出错的论文
-
-    logging.info(f"过滤完成，找到 {len(filtered_papers)} 篇与 '{topic}' 相关的论文。")
-    return filtered_papers
+def _clamp_score(value: Any, default: float = 0.0) -> float:
+    try:
+        return round(min(max(float(value), 0.0), 10.0), 2)
+    except (TypeError, ValueError):
+        return default
 
 
-rating_prompt_template = """
-# Role Setting
-You are an experienced researcher in the field of Artificial Intelligence, skilled at quickly evaluating the potential value of research papers.
-
-# Task
-Based on the following paper's title and abstract, please summarize it and score it across multiple dimensions (1-10 points, 1 being the lowest, 10 being the highest). Finally, provide an overall preliminary priority score.
-
-# Input
-Paper Title: %s
-Paper Abstract: %s
-
-# My Research Interests
-image generation, video generation, multimodal generation
-
-# Output Requirements
-Output should always be in JSON format, strictly compliant with RFC8259.
-Please output the evaluation and explanations in the following JSON format:
-{
-  "tldr": "<summary>", // Too Long; Didn't Read. Summarize the paper in one or two brief sentences.
-  "tldr_zh": "<summary>", // Too Long; Didn't Read. Summarize the paper in one or two brief sentences, in Chinese.
-  "relevance_score": <score>, // Relevance to my research interests
-  "novelty_claim_score": <score>, // Degree of novelty claimed in the abstract
-  "clarity_score": <score>, // Clarity and completeness of the abstract writing
-  "potential_impact_score": <score>, // Estimated potential impact based on abstract claims
-  "overall_priority_score": <score> // Preliminary reading priority score combining all factors above
-}
-
-# Scoring Guidelines
-- Relevance: Focus on whether it is directly related to the research interests I provided.
-- Novelty: Evaluate the degree of innovation claimed in the abstract regarding the method or viewpoint compared to known work.
-- Clarity: Evaluate whether the abstract itself is easy to understand and complete with essential elements.
-- Potential Impact: Evaluate the importance of the problem it claims to solve and the potential application value of the results.
-- Overall Priority: Provide an overall score combining all the above factors. A high score indicates suggested priority for reading.
-"""
+def parse_json_response(text: str) -> Any:
+    text = text.strip()
+    fenced = re.search(r"```(?:json)?\s*(.*?)```", text, re.DOTALL | re.IGNORECASE)
+    if fenced:
+        text = fenced.group(1).strip()
+    starts = [index for index in (text.find("{"), text.find("[")) if index >= 0]
+    if starts:
+        text = text[min(starts) :]
+    end = max(text.rfind("}"), text.rfind("]"))
+    return json.loads(text[: end + 1] if end >= 0 else text)
 
 
-def rate_papers(papers: list) -> list:
-    """使用 OpenRouter API 对论文进行评分，返回一个包含评分的字典列表。
-    Args:
-        papers (list): 包含论文信息的字典列表，每个字典应包含 'title' 和'summary'。
-    Returns:
-        list: 包含论文评分的字典列表，每个字典包含 'title', 'summary', 和 'rating'。
-    """
-    if not OPENROUTER_API_KEY:
-        logging.error("未设置 OPENROUTER_API_KEY 环境变量。无法进行评分。")
-        # 在没有 API Key 的情况下，可以选择返回原始列表或空列表
-        # 这里返回原始列表，以便流程继续，但会跳过评分
-        return papers
+class OpenAICompatibleClient:
+    """Minimal OpenAI-compatible client with provider-specific reasoning fields."""
 
-    logging.info(f"开始使用 OpenRouter API 对 {len(papers)} 篇论文进行评分...")
-    for i, paper in enumerate(papers):
-        title = paper.get('title', 'N/A')
-        summary = paper.get('summary', 'N/A')
-        # 构建 Prompt
-        prompt = rating_prompt_template % (title, summary)
+    def __init__(
+        self, section: dict[str, Any], session: requests.Session | None = None
+    ):
+        self.section = section
+        self.api_key = secret_from(section)
+        self.session = session or requests.Session()
 
-        # 添加重试逻辑 (最多尝试 2 次)
-        success = False
-        for attempt in range(2):
-            # 调用封装好的 API 函数
-            ai_response = call_openrouter_api(prompt, max_tokens=1000)
+    @property
+    def available(self) -> bool:
+        return bool(self.api_key)
 
-            if ai_response is not None:
-                # 检查是否是有效的 JSON 响应
-                try:
-                    # 尝试解析 JSON 响应
-                    # 1. 去掉字符串中的非 JSON 内容 (如果存在)
-                    if '```json' in ai_response:
-                        ai_response = ai_response.split('```json')[1].split('```')[0]
-                    # 2. json加载
-                    rating_data = json.loads(ai_response)
-                    logging.info(f"论文 {i+1}/{len(papers)} (尝试 {attempt+1}): '{title[:50]}...' - AI Rating: {rating_data}")
-                    papers[i].update(rating_data)
-                    success = True
-                    break # 成功获取并解析，跳出重试循环
-                except json.JSONDecodeError:
-                    logging.warning(f"论文 {i+1}/{len(papers)} (尝试 {attempt+1}): '{title[:50]}...' - AI 回复不是有效的 JSON: {ai_response[:100]}...")
-                    # JSON 解析失败，继续重试 (如果还有尝试次数)
-                except Exception as e:
-                    logging.error(f"论文 {i+1}/{len(papers)} (尝试 {attempt+1}): '{title[:50]}...' - 解析响应时发生意外错误: {e}", exc_info=True)
-                    # 其他解析错误，继续重试 (如果还有尝试次数)
+    def complete(
+        self, messages: list[dict[str, Any]], *, max_tokens: int = 1800
+    ) -> str | None:
+        if not self.api_key:
+            return None
+        payload: dict[str, Any] = {
+            "model": self.section["model"],
+            "messages": messages,
+            "temperature": self.section.get("temperature", 0.2),
+            "response_format": {"type": "json_object"},
+        }
+        token_field = str(self.section.get("token_field", "max_tokens"))
+        payload[token_field] = max_tokens
+        effort = self.section.get("reasoning_effort")
+        if effort:
+            if self.section.get("provider") == "dasuapi":
+                payload["reasoning"] = {"effort": effort}
             else:
-                logging.warning(f"论文 {i+1}/{len(papers)} (尝试 {attempt+1}): 无法获取论文 '{title[:50]}...' 的 AI Rating (API 返回 None)。")
-                # API 调用失败，继续重试 (如果还有尝试次数)
+                payload["reasoning_effort"] = effort
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        url = f"{self.section['base_url'].rstrip('/')}/chat/completions"
+        retries = int(self.section.get("max_retries", 3))
+        for attempt in range(retries):
+            try:
+                response = self.session.post(
+                    url,
+                    headers=headers,
+                    json=payload,
+                    timeout=float(self.section.get("timeout_seconds", 120)),
+                )
+                if response.status_code == 429:
+                    time.sleep(min(2 ** (attempt + 1), 30))
+                    continue
+                response.raise_for_status()
+                return response.json()["choices"][0]["message"]["content"].strip()
+            except (requests.RequestException, KeyError, IndexError, ValueError) as exc:
+                LOGGER.warning(
+                    "%s API attempt %s/%s failed: %s",
+                    self.section.get("provider"),
+                    attempt + 1,
+                    retries,
+                    type(exc).__name__,
+                )
+                if attempt + 1 < retries:
+                    time.sleep(min(2**attempt, 10))
+        return None
 
-            # 如果不是最后一次尝试，则等待后重试
-            if attempt < 1:
-                logging.info(f"论文 {i+1}/{len(papers)}: 重试...")
 
-        # 如果两次尝试都失败了
-        if not success:
-            logging.error(f"论文 {i+1}/{len(papers)}: 两次尝试均未能成功获取和解析 '{title[:50]}...' 的评分，跳过此论文。")
-            continue # 跳过出错的论文
+def keyword_topic_scores(
+    paper: dict[str, Any], config: dict[str, Any]
+) -> dict[str, float]:
+    title = str(paper.get("title", "")).lower()
+    abstract = str(paper.get("summary", "")).lower()
+    categories = set(paper.get("categories", []))
+    candidates = set(paper.get("candidate_topics", []))
+    scores: dict[str, float] = {}
+    for topic_id, topic in config["topics"].items():
+        title_hits = sum(keyword.lower() in title for keyword in topic["keywords"])
+        abstract_hits = sum(
+            keyword.lower() in abstract for keyword in topic["keywords"]
+        )
+        score = (
+            1.8 * title_hits
+            + 0.75 * abstract_hits
+            + 0.6 * bool(categories & set(topic["categories"]))
+        )
+        if topic_id in candidates:
+            score += 1.5
+        scores[topic_id] = round(min(score, 10.0), 2)
+    return scores
 
-    logging.info(f"评分完成。")
+
+def _allowed_tags(
+    requested: list[Any], paper: dict[str, Any], config: dict[str, Any]
+) -> list[str]:
+    allowlist = config["selection"].get("contribution_tag_allowlist", [])
+    result = [str(tag) for tag in requested if str(tag) in allowlist]
+    if result:
+        return result[:4]
+    text = f"{paper.get('title', '')} {paper.get('summary', '')}".lower()
+    return [tag for tag in allowlist if tag.lower() in text][:4]
+
+
+def _fallback_coarse(paper: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
+    scores = keyword_topic_scores(paper, config)
+    primary = max(scores, key=lambda topic_id: scores[topic_id])
+    abstract = str(paper.get("summary", "")).lower()
+    markers = (
+        "we introduce",
+        "we propose",
+        "first",
+        "novel",
+        "state-of-the-art",
+        "outperform",
+        "theoretically show",
+    )
+    novelty = 5.5 + min(sum(marker in abstract for marker in markers) * 0.65, 3.5)
+    return {
+        "is_relevant": scores[primary] >= 1.5,
+        "primary_topic": primary,
+        "topic_scores": scores,
+        "novelty_score": round(novelty, 2),
+        "potential_impact_score": round(min(5 + scores[primary] / 2, 9.0), 2),
+        "clarity_score": 7.0 if len(abstract) > 250 else 5.5,
+        "coarse_rationale": "规则降级：依据标题、摘要关键词和论文分类评分。",
+        "contribution_tags": _allowed_tags([], paper, config),
+        "coarse_model_status": "fallback_rules",
+    }
+
+
+def coarse_classify_paper(
+    paper: dict[str, Any], config: dict[str, Any], client: OpenAICompatibleClient
+) -> dict[str, Any]:
+    fallback = _fallback_coarse(paper, config)
+    if not client.available:
+        paper.update(fallback)
+        return paper
+    topic_reference = {
+        topic_id: {"name": topic["name_en"], "keywords": topic["keywords"]}
+        for topic_id, topic in config["topics"].items()
+    }
+    prompt = {
+        "task": "Classify and score one AI research paper for a personal daily newspaper.",
+        "topics": topic_reference,
+        "paper": {
+            "title": paper.get("title"),
+            "abstract": paper.get("summary"),
+            "categories": paper.get("categories", []),
+            "venue": paper.get("venue", ""),
+        },
+        "output": {
+            "is_relevant": "boolean",
+            "primary_topic": "exact topic key",
+            "topic_scores": "all topic keys scored 0-10",
+            "novelty_score": "1-10",
+            "potential_impact_score": "1-10",
+            "clarity_score": "1-10",
+            "coarse_rationale": "one Chinese sentence",
+            "contribution_tags": "0-4 controlled tags",
+        },
+    }
+    response = client.complete(
+        [
+            {
+                "role": "system",
+                "content": "You are a conservative research-paper triage editor. Return JSON only.",
+            },
+            {"role": "user", "content": json.dumps(prompt, ensure_ascii=False)},
+        ],
+        max_tokens=1000,
+    )
+    if not response:
+        paper.update(fallback)
+        return paper
+    try:
+        result = parse_json_response(response)
+        topic_scores = {
+            topic_id: _clamp_score((result.get("topic_scores") or {}).get(topic_id))
+            for topic_id in config["topics"]
+        }
+        primary = result.get("primary_topic")
+        if primary not in config["topics"]:
+            primary = max(topic_scores, key=lambda topic_id: topic_scores[topic_id])
+        primary = str(primary)
+        paper.update(
+            {
+                "is_relevant": bool(
+                    result.get("is_relevant", max(topic_scores.values()) >= 5)
+                ),
+                "primary_topic": primary,
+                "topic_scores": topic_scores,
+                "novelty_score": _clamp_score(
+                    result.get("novelty_score"), fallback["novelty_score"]
+                ),
+                "potential_impact_score": _clamp_score(
+                    result.get("potential_impact_score"),
+                    fallback["potential_impact_score"],
+                ),
+                "clarity_score": _clamp_score(
+                    result.get("clarity_score"), fallback["clarity_score"]
+                ),
+                "coarse_rationale": str(result.get("coarse_rationale", ""))[:300],
+                "contribution_tags": _allowed_tags(
+                    result.get("contribution_tags") or [], paper, config
+                ),
+                "coarse_model_status": "available",
+            }
+        )
+    except (json.JSONDecodeError, TypeError, AttributeError) as exc:
+        LOGGER.warning("Invalid coarse JSON; using fallback: %s", type(exc).__name__)
+        paper.update(fallback)
+    return paper
+
+
+def coarse_classify_papers(
+    papers: list[dict[str, Any]], config: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
+    config = config or load_config()
+    client = OpenAICompatibleClient(config["llm"]["coarse"])
+    for index, paper in enumerate(papers, 1):
+        LOGGER.info("Coarse classification %s/%s", index, len(papers))
+        coarse_classify_paper(paper, config, client)
     return papers
 
 
-# 可以在这里添加一些测试代码
-if __name__ == '__main__':
-    # 确保设置了 OPENROUTER_API_KEY 环境变量才能运行测试
-    if OPENROUTER_API_KEY:
-        test_papers = [
-            {
-                'title': 'Generative Adversarial Networks for Image Synthesis ',
-                'summary': 'This paper introduces GANs, a framework for estimating generative models via an adversarial process... focusing on image creation.'
-            },
-            {
-                'title': 'Deep Learning for Natural Language Processing',
-                'summary': 'We explore various deep learning architectures like RNNs and Transformers for tasks such as machine translation and sentiment analysis.'
-            },
-            {
-                'title': 'Video Generation using Diffusion Models',
-                'summary': 'A novel approach to generating high-fidelity video sequences using latent diffusion models.'
-            }
-        ]
-        logging.info("\n--- 开始测试 filter_papers_by_topic --- ")
-        filtered = filter_papers_by_topic(test_papers)
-        rated = rate_papers(filtered)
+def _recency_score(paper: dict[str, Any], target_date: date) -> float:
+    published = _parse_datetime(paper.get("published_date"))
+    if not published:
+        return 0.0
+    return max(0.0, 10.0 - max((target_date - published.date()).days, 0) * 0.18)
 
-        logging.info("\n--- 过滤后的论文 --- ")
-        for paper in filtered:
-            logging.info(f"- {paper['title']}\t{paper.get('overall_priority_score', None)}")
-        logging.info("--- 测试结束 ---")
+
+def calculate_selection_score(
+    paper: dict[str, Any], target_date: date, focus_topic: str
+) -> float:
+    primary = str(paper.get("primary_topic") or "")
+    relevance = _clamp_score((paper.get("topic_scores") or {}).get(primary))
+    score = (
+        relevance * 0.34
+        + _clamp_score(paper.get("novelty_score")) * 0.24
+        + _clamp_score(paper.get("potential_impact_score")) * 0.18
+        + _recency_score(paper, target_date) * 0.14
+        + math.log1p(max(int(paper.get("citation_count", 0)), 0)) * 0.55
+        + (1.2 if primary == focus_topic else 0.0)
+        + min(len(paper.get("venue_tags", [])) * 1.2, 2.4)
+        + {"Oral": 2.0, "Spotlight": 1.5, "Poster": 0.35}.get(
+            str(paper.get("presentation_type") or ""), 0.0
+        )
+    )
+    return round(score, 3)
+
+
+def is_breakthrough(paper: dict[str, Any], config: dict[str, Any]) -> bool:
+    return _clamp_score(paper.get("novelty_score")) > float(
+        config["selection"].get("breakthrough_threshold", 8.5)
+    )
+
+
+def is_major_feature(
+    paper: dict[str, Any], target_date: date, config: dict[str, Any]
+) -> tuple[bool, str]:
+    if is_breakthrough(paper, config):
+        return True, "breakthrough"
+    if paper.get("venue_tags"):
+        return True, "top_venue"
+    if paper.get("presentation_type") in {"Oral", "Spotlight"}:
+        return True, "official_presentation"
+    citations = int(paper.get("citation_count", 0))
+    published = _parse_datetime(paper.get("published_date"))
+    age_days = (target_date - published.date()).days if published else 9999
+    threshold = int(config["selection"].get("high_citation_threshold", 100))
+    if age_days <= int(config["selection"].get("recent_days", 120)):
+        threshold = int(config["selection"].get("recent_high_citation_threshold", 20))
+    return (True, "high_citation") if citations >= threshold else (False, "brief")
+
+
+def select_daily_papers(
+    papers: list[dict[str, Any]],
+    target_date: date,
+    config: dict[str, Any] | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    config = config or load_config()
+    focus_topic = focus_topic_for_date(target_date, config)
+    eligible: list[dict[str, Any]] = []
+    for paper in papers:
+        if paper.get("eligible_by_date") is False:
+            continue
+        if not paper.get("primary_topic"):
+            paper.update(_fallback_coarse(paper, config))
+        if not paper.get("is_relevant", True):
+            continue
+        paper["selection_score"] = calculate_selection_score(
+            paper, target_date, focus_topic
+        )
+        eligible.append(paper)
+    ranked = sorted(
+        eligible,
+        key=lambda item: (
+            item.get("selection_score", 0),
+            item.get("novelty_score", 0),
+            item.get("published_date", ""),
+        ),
+        reverse=True,
+    )
+    focus_target = int(config["project"]["focus_count"])
+    cross_target = int(config["project"]["cross_topic_count"])
+    total_target = int(config["project"]["edition_size"])
+    focus_pool = [
+        paper for paper in ranked if paper.get("primary_topic") == focus_topic
+    ]
+    cross_pool = [
+        paper for paper in ranked if paper.get("primary_topic") != focus_topic
+    ]
+    selected = focus_pool[:focus_target] + cross_pool[:cross_target]
+    selected_ids = {paper.get("paper_id") or id(paper) for paper in selected}
+    for paper in ranked:
+        if len(selected) >= total_target:
+            break
+        identity = paper.get("paper_id") or id(paper)
+        if identity not in selected_ids:
+            selected.append(paper)
+            selected_ids.add(identity)
+    selected.sort(key=lambda item: item.get("selection_score", 0), reverse=True)
+    major_candidates = []
+    for paper in selected:
+        major, reason = is_major_feature(paper, target_date, config)
+        paper.update(
+            {
+                "major_candidate": major,
+                "major_reason": reason,
+                "breakthrough": reason == "breakthrough",
+            }
+        )
+        if major:
+            major_candidates.append(paper)
+    if not major_candidates and selected:
+        selected[0].update({"major_candidate": True, "major_reason": "editor_pick"})
+        major_candidates = [selected[0]]
+    max_major = int(config["project"].get("max_major_features", 2))
+    major_ids = {
+        paper.get("paper_id") or id(paper)
+        for paper in sorted(
+            major_candidates,
+            key=lambda item: (
+                item.get("breakthrough", False),
+                item.get("selection_score", 0),
+            ),
+            reverse=True,
+        )[:max_major]
+    }
+    hero_assigned = False
+    for paper in selected:
+        paper["content_tier"] = (
+            "major" if (paper.get("paper_id") or id(paper)) in major_ids else "brief"
+        )
+        paper["is_hero"] = paper["content_tier"] == "major" and not hero_assigned
+        hero_assigned = hero_assigned or paper["is_hero"]
+    actual_focus = sum(paper.get("primary_topic") == focus_topic for paper in selected)
+    meta = {
+        "focus_topic": focus_topic,
+        "target_focus_count": focus_target,
+        "target_cross_topic_count": cross_target,
+        "actual_focus_count": actual_focus,
+        "actual_cross_topic_count": len(selected) - actual_focus,
+        "candidate_count": len(eligible),
+        "selected_count": len(selected),
+        "distribution_note": "主主题候选不足，已按综合评分回填。"
+        if actual_focus < min(focus_target, len(selected))
+        else "按 6+1 主/跨主题策略选取。",
+    }
+    return selected, meta
+
+
+def _abstract_sentences(summary: str) -> list[str]:
+    normalized = re.sub(r"\s+", " ", summary).strip()
+    if not normalized:
+        return []
+    sentences = re.split(r"(?<=[.!?。！？])\s+", normalized)
+    return [sentence.strip() for sentence in sentences if sentence.strip()]
+
+
+def _join_limited(sentences: list[str], limit: int) -> str:
+    result = ""
+    for sentence in sentences:
+        candidate = f"{result} {sentence}".strip()
+        if result and len(candidate) > limit:
+            break
+        result = candidate
+    if not result and sentences:
+        result = sentences[0][:limit]
+    return result
+
+
+def _fallback_editorial(
+    paper: dict[str, Any], config: dict[str, Any]
+) -> dict[str, Any]:
+    topic = config["topics"].get(paper.get("primary_topic"), {})
+    summary = re.sub(r"\s+", " ", paper.get("summary", "")).strip()
+    sentences = _abstract_sentences(summary)
+    brief = _join_limited(sentences[:2], 240) or "摘要信息不足，请直接阅读原文。"
+    tags = paper.get("contribution_tags") or topic.get("contribution_tags", [])[:2]
+    major = paper.get("content_tier") == "major"
+    innovation_markers = (
+        "introduce",
+        "propose",
+        "present",
+        "method",
+        "framework",
+        "architecture",
+        "algorithm",
+        "novel",
+    )
+    experiment_markers = (
+        "experiment",
+        "result",
+        "improve",
+        "outperform",
+        "achieve",
+        "demonstrate",
+        "show",
+        "evaluation",
+    )
+    innovation_sentences = [
+        sentence
+        for sentence in sentences
+        if any(marker in sentence.lower() for marker in innovation_markers)
+    ]
+    experiment_sentences = [
+        sentence
+        for sentence in sentences
+        if any(marker in sentence.lower() for marker in experiment_markers)
+    ]
+    background_candidates = [
+        sentence
+        for sentence in sentences
+        if sentence not in innovation_sentences and sentence not in experiment_sentences
+    ]
+    background = _join_limited(background_candidates[:3] or sentences[:2], 520)
+    findings = _join_limited(experiment_sentences[-3:] or sentences[-2:], 520)
+    innovation_points = innovation_sentences[:4]
+    if not innovation_points:
+        innovation_points = [
+            paper.get("coarse_rationale") or "论文围绕核心瓶颈提出新方法。"
+        ]
+    return {
+        "newspaper_title": f"{topic.get('name', 'AI 研究')}：{paper.get('title', 'Untitled')}"
+        if major
+        else paper.get("title", "Untitled"),
+        "dek": brief,
+        "background_and_pain": background if major else "",
+        "core_innovations": innovation_points if major else [],
+        "experimental_findings": findings if major else "",
+        "brief_points": [] if major else [brief],
+        "contribution_tags": tags,
+        "editorial_model_status": "fallback_extract",
+    }
+
+
+def editorialize_paper(
+    paper: dict[str, Any], config: dict[str, Any], client: OpenAICompatibleClient
+) -> dict[str, Any]:
+    fallback = _fallback_editorial(paper, config)
+    if not client.available:
+        paper.update(fallback)
+        return paper
+    major = paper.get("content_tier") == "major"
+    hero = bool(paper.get("is_hero"))
+    if hero:
+        background_requirement = "160-260 Chinese characters"
+        innovation_requirement = "3-5 Chinese bullet strings, 45-90 characters each"
+        findings_requirement = "160-260 Chinese characters"
+        dek_requirement = "60-100 Chinese characters"
+    elif major:
+        background_requirement = "120-190 Chinese characters"
+        innovation_requirement = "2-4 Chinese bullet strings, 35-75 characters each"
+        findings_requirement = "120-190 Chinese characters"
+        dek_requirement = "45-80 Chinese characters"
     else:
-        logging.warning("请设置 OPENROUTER_API_KEY 环境变量以运行测试。")
+        background_requirement = "empty string"
+        innovation_requirement = "empty array"
+        findings_requirement = "empty string"
+        dek_requirement = "one concise Chinese sentence"
+    requirements = {
+        "newspaper_title": "restrained compelling Chinese headline",
+        "dek": dek_requirement,
+        "background_and_pain": background_requirement,
+        "core_innovations": innovation_requirement,
+        "experimental_findings": findings_requirement,
+        "brief_points": "empty array"
+        if major
+        else "2-3 bullets, about 100 Chinese characters total",
+        "contribution_tags": "0-4 allowlisted tags only",
+        "non_repetition": "background, innovations and findings must cover distinct information; do not paraphrase the same sentence three times",
+    }
+    prompt = json.dumps(
+        {
+            "task": "Write one Financial Times-like serious Chinese technology newspaper entry. Do not invent facts.",
+            "tier": paper.get("content_tier"),
+            "paper": {
+                key: paper.get(key)
+                for key in (
+                    "title",
+                    "summary",
+                    "venue",
+                    "venue_tags",
+                    "presentation_type",
+                    "citation_count",
+                    "coarse_rationale",
+                )
+            },
+            "requirements": requirements,
+            "contribution_tag_allowlist": config["selection"][
+                "contribution_tag_allowlist"
+            ],
+        },
+        ensure_ascii=False,
+    )
+    response = client.complete(
+        [
+            {
+                "role": "system",
+                "content": "You are the senior Chinese editor of an AI research newspaper. Return JSON only.",
+            },
+            {"role": "user", "content": prompt},
+        ],
+        max_tokens=3000 if hero else (2000 if major else 900),
+    )
+    if not response:
+        paper.update(fallback)
+        return paper
+    try:
+        result = parse_json_response(response)
+        innovations = result.get("core_innovations") or []
+        bullets = result.get("brief_points") or []
+        if not isinstance(innovations, list) or not isinstance(bullets, list):
+            raise TypeError("Editorial list fields must be arrays")
+        paper.update(
+            {
+                "newspaper_title": str(
+                    result.get("newspaper_title") or fallback["newspaper_title"]
+                ),
+                "dek": str(result.get("dek") or fallback["dek"]),
+                "background_and_pain": str(
+                    result.get("background_and_pain") or fallback["background_and_pain"]
+                ),
+                "core_innovations": [str(item) for item in innovations[:4]],
+                "experimental_findings": str(
+                    result.get("experimental_findings")
+                    or fallback["experimental_findings"]
+                ),
+                "brief_points": [str(item) for item in bullets[:3]],
+                "contribution_tags": _allowed_tags(
+                    result.get("contribution_tags") or [], paper, config
+                ),
+                "editorial_model_status": "available",
+            }
+        )
+    except (json.JSONDecodeError, TypeError, AttributeError) as exc:
+        LOGGER.warning("Invalid editorial JSON; using fallback: %s", type(exc).__name__)
+        paper.update(fallback)
+    return paper
+
+
+def explain_figure(
+    paper: dict[str, Any], client: OpenAICompatibleClient
+) -> dict[str, Any]:
+    if paper.get("content_tier") != "major":
+        paper["figure_explanation"] = ""
+        return paper
+    if paper.get("figure_status") != "available" or not paper.get("figure_url"):
+        paper.update(
+            {
+                "figure_explanation": "",
+                "figure_model_status": "not_available",
+            }
+        )
+        return paper
+    if not client.available:
+        caption = paper.get("figure_caption", "")
+        paper.update(
+            {
+                "figure_explanation": f"Figure 1 图注显示：{caption}"
+                if caption
+                else "已抓取 Figure 1；当前未配置视觉模型，暂不生成图解。",
+                "figure_model_status": "fallback_caption",
+            }
+        )
+        return paper
+    messages = [
+        {
+            "role": "system",
+            "content": "Explain AI architecture figures conservatively in Simplified Chinese. Return JSON only.",
+        },
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": json.dumps(
+                        {
+                            "task": "Explain Figure 1 in 2-3 Chinese sentences; describe information flow and claimed contribution; do not infer unreadable labels.",
+                            "title": paper.get("title"),
+                            "abstract": paper.get("summary"),
+                            "caption": paper.get("figure_caption"),
+                            "output": {"figure_explanation": "string"},
+                        },
+                        ensure_ascii=False,
+                    ),
+                },
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": paper.get("figure_source_url") or paper["figure_url"]
+                    },
+                },
+            ],
+        },
+    ]
+    response = client.complete(messages, max_tokens=600)
+    if response:
+        try:
+            explanation = str(
+                parse_json_response(response).get("figure_explanation", "")
+            ).strip()
+            if explanation:
+                paper.update(
+                    {
+                        "figure_explanation": explanation,
+                        "figure_model_status": "available",
+                    }
+                )
+                return paper
+        except (json.JSONDecodeError, AttributeError, TypeError):
+            pass
+    caption = paper.get("figure_caption", "")
+    paper.update(
+        {
+            "figure_explanation": f"Figure 1 图注显示：{caption}"
+            if caption
+            else "Figure 1 已抓取，但视觉解读暂时失败。",
+            "figure_model_status": "fallback_caption",
+        }
+    )
+    return paper
+
+
+def generate_editorial_content(
+    papers: list[dict[str, Any]], config: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
+    config = config or load_config()
+    client = OpenAICompatibleClient(config["llm"]["editorial"])
+    for index, paper in enumerate(papers, 1):
+        LOGGER.info("Editorial generation %s/%s", index, len(papers))
+        editorialize_paper(paper, config, client)
+        explain_figure(paper, client)
+    return papers
+
+
+def build_report(
+    papers: list[dict[str, Any]],
+    target_date: date,
+    config: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    config = config or load_config()
+    selected, meta = select_daily_papers(papers, target_date, config)
+    topic_id = meta["focus_topic"]
+    return {
+        "schema_version": 2,
+        "report": {
+            "date": target_date.isoformat(),
+            "newspaper_name": config["project"]["newspaper_name"],
+            "subtitle": config["project"]["subtitle"],
+            "focus_topic": topic_id,
+            "focus_topic_name": config["topics"][topic_id]["name"],
+            "focus_topic_name_en": config["topics"][topic_id]["name_en"],
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            **meta,
+        },
+        "papers": selected,
+    }
+
+
+# Backward-compatible functions.
+def filter_papers_by_topic(papers: list, topic: str = "") -> list:
+    del topic
+    config = load_config()
+    return [
+        paper
+        for paper in coarse_classify_papers(papers, config)
+        if paper.get("is_relevant")
+    ]
+
+
+def rate_papers(papers: list) -> list:
+    for paper in papers:
+        paper["overall_priority_score"] = round(
+            _clamp_score(paper.get("novelty_score"), 5) * 0.45
+            + _clamp_score(paper.get("potential_impact_score"), 5) * 0.35
+            + _clamp_score(paper.get("clarity_score"), 5) * 0.20,
+            2,
+        )
+    return papers

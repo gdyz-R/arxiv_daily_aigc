@@ -1,23 +1,62 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArXiv Daily AI Paper Digest</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Daily AI Research Gazette Archive</title>
     <style>
-        /* Add any custom styles here if needed */
+        body {
+            margin: 0;
+            background: #fff1e5;
+            color: #262220;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+        }
+
+        main {
+            width: min(880px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 36px 0;
+        }
+
+        h1 {
+            font-family: Georgia, serif;
+            border-bottom: 4px double #262220;
+            padding-bottom: 16px;
+        }
+
+        #report-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        #report-list a {
+            padding: 14px 16px;
+            border: 1px solid #9d8b7d;
+            background: #fffaf5;
+            color: #990f3d;
+            text-decoration: none;
+        }
+
+        #report-list a:hover {
+            background: #f8e3d4;
+        }
+
+        .message {
+            color: #6f625a;
+        }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">每日 arXiv AI 论文摘要 (cs.CV - 图像/视频生成)</h1>
-        
+
+<body>
+    <main>
+        <h1>Daily AI Research Gazette · 历史报纸</h1>
+
         <div id="report-list" class="space-y-4">
-            <p class="text-center text-gray-500">正在加载报告列表...</p>
+            <p class="message">正在加载报告列表...</p>
             <!-- Report links will be loaded here -->
         </div>
-    </div>
+    </main>
 
     <script>
         // Function to fetch and display report links
@@ -40,15 +79,17 @@
                 const reports = await response.json();
 
                 if (reports && reports.length > 0) {
-                    // Sort reports, newest first (assuming YYYY_MM_DD.html format)
-                    reports.sort().reverse(); 
+                    const reportDate = file => {
+                        const match = file.match(/\d{4}[-_]\d{2}[-_]\d{2}/);
+                        return match ? match[0].replace(/_/g, '-') : '';
+                    };
+                    reports.sort((a, b) => reportDate(b).localeCompare(reportDate(a)) || b.localeCompare(a));
 
                     reports.forEach(reportFile => {
-                        const reportName = reportFile.replace('.html', '').replace(/_/g, '-'); // Format date
+                        const reportName = reportFile.split('/').pop().replace('.html', '').replace(/_/g, '-');
                         const link = document.createElement('a');
                         link.href = `daily_html/${reportFile}`;
                         link.textContent = `报告日期: ${reportName}`;
-                        link.className = 'block bg-white p-4 rounded shadow hover:bg-blue-50 transition duration-300';
                         reportListDiv.appendChild(link);
                     });
                 } else {
@@ -66,7 +107,7 @@
                     errorMessage = `<p class="text-center text-red-500">加载报告列表失败：无法获取 reports.json 文件 (${error.message})。请确保文件存在于正确的位置且可访问。</p>`;
                 } else {
                     // 其他类型的错误
-                     errorMessage = `<p class="text-center text-red-500">加载报告列表时出错：${error.message}。请检查浏览器控制台。</p>`;
+                    errorMessage = `<p class="text-center text-red-500">加载报告列表时出错：${error.message}。请检查浏览器控制台。</p>`;
                 }
                 reportListDiv.innerHTML = errorMessage;
             }
@@ -76,4 +117,5 @@
         document.addEventListener('DOMContentLoaded', loadReportLinks);
     </script>
 </body>
+
 </html>

@@ -3,7 +3,7 @@ name: Deploy GitHub Pages
 on:
   workflow_run:
     workflows:
-      - Daily arXiv Paper Fetch and Filter
+      - Daily AI Research Gazette
     types:
       - completed
   workflow_dispatch:
@@ -34,11 +34,23 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Assemble public site only
+        run: |
+          mkdir -p _site/assets
+          cp index.html list.html reports.json _site/
+          cp -R daily_html daily_json _site/
+          cp assets/report.css _site/assets/
+          mkdir -p _site/assets/figures
+          find assets/figures -type f -name '*.png' -print0 | while IFS= read -r -d '' image; do
+            mkdir -p "_site/$(dirname "$image")"
+            cp "$image" "_site/$image"
+          done
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload the published site files from the repository root.
-          path: '.'
+          path: '_site'
+          retention-days: 1
 
       - name: Deploy to GitHub Pages
         id: deployment

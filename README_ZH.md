@@ -1,101 +1,113 @@
-# Arxiv Daily AIGC
+# Daily AI Research Gazette
 
-这是一个自动化项目，旨在每日从 arXiv 获取计算机视觉（cs.CV）领域的最新论文，使用 AI (目前通过 OpenRouter API) 筛选出与图像/视频/多模态生成相关的论文，并将结果生成为结构化的 JSON 数据和美观的 HTML 页面，最终通过 GitHub Actions 自动部署到 GitHub Pages。
+面向个人研究者的每日 AI/ML 论文报纸生成器。项目从 arXiv、OpenAlex、Semantic Scholar 和 NeurIPS 官方页面获取论文，按可配置主题筛选与精编，生成静态 HTML，并通过 GitHub Actions 自动归档和发布到 GitHub Pages。
 
-## 功能
+## 核心行为
 
-1.  **数据抓取**: 每日自动从 arXiv 获取 `cs.CV` 领域的最新论文。
-2.  **AI 筛选**: 利用 LLM 智能筛选与图像/视频/多模态生成主题相关的论文，并分维度对论文价值进行打分。
-3.  **数据存储**: 将筛选后的论文信息（标题、摘要、链接等）保存为日期命名的 JSON 文件（存放于 `daily_json/` 目录）。
-4.  **网页生成**: 根据 JSON 数据，使用预设模板生成每日的 HTML 报告（存放于 `daily_html/` 目录），并更新主入口页面 `index.html`。
-5.  **自动化部署**: 通过 GitHub Actions 实现每日定时执行抓取、筛选、生成和部署到 GitHub Pages 的完整流程。
+- **无图自动补位**：只有成功下载并解码验证的图片才会写入 HTML。无图论文直接使用单栏排版，不生成图片占位、状态说明或空白区域；浏览器加载失败时也会自动移除媒体栏。
+- **月度归档**：新生成文件使用：
+  - `daily_html/YYYY-MM/YYYY-MM-DD-日报标题.html`
+  - `daily_json/YYYY-MM/YYYY-MM-DD-日报标题.json`
+  - `assets/figures/YYYY-MM/YYYY-MM-DD-日报标题/<paper-id>-figure1.png`
+- **旧归档兼容**：既有 `daily_html/YYYY_MM_DD.html` 不迁移、不删除；`reports.json` 同时索引旧路径和新的月度路径。
+- **配置优先**：主题、关键词、类别、日报篇数、主/跨主题比例、重点论文数量、会议名单、回溯天数、数据源开关和模型均在 `config.yaml` 中修改。
+- **样式外置**：页面样式维护在 `templates/styles.css`；渲染时同步为公开的 `assets/report.css`。
+- **云端运行**：API Key 只从 GitHub Repository Secrets 注入；Action 在提交前运行测试和隐私扫描。
 
-## 技术栈
+## 信息源与顶会覆盖
 
-*   **后端/脚本**: Python 3.x (`arxiv`, `requests`, `jinja2`)
-*   **前端**: HTML5, TailwindCSS (CDN), JavaScript, Framer Motion (CDN)
-*   **自动化**: GitHub Actions
-*   **部署**: GitHub Pages
+默认信息源为 arXiv、OpenAlex、Semantic Scholar 和 NeurIPS 官方页面。默认会议/期刊标签包括 NeurIPS、ICLR、ICML、AAAI、IJCAI、ACL、EMNLP、NAACL、COLM、CVPR、ICCV、ECCV、KDD、WWW、SIGIR、AISTATS、UAI、CoRL、RSS、JMLR 和 TMLR。
 
-## 安装
+会议匹配由 `selection.top_venues` 与 `selection.venue_aliases` 控制，新增会议无需修改 Python。OpenAlex 元数据可能存在延迟或 venue 命名差异，因此系统会按配置别名本地核验；OpenAlex 请求失败时只会降级，不阻塞 arXiv 主流程。
 
-1.  **克隆仓库**:
-    ```bash
-    git clone <your-repository-url>
-    cd arxiv_daily_aigc
-    ```
+## 快速开始
 
-2.  **创建并激活虚拟环境** (推荐):
-    ```bash
-    python3 -m venv .venv
-    source .venv/bin/activate  # macOS/Linux
-    # 或者 .\.venv\Scripts\activate # Windows
-    ```
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+notepad .env
+python src/main.py --date 2026-08-10 --force
+```
 
-3.  **安装依赖**: 项目所需的所有 Python 库都列在 `requirements.txt` 文件中。
-    ```bash
-    pip install -r requirements.txt
-    ```
+Linux/macOS 使用 `source .venv/bin/activate`。本地 `.env` 只用于开发，并被 `.gitignore` 忽略。不要把真实密钥写入 `config.yaml`、README、JSON 或工作流文件。
 
-4.  **配置 API Key**: 此项目需要 OpenRouter API Key 来进行 AI 筛选，当然你也可以通过修改 `src/filter.py` 调用其他LLM API。为了安全起见，请勿将 Key 硬编码在代码中。在本地运行时，可以通过环境变量设置；在 GitHub Actions 中，请将其设置为名为 `OPENROUTER_API_KEY` 的 Secret。
+## 配置接口
 
-## 使用
+| 目标 | 配置位置 |
+| --- | --- |
+| 日报总篇数 | `project.edition_size` |
+| 主主题/跨主题篇数 | `project.focus_count` / `project.cross_topic_count` |
+| 重点论文上限 | `project.max_major_features` |
+| 归档标题 | `project.archive_title` |
+| 每周主题轮换 | `topic_rotation` |
+| 搜索重点与关键词 | `topics.*.categories` / `topics.*.keywords` |
+| 顶会名单与别名 | `selection.top_venues` / `selection.venue_aliases` |
+| 数据源开关与回溯天数 | `sources.*` |
+| 模型、API 地址、超时和重试 | `llm.*` |
+| 模板、CSS 和输出目录 | `render.*` |
 
-### 本地运行
+`focus_count + cross_topic_count` 必须等于 `edition_size`。新增主题后，需要在 `topic_rotation` 的七个工作日中引用有效主题键。
 
-可以直接运行主脚本 `main.py` 来手动触发一次完整的流程（抓取、筛选、生成）。
+## 本地运行与验证
 
-```bash
-# 确保设置了 OPENROUTER_API_KEY 环境变量
-export OPENROUTER_API_KEY='your_openrouter_api_key'
-
-# 运行主脚本 (默认处理当天的论文)
+```powershell
 python src/main.py
+python src/main.py --date 2026-08-10 --force
+python src/main.py --date 2026-08-10 --offline-render
+python src/render.py --input tests/fixtures/report_v2.json --output daily_html/preview.html
 
-# (可选) 指定日期运行
-# python src/main.py --date YYYY-MM-DD
+python -m compileall src
+python -m unittest discover -s tests -v
+python src/privacy.py daily_json daily_html reports.json assets/report.css
 ```
 
-运行成功后：
-*   当天的 JSON 数据会保存在 `daily_json/YYYY-MM-DD.json`。
-*   当天的 HTML 报告会保存在 `daily_html/YYYY_MM_DD.html`。
-*   主入口页面 `index.html` 会被更新以包含最新的报告链接。
+程序使用 `project.timezone` 计算默认日期。请通过 HTTP 服务或 GitHub Pages 查看站点；直接打开 `file://index.html` 时，浏览器可能阻止 `fetch('reports.json')`。
 
-可以直接在浏览器中打开 `index.html` 查看结果。
+## GitHub Secrets 与 Actions
 
-### GitHub Actions 自动化
+在 GitHub 仓库进入 **Settings → Secrets and variables → Actions**。
 
-仓库中已配置好 GitHub Actions 工作流 (`.github/workflows/daily_arxiv.yml`)。
+### Repository Secrets
 
-*   **定时触发**: 该工作流默认设置为每天定时自动运行。
-*   **手动触发**: 你也可以在 GitHub 仓库的 Actions 页面手动触发此工作流。
+- `DEEPSEEK_API_KEY`：必需，粗筛模型。
+- `DASUAPI_API_KEY`：必需，精编/图解模型。
+- `SEMANTIC_SCHOLAR_API_KEY`：可选；缺失时使用匿名接口，限流更严格。
 
-工作流会自动完成所有步骤，并将生成的 `index.html`, `daily_json/`, `daily_html/` 目录下的文件部署到 GitHub Pages。
+### Repository Variable
 
-## 查看部署结果
+- `OPENALEX_MAILTO`：可选、非密钥，用于 OpenAlex polite pool 联系邮箱。
 
-项目配置为通过 GitHub Pages 展示结果。请访问你的 GitHub Pages URL (通常是 `https://<your-username>.github.io/<repository-name>/`) 查看每日更新的论文报告。
+`.github/workflows/daily_arxiv.yml` 每天 `04:00 UTC` 运行，也支持手动输入 `report_date`。工作流会执行离线测试、检查必需 Secrets、生成日报、扫描公开输出，并且只提交 `daily_json/`、`daily_html/`、`assets/figures/`、`assets/report.css` 和 `reports.json`。
 
-## 文件结构
+Pages 工作流只发布 `index.html`、`list.html`、`reports.json`、`daily_html/`、`daily_json/` 和 `assets/`，不会把源码、工作流、README 或 `.env.example` 打包为站点文件。
 
+## 图片安全策略
+
+- 只请求最终入选的重点论文图片，减少网络请求和仓库体积。
+- 限制下载字节数与像素数。
+- 只接受 PNG/JPEG/WebP；SVG、GIF 和伪造 `image/*` 内容会被拒绝。
+- 使用 Pillow 完整解码，再统一重编码为 PNG 并原子写入归档目录。
+- 缓存不存在或验证失败时清空 `figure_url`，HTML 不生成媒体栏。
+
+## 公开数据与隐私边界
+
+日报 JSON/HTML 会公开论文标题、摘要、作者、venue、链接、筛选分数、模型编辑结果和已缓存论文图片。以下内容不会进入公开输出：API Key、Authorization Header、Token、`.env` 内容、本机绝对路径、项目 `_meta`、原始请求异常和 GitHub Actions 环境配置。
+
+如果研究主题本身也属于敏感信息，请使用私有仓库，并不要启用公开 GitHub Pages。
+
+## 主要目录
+
+```text
+src/archive.py       # 月度归档路径与安全文件名
+src/config.py        # YAML/环境变量加载与校验
+src/crawl.py         # arXiv/OpenAlex/NeurIPS/图片抓取
+src/filter.py        # 分类、选文和精编
+src/main.py          # 主流水线
+src/privacy.py       # 输出清理与隐私扫描
+src/render.py        # HTML 渲染与资源路径计算
+templates/index.html # Jinja 页面结构
+templates/styles.css # 唯一样式编辑入口
+tests/               # 离线单元测试
 ```
-.
-├── .github/workflows/daily_arxiv.yml  # GitHub Actions 配置文件
-├── src/                     # Python 脚本目录
-│   ├── main.py              # 主执行脚本
-│   ├── scraper.py           # ArXiv 爬虫模块
-│   ├── filter.py            # OpenRouter 过滤模块
-│   └── html_generator.py    # HTML 生成模块
-├── templates/               # HTML 模板目录
-│   └── paper_template.html
-├── daily_json/              # 存放每日 JSON 结果
-├── daily_html/              # 存放每日 HTML 结果
-├── index.html               # GitHub Pages 入口页面
-├── requirements.txt         # Python 依赖列表
-├── README.md                # 项目说明文件
-└── TODO.md                  # 项目待办事项
-```
-
-## 感谢
-- 本项目的灵感最初源于[fortunechen](https://github.com/fortunechen)的一次分享
-- 本项目绝大多数代码由Trae/Cursor生成，感谢他们的任劳任怨和孜孜不倦😄

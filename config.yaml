@@ -1,0 +1,272 @@
+project:
+  newspaper_name: "Daily AI Research Gazette"
+  # Used in archive filenames. Keep this short and filesystem-safe.
+  archive_title: "AI研究日报"
+  subtitle: "LLM Systems, Efficient Sequence Models, Agents & Theory"
+  language: "zh-CN"
+  timezone: "Asia/Shanghai"
+  edition_size: 7
+  focus_count: 6
+  cross_topic_count: 1
+  max_major_features: 2
+
+topic_rotation:
+  monday: engineering_deployment
+  tuesday: subquadratic_attention
+  wednesday: cot_agentic_ai
+  thursday: theory_loss_landscape
+  friday: engineering_deployment
+  saturday: subquadratic_attention
+  sunday: cot_agentic_ai
+
+topics:
+  engineering_deployment:
+    name: "Transformer 工程部署改进"
+    name_en: "Engineering & Deployment"
+    categories: ["cs.CL", "cs.LG", "cs.AI", "cs.DC", "cs.PF"]
+    keywords:
+      - "KV cache"
+      - "paged attention"
+      - "FlashAttention"
+      - "quantization"
+      - "speculative decoding"
+      - "inference acceleration"
+      - "LLM serving"
+      - "vLLM"
+      - "TensorRT-LLM"
+      - "continuous batching"
+      - "mixture of experts serving"
+      - "model compression"
+    contribution_tags:
+      - "KV Cache"
+      - "FlashAttention"
+      - "Quantization"
+      - "Speculative Decoding"
+      - "Serving"
+      - "Inference Acceleration"
+
+  subquadratic_attention:
+    name: "亚二次方注意力探索"
+    name_en: "Sub-quadratic Attention"
+    categories: ["cs.CL", "cs.LG", "cs.AI", "stat.ML"]
+    keywords:
+      - "Mamba"
+      - "state space model"
+      - "structured state space"
+      - "linear attention"
+      - "sub-quadratic attention"
+      - "RWKV"
+      - "recurrent language model"
+      - "retention network"
+      - "long context efficiency"
+      - "hybrid attention"
+    contribution_tags:
+      - "Mamba"
+      - "SSM"
+      - "Linear Attention"
+      - "RWKV"
+      - "Recurrent"
+      - "Long Context"
+
+  cot_agentic_ai:
+    name: "CoT 与 Agent 实现"
+    name_en: "CoT & Agentic AI"
+    categories: ["cs.CL", "cs.AI", "cs.LG", "cs.MA", "cs.SE"]
+    keywords:
+      - "chain of thought"
+      - "reasoning model"
+      - "test-time reasoning"
+      - "agentic workflow"
+      - "AI agent"
+      - "tool use"
+      - "tool calling"
+      - "multi-agent"
+      - "planning"
+      - "agent memory"
+      - "computer use agent"
+      - "reasoning trace"
+    contribution_tags:
+      - "Chain-of-Thought"
+      - "Reasoning"
+      - "Tool Use"
+      - "Multi-Agent"
+      - "Planning"
+      - "Agent Memory"
+
+  theory_loss_landscape:
+    name: "理论分析与机理研究"
+    name_en: "Theory & Loss Landscape"
+    categories: ["cs.LG", "cs.AI", "stat.ML", "math.OC"]
+    keywords:
+      - "mechanistic interpretability"
+      - "loss landscape"
+      - "optimization dynamics"
+      - "representation geometry"
+      - "expressivity"
+      - "feature learning theory"
+      - "neural scaling law"
+      - "in-context learning theory"
+      - "grokking"
+      - "training dynamics"
+      - "circuit analysis"
+    contribution_tags:
+      - "Mechanistic Interpretability"
+      - "Loss Landscape"
+      - "Optimization Dynamics"
+      - "Expressivity"
+      - "Representation Geometry"
+      - "Scaling Laws"
+
+selection:
+  breakthrough_threshold: 8.5
+  high_citation_threshold: 100
+  recent_high_citation_threshold: 20
+  recent_days: 120
+  candidate_limit_per_topic: 45
+  top_venues:
+    - NeurIPS
+    - NIPS
+    - ICLR
+    - ICML
+    - ACL
+    - EMNLP
+    - NAACL
+    - COLM
+    - JMLR
+    - TMLR
+    - CVPR
+    - ICCV
+    - ECCV
+    - AAAI
+    - IJCAI
+    - KDD
+    - WWW
+    - SIGIR
+    - AISTATS
+    - UAI
+    - CoRL
+    - RSS
+  # Venue matching is config-driven. Add a tag here and to top_venues to extend coverage.
+  venue_aliases:
+    NeurIPS: ["NeurIPS", "Neural Information Processing Systems"]
+    NIPS: ["NIPS"]
+    ICLR: ["ICLR", "International Conference on Learning Representations"]
+    ICML: ["ICML", "International Conference on Machine Learning"]
+    ACL: ["ACL", "Annual Meeting of the Association for Computational Linguistics"]
+    EMNLP: ["EMNLP", "Empirical Methods in Natural Language Processing"]
+    NAACL: ["NAACL", "North American Chapter of the Association for Computational Linguistics"]
+    COLM: ["COLM", "Conference on Language Modeling"]
+    JMLR: ["JMLR", "Journal of Machine Learning Research"]
+    TMLR: ["TMLR", "Transactions on Machine Learning Research"]
+    CVPR: ["CVPR", "Computer Vision and Pattern Recognition"]
+    ICCV: ["ICCV", "International Conference on Computer Vision"]
+    ECCV: ["ECCV", "European Conference on Computer Vision"]
+    AAAI: ["AAAI", "AAAI Conference on Artificial Intelligence"]
+    IJCAI: ["IJCAI", "International Joint Conference on Artificial Intelligence"]
+    KDD: ["KDD", "Knowledge Discovery and Data Mining"]
+    WWW: ["WWW", "The Web Conference", "World Wide Web Conference"]
+    SIGIR: ["SIGIR", "Research and Development in Information Retrieval"]
+    AISTATS: ["AISTATS", "Artificial Intelligence and Statistics"]
+    UAI: ["UAI", "Uncertainty in Artificial Intelligence"]
+    CoRL: ["CoRL", "Conference on Robot Learning"]
+    RSS: ["RSS", "Robotics Science and Systems"]
+  contribution_tag_allowlist:
+    - KV Cache
+    - FlashAttention
+    - Quantization
+    - Speculative Decoding
+    - Serving
+    - Inference Acceleration
+    - Mamba
+    - SSM
+    - Linear Attention
+    - RWKV
+    - Recurrent
+    - Long Context
+    - Chain-of-Thought
+    - Reasoning
+    - Tool Use
+    - Multi-Agent
+    - Planning
+    - Agent Memory
+    - Mechanistic Interpretability
+    - Loss Landscape
+    - Optimization Dynamics
+    - Expressivity
+    - Representation Geometry
+    - Scaling Laws
+
+sources:
+  user_agent: "Daily-AI-Research-Gazette/2.0 (personal research digest)"
+  arxiv:
+    enabled: true
+    lookback_days: 3
+    max_results_per_topic: 45
+    delay_seconds: 3
+    num_retries: 4
+  semantic_scholar:
+    enabled: true
+    base_url: "https://api.semanticscholar.org/graph/v1"
+    api_key_env: "SEMANTIC_SCHOLAR_API_KEY"
+    timeout_seconds: 20
+    requests_per_second: 0.8
+    max_retries: 3
+  arxiv_html:
+    enabled: true
+    base_url: "https://arxiv.org/html"
+    timeout_seconds: 20
+    requests_per_second: 0.5
+    validate_images: true
+    cache_images: true
+    cache_dir: "assets/figures"
+    max_image_bytes: 10000000
+    max_image_pixels: 40000000
+    allowed_formats: ["PNG", "JPEG", "WEBP"]
+  neurips:
+    enabled: true
+    proceedings_base_url: "https://papers.nips.cc"
+    virtual_base_url: "https://neurips.cc/virtual"
+    candidate_window_days: 45
+    max_detail_pages: 80
+    timeout_seconds: 25
+  # General top-conference source. Edit selection.top_venues/venue_aliases to change coverage.
+  openalex:
+    enabled: true
+    base_url: "https://api.openalex.org"
+    mailto_env: "OPENALEX_MAILTO"
+    lookback_days: 3
+    max_results_per_topic: 25
+    timeout_seconds: 25
+    requests_per_second: 1.0
+    max_retries: 3
+
+llm:
+  coarse:
+    provider: "deepseek"
+    base_url: "https://api.deepseek.com/v1"
+    api_key_env: "DEEPSEEK_API_KEY"
+    model: "deepseek-v4-flash"
+    reasoning_effort: "low"
+    token_field: "max_tokens"
+    timeout_seconds: 90
+    max_retries: 3
+    temperature: 0.1
+  editorial:
+    provider: "dasuapi"
+    base_url: "https://dasuapi.com/v1"
+    api_key_env: "DASUAPI_API_KEY"
+    model: "gpt-5.6-terra"
+    reasoning_effort: "max"
+    token_field: "max_completion_tokens"
+    timeout_seconds: 180
+    max_retries: 3
+    temperature: 0.25
+
+render:
+  template: "index.html"
+  stylesheet: "styles.css"
+  public_stylesheet: "assets/report.css"
+  output_dir: "daily_html"
+  json_dir: "daily_json"
+  title_max_length: 48
+  image_aspect_ratio: "16 / 10"

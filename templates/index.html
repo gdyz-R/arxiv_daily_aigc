@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ stylesheet_url }}">
+</head>
+
+<body style="--figure-aspect-ratio: {{ image_aspect_ratio }}">
+    <main class="page">
+        <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
+                Theory</span><span>{{ report_date.strftime('%A, %d %B %Y') }}</span></div>
+        <header class="masthead">
+            <h1>{{ report.newspaper_name }}</h1>
+            <p>{{ report.subtitle }}</p>
+        </header>
+        <div class="focus-strip">
+            <div><strong>今日焦点 · {{ report.focus_topic_name }}</strong><br>{{ report.focus_topic_name_en }}</div>
+            <div><b>{{ report.actual_focus_count|default(0) }}</b> 主主题 / <b>{{
+                    report.actual_cross_topic_count|default(0) }}</b> 跨主题</div>
+            <div><b>{{ report.candidate_count|default(papers|length) }}</b> 候选论文</div>
+            <div>{{ report.distribution_note|default('Daily curated edition') }}</div>
+        </div>
+        {% if hero %}<div class="section-kicker">Lead Story · 今日头条</div>
+        <article class="hero{% if not hero.figure_url %} no-figure{% endif %}">
+            {% if hero.figure_url %}<div class="hero-media" data-figure-media>
+                <figure>
+                    <div class="figure-frame"><img src="{{ hero.figure_url }}" alt="{{ hero.title }} Figure 1"
+                            loading="eager" referrerpolicy="no-referrer"
+                            onerror="this.closest('.hero').classList.add('no-figure');this.closest('[data-figure-media]').remove()">
+                    </div>{% if hero.figure_caption %}<figcaption>{{ hero.figure_caption }}</figcaption>{% endif %}
+                </figure>
+            </div>{% endif %}
+            <div class="hero-copy">
+                <div class="eyebrow">{{ hero.topic_name_en }}{% if hero.breakthrough %} · Breakthrough Headline{% endif
+                    %}</div>
+                <h2>{{ hero.newspaper_title }}</h2>
+                <p class="dek">{{ hero.dek }}</p>
+                <div class="tags">{% if hero.breakthrough %}<span class="tag breakthrough">重大突破</span>{% endif %}{% for
+                    tag in hero.venue_tags %}<span class="tag venue">{{ tag }}</span>{% endfor %}{% if
+                    hero.presentation_type %}<span class="tag presentation">{{ hero.presentation_type }}</span>{% endif
+                    %}{% for tag in hero.contribution_tags %}<span class="tag">{{ tag }}</span>{% endfor %}</div>
+                <div class="meta-line">引用 {{ hero.citation_count }} · 创新度 {{ hero.novelty_score|default('—') }}/10 ·
+                    综合优先级 {{ hero.selection_score|default('—') }}</div>
+                <div class="analysis-grid">
+                    <section>
+                        <h4>背景与痛点</h4>
+                        <p>{{ hero.background_and_pain or hero.summary }}</p>
+                    </section>
+                    <section>
+                        <h4>核心创新</h4>
+                        <ul>{% for item in hero.core_innovations %}<li>{{ item }}</li>{% else %}<li>{{
+                                hero.coarse_rationale }}</li>{% endfor %}</ul>
+                    </section>
+                    <section>
+                        <h4>实验结论</h4>
+                        <p>{{ hero.experimental_findings or hero.dek }}</p>
+                    </section>
+                    <section>
+                        <h4>论文信息</h4>
+                        <p>{{ hero.authors|join('、') }}</p>
+                        <p>{{ hero.venue or (hero.categories|join(', ')) }}</p>
+                    </section>
+                </div>
+                {% if hero.figure_url and hero.figure_explanation %}<div class="figure-note">
+                    <h4>图解</h4>
+                    <p>{{ hero.figure_explanation }}</p>
+                </div>{% endif %}
+                <div class="read-links"><a href="{{ hero.abstract_url }}" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="{{ hero.pdf_url }}" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: {{ hero.title }}</div>
+            </div>
+        </article>{% endif %}
+        {% if major_features %}<div class="section-kicker">Major Features · 重点论文</div>
+        <section class="feature-grid">{% for paper in major_features %}<article
+                class="feature{% if not paper.figure_url %} no-figure{% endif %}">
+                {% if paper.figure_url %}<div data-figure-media>
+                    <div class="figure-frame"><img src="{{ paper.figure_url }}" alt="{{ paper.title }} Figure 1"
+                            loading="lazy" referrerpolicy="no-referrer"
+                            onerror="this.closest('.feature').classList.add('no-figure');this.closest('[data-figure-media]').remove()">
+                    </div>{% if paper.figure_explanation
+                    %}<div class="feature-figure-note"><strong>图解：</strong>{{ paper.figure_explanation }}</div>{% endif
+                    %}
+                    {% if paper.figure_caption %}<figcaption>{{ paper.figure_caption }}</figcaption>{% endif %}
+                </div>{% endif %}
+                <div>
+                    <div class="eyebrow">{{ paper.topic_name_en }}</div>
+                    <h3>{{ paper.newspaper_title }}</h3>
+                    <div class="tags">{% if paper.breakthrough %}<span class="tag breakthrough">重大突破</span>{% endif %}{%
+                        for tag in paper.venue_tags %}<span class="tag venue">{{ tag }}</span>{% endfor %}{% if
+                        paper.presentation_type %}<span class="tag presentation">{{ paper.presentation_type }}</span>{%
+                        endif %}{% for tag in paper.contribution_tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+                    </div>
+                    <p class="dek">{{ paper.dek }}</p>
+                    <div class="feature-analysis">
+                        <section>
+                            <h4>问题背景</h4>
+                            <p>{{ paper.background_and_pain or paper.summary }}</p>
+                        </section>
+                        <section>
+                            <h4>方法与贡献</h4>
+                            <ul>{% for item in paper.core_innovations %}<li>{{ item }}</li>{% else %}<li>{{
+                                    paper.coarse_rationale }}</li>{% endfor %}</ul>
+                        </section>
+                        <section class="wide">
+                            <h4>实验与结论</h4>
+                            <p>{{ paper.experimental_findings or paper.dek }}</p>
+                        </section>
+                    </div>
+                    <div class="meta-line">引用 {{ paper.citation_count }} · 创新度 {{ paper.novelty_score|default('—') }}/10
+                    </div>
+                    <div class="read-links"><a href="{{ paper.abstract_url }}" target="_blank" rel="noopener">Abstract
+                            ↗</a><a href="{{ paper.pdf_url }}" target="_blank" rel="noopener">PDF ↗</a></div>
+                    <div class="original-title">{{ paper.title }}</div>
+                </div>
+            </article>{% endfor %}</section>{% endif %}
+        {% if briefs %}<div class="section-kicker">Research Briefs · 论文快讯</div>
+        <section class="briefs-grid">{% for paper in briefs %}<article class="brief">
+                <div class="eyebrow">{{ paper.topic_name_en }}</div>
+                <h3>{{ paper.newspaper_title }}</h3>
+                <div class="tags">{% for tag in paper.venue_tags %}<span class="tag venue">{{ tag }}</span>{% endfor
+                    %}{% if paper.presentation_type %}<span class="tag presentation">{{ paper.presentation_type
+                        }}</span>{% endif %}{% for tag in paper.contribution_tags %}<span class="tag">{{ tag }}</span>{%
+                    endfor %}</div>{% if paper.brief_points %}<ul>{% for item in paper.brief_points %}<li>{{ item }}
+                    </li>{% endfor %}</ul>{% else %}<p>{{ paper.dek }}</p>{% endif %}<div class="meta-line">引用 {{
+                    paper.citation_count }} · 创新度 {{ paper.novelty_score|default('—') }}/10 · {{ paper.venue or
+                    (paper.categories|join(', ')) }}</div>
+                <div class="read-links"><a href="{{ paper.abstract_url }}" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">{{ paper.title }}</div>
+            </article>{% endfor %}</section>{% elif not hero %}<div class="empty">
+            <h2>今日暂无符合条件的论文</h2>
+            <p>可调整回溯天数或 Topic 关键词后重新生成。</p>
+        </div>{% endif %}
+        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
+                appear
+                only when officially verified.</span><span>Generated {{ generation_time.strftime('%Y-%m-%d %H:%M UTC')
+                }}</span></footer>
+    </main>
+</body>
+
+</html>

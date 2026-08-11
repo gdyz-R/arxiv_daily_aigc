@@ -1,102 +1,59 @@
-# Arxiv Daily AIGC
+# Daily AI Research Gazette
 
-This is an automated project designed to fetch the latest papers from the Computer Vision (cs.CV) field on arXiv daily, use AI (currently via OpenRouter API) to filter papers related to image/video/multimodal generation, generate structured JSON data and aesthetically pleasing HTML pages, and finally automatically deploy the results to GitHub Pages via GitHub Actions.
+A configurable daily AI/ML paper newspaper built from arXiv, OpenAlex, Semantic Scholar, and verified NeurIPS pages. It generates static monthly archives and can run entirely in GitHub Actions.
 
-## Features
+## Key behavior
 
-1.  **Data Fetching**: Automatically fetches the latest papers from the `cs.CV` field on arXiv daily.
-2.  **AI Filtering**: Uses LLM to intelligently filter papers related to image/video/multimodal generation themes and scores the value of the papers across different dimensions.
-3.  **Data Storage**: Saves the filtered paper information (title, abstract, link, etc.) as date-named JSON files (stored in the `daily_json/` directory).
-4.  **Web Page Generation**: Generates daily HTML reports based on the JSON data using a preset template (stored in the `daily_html/` directory) and updates the main entry page `index.html`.
-5.  **Automated Deployment**: Implements the complete process of daily scheduled fetching, filtering, generation, and deployment to GitHub Pages via GitHub Actions.
+- Figures are included only after successful download and image decoding. Papers without a figure use a full-width layout with no placeholder or empty media area.
+- New archives use `daily_html/YYYY-MM/YYYY-MM-DD-edition-title.html`, matching JSON paths, and monthly figure directories. Existing legacy archives remain indexed.
+- Search topics, keywords, edition size, topic allocation, venue aliases, source switches, models, and output paths are edited in `config.yaml`.
+- Layout CSS is maintained in `templates/styles.css` and published as `assets/report.css`.
 
-## Tech Stack
+## Sources and venues
 
-*   **Backend/Script**: Python 3.x (`arxiv`, `requests`, `jinja2`)
-*   **Frontend**: HTML5, TailwindCSS (CDN), JavaScript, Framer Motion (CDN)
-*   **Automation**: GitHub Actions
-*   **Deployment**: GitHub Pages
+The default sources are arXiv, OpenAlex, Semantic Scholar, and official NeurIPS pages. The configured venue set covers NeurIPS, ICLR, ICML, AAAI, IJCAI, ACL, EMNLP, NAACL, COLM, CVPR, ICCV, ECCV, KDD, WWW, SIGIR, AISTATS, UAI, CoRL, RSS, JMLR, and TMLR. Extend coverage through `selection.top_venues` and `selection.venue_aliases` without changing Python.
 
-## Installation
+## Local setup
 
-1.  **Clone Repository**:
-    ```bash
-    git clone <your-repository-url>
-    cd arxiv_daily_aigc
-    ```
-
-2.  **Create and Activate Virtual Environment** (Recommended):
-    ```bash
-    python3 -m venv .venv
-    source .venv/bin/activate  # macOS/Linux
-    # Or .\\.venv\\Scripts\\activate # Windows
-    ```
-
-3.  **Install Dependencies**: All required Python libraries are listed in the `requirements.txt` file.
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4.  **Configure API Key**: This project requires an OpenRouter API Key for AI filtering. You can also modify `src/filter.py` to use other LLM APIs. For security, do not hardcode the key in the code. Set it as an environment variable when running locally. In GitHub Actions, set it as a Secret named `OPENROUTER_API_KEY`.
-
-## Usage
-
-### Local Run
-
-You can directly run the main script `main.py` to manually trigger a complete process (fetch, filter, generate).
-
-```bash
-# Ensure the OPENROUTER_API_KEY environment variable is set
-export OPENROUTER_API_KEY='your_openrouter_api_key'
-
-# Run the main script (processes today's papers by default)
-python src/main.py
-
-# (Optional) Run for a specific date
-# python src/main.py --date YYYY-MM-DD
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+python src/main.py --date 2026-08-10 --force
 ```
 
-After successful execution:
-*   The JSON data for the day will be saved in `daily_json/YYYY-MM-DD.json`.
-*   The HTML report for the day will be saved in `daily_html/YYYY_MM_DD.html`.
-*   The main entry page `index.html` will be updated to include the link to the latest report.
+The local `.env` is ignored by Git. Never store real keys in YAML, JSON, documentation, or workflow files.
 
-You can open `index.html` directly in your browser to view the results.
+## Configuration interfaces
 
-### GitHub Actions Automation
+- Edition size and allocation: `project.edition_size`, `focus_count`, `cross_topic_count`, `max_major_features`
+- Search focus: `topic_rotation` and `topics.*.categories/keywords`
+- Conference scope: `selection.top_venues` and `selection.venue_aliases`
+- Source settings: `sources.arxiv`, `sources.openalex`, `sources.semantic_scholar`, `sources.neurips`
+- Models: `llm.coarse` and `llm.editorial`
+- Template, stylesheet, and archive directories: `render.*`
 
-The repository is configured with a GitHub Actions workflow (`.github/workflows/daily_arxiv.yml`).
+## GitHub Actions
 
-*   **Scheduled Trigger**: The workflow is set to run automatically at a scheduled time daily by default.
-*   **Manual Trigger**: You can also manually trigger this workflow from the Actions page of your GitHub repository.
+Create these **Repository Secrets** under **Settings → Secrets and variables → Actions**:
 
-The workflow automatically completes all steps and deploys the generated `index.html`, `daily_json/`, and `daily_html/` directory files to GitHub Pages.
+- `DEEPSEEK_API_KEY` — required
+- `DASUAPI_API_KEY` — required
+- `SEMANTIC_SCHOLAR_API_KEY` — optional
 
-## Viewing Deployment Results
+Optionally add the non-secret repository variable `OPENALEX_MAILTO`.
 
-The project is configured to display results via GitHub Pages. Please visit your GitHub Pages URL (usually `https://<your-username>.github.io/<repository-name>/`) to view the daily updated paper reports.
+The daily workflow runs tests, verifies required Secrets, generates the report, scans public outputs for injected secret values and local paths, and commits only report artifacts. The Pages workflow assembles a restricted `_site` containing only entry pages, indexes, reports, JSON, images, and CSS.
 
-## File Structure
+## Validation
 
-```
-.
-├── .github/workflows/daily_arxiv.yml  # GitHub Actions configuration file
-├── src/                     # Python script directory
-│   ├── main.py              # Main execution script
-│   ├── scraper.py           # ArXiv scraper module
-│   ├── filter.py            # OpenRouter filter module
-│   └── html_generator.py    # HTML generator module
-├── templates/               # HTML template directory
-│   └── paper_template.html
-├── daily_json/              # Stores daily JSON results
-├── daily_html/              # Stores daily HTML results
-├── index.html               # GitHub Pages entry page
-├── requirements.txt         # Python dependency list
-├── README.md                # Project description file (This file)
-├── README_ZH.md             # Project description file (Chinese)
-└── TODO.md                  # Project TODO list
+```powershell
+python -m compileall src
+python -m unittest discover -s tests -v
+python src/privacy.py daily_json daily_html reports.json assets/report.css
 ```
 
-## Acknowledgements
-- The inspiration for this project initially came from a share by [fortunechen](https://github.com/fortunechen)
-- The vast majority of the code in this project was generated by Trae/Cursor, thanks for their hard work and diligence 😄
+Images are byte- and pixel-limited, decoded with Pillow, restricted to PNG/JPEG/WebP, re-encoded to PNG, and written atomically. Invalid images never create an HTML media slot.
+
+Public reports intentionally contain paper metadata and editorial results. API keys, authorization headers, `.env`, local absolute paths, internal `_meta`, and raw request exceptions are removed or rejected before publication. If configured research interests are sensitive, use a private repository and do not enable public GitHub Pages.

@@ -17,7 +17,17 @@ __pycache__/
 .venv/
 
 # Environment variables
+.env
 *.env
+.env.*
+!.env.example
+
+# Runtime and test artifacts
+*.log
+.coverage
+.pytest_cache/
+htmlcov/
+daily_html/preview*.html
 
 # dev files
 TODO.md

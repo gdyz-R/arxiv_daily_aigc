@@ -54,6 +54,7 @@ def validate_config(config: dict[str, Any]) -> None:
         if not isinstance(topic.get("keywords"), list) or not topic["keywords"]:
             raise ConfigError(f"Topic {topic_id} must define at least one keyword")
         topic.setdefault("categories", [])
+        topic.setdefault("concepts", [])
 
     project = config.get("project", {})
     edition_size = int(project.get("edition_size", 0))
@@ -81,6 +82,58 @@ def validate_config(config: dict[str, Any]) -> None:
         raise ConfigError(
             f"Rotation references unknown topics: {', '.join(sorted(unknown_rotation_topics))}"
         )
+
+    scheduler = config.get("scheduler", {})
+    topic_pool = scheduler.get("topic_pool", list(topic_definitions))
+    if not isinstance(topic_pool, list) or not topic_pool:
+        raise ConfigError("scheduler.topic_pool must contain at least one topic")
+    unknown_scheduled_topics = set(topic_pool) - topics
+    if unknown_scheduled_topics:
+        # Older callers commonly deepcopy the configuration and replace only
+        # ``topics`` and ``topic_rotation``. Keep that supported without
+        # allowing an unusable scheduler to escape validation.
+        rotation_topics = set(rotation.values())
+        if rotation_topics and rotation_topics <= topics and rotation_topics == topics:
+            scheduler["topic_pool"] = list(topic_definitions)
+            topic_pool = scheduler["topic_pool"]
+        else:
+            raise ConfigError(
+                "Scheduler references unknown topics: "
+                + ", ".join(sorted(unknown_scheduled_topics))
+            )
+    angles = scheduler.get("angles", {})
+    angle_pool = scheduler.get("angle_pool", list(angles))
+    if not isinstance(angles, dict) or not angles:
+        raise ConfigError("scheduler.angles must define at least one angle")
+    if not isinstance(angle_pool, list) or not angle_pool:
+        raise ConfigError("scheduler.angle_pool must contain at least one angle")
+    unknown_angles = set(angle_pool) - set(angles)
+    if unknown_angles:
+        raise ConfigError(
+            f"Scheduler references unknown angles: {', '.join(sorted(unknown_angles))}"
+        )
+    for angle_id, angle in angles.items():
+        if not isinstance(angle, dict) or not all(
+            angle.get(field) for field in ("name", "name_en", "instruction")
+        ):
+            raise ConfigError(
+                f"Angle {angle_id} must define name, name_en and instruction"
+            )
+
+    policy = config.get("editorial_policy", {})
+    minimum = int(policy.get("min_selected_papers", 0))
+    maximum = int(policy.get("max_selected_papers", 0))
+    shortlist = int(policy.get("candidate_shortlist_size", 0))
+    if minimum <= 0 or maximum < minimum or shortlist < maximum:
+        raise ConfigError(
+            "editorial_policy requires 0 < min <= max <= candidate_shortlist_size"
+        )
+
+    memory = config.get("memory", {})
+    if memory.get("provider") not in {"github_gist", "disabled"}:
+        raise ConfigError("memory.provider must be github_gist or disabled")
+    if memory.get("provider") == "github_gist" and not memory.get("filename"):
+        raise ConfigError("memory.filename is required for GitHub Gist storage")
 
     render = config.get("render", {})
     for field in ("output_dir", "json_dir", "public_stylesheet"):

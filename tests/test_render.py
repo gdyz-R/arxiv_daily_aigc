@@ -16,6 +16,13 @@ class RenderTests(unittest.TestCase):
 
     def test_schema_v2_renders_figure_and_labels(self):
         report = json.loads(self.fixture.read_text(encoding="utf-8"))
+        report["report"].update(
+            {
+                "angle_name": "系统权衡与成本结构",
+                "angle_name_en": "System Trade-offs & Cost Structure",
+                "search_query": 'cat:cs.CL AND ti:"agent memory"',
+            }
+        )
         with tempfile.TemporaryDirectory() as directory:
             output = render_report(report, Path(directory) / "report.html", self.config)
             html = output.read_text(encoding="utf-8")
@@ -31,6 +38,10 @@ class RenderTests(unittest.TestCase):
         self.assertIn("问题背景", html)
         self.assertIn("方法与贡献", html)
         self.assertIn("实验与结论", html)
+        self.assertIn("今日视角", html)
+        self.assertIn("系统权衡与成本结构", html)
+        self.assertIn("Today's Search Query", html)
+        self.assertIn("--figure-max-height: 450px", html)
 
     def test_monthly_output_uses_month_relative_assets(self):
         report = json.loads(self.fixture.read_text(encoding="utf-8"))
@@ -64,6 +75,16 @@ class RenderTests(unittest.TestCase):
             html = output.read_text(encoding="utf-8")
         self.assertNotIn("agent-memory-figure1.svg", html)
         self.assertIn('class="hero no-figure"', html)
+
+    def test_css_uses_natural_image_size_without_forced_aspect_ratio(self):
+        report = json.loads(self.fixture.read_text(encoding="utf-8"))
+        with tempfile.TemporaryDirectory() as directory:
+            render_report(report, Path(directory) / "report.html", self.config)
+            css = Path("assets/report.css").read_text(encoding="utf-8")
+        self.assertIn("max-height: var(--figure-max-height, 450px)", css)
+        self.assertIn(".paper-figure", css)
+        self.assertNotIn("aspect-ratio:", css)
+        self.assertNotIn("height: 100%", css)
 
 
 if __name__ == "__main__":

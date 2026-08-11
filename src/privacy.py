@@ -18,10 +18,15 @@ SENSITIVE_KEYS = {
     "password",
     "secret",
     "token",
+    "gist_id",
+    "gist_token",
+    "memory_payload",
+    "concept_ledger",
+    "concept_memory",
 }
 PUBLIC_DETAIL_FIELDS = {"figure_status_detail"}
 SECRET_PATTERN = re.compile(
-    r"(?:sk-[A-Za-z0-9_-]{16,}|Bearer\s+[A-Za-z0-9._~+/=-]{16,}|gh[pousr]_[A-Za-z0-9_]{20,})",
+    r"(?:sk-[A-Za-z0-9_-]{16,}|Bearer\s+[A-Za-z0-9._~+/=-]{16,}|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})",
     re.IGNORECASE,
 )
 WINDOWS_PATH_PATTERN = re.compile(
@@ -45,6 +50,8 @@ SECRET_ENV_NAMES = (
     "DEEPSEEK_API_KEY",
     "DASUAPI_API_KEY",
     "SEMANTIC_SCHOLAR_API_KEY",
+    "GIST_ID",
+    "GIST_TOKEN",
 )
 
 
@@ -133,7 +140,8 @@ def scan_paths(paths: Iterable[Path]) -> list[str]:
         ):
             findings.append(f"local absolute path in {path}")
         if re.search(
-            r"(?:DEEPSEEK|DASUAPI|OPENROUTER|SEMANTIC_SCHOLAR)_API_KEY\s*=", text
+            r"(?:(?:DEEPSEEK|DASUAPI|OPENROUTER|SEMANTIC_SCHOLAR)_API_KEY|GIST_ID|GIST_TOKEN)\s*=",
+            text,
         ):
             findings.append(f"API key assignment in {path}")
     return findings

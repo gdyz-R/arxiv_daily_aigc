@@ -101,6 +101,9 @@ def _prepare_view(
     report_meta.setdefault("date", report_date.isoformat())
     report_meta.setdefault("newspaper_name", config["project"]["newspaper_name"])
     report_meta.setdefault("subtitle", config["project"]["subtitle"])
+    report_meta.setdefault("angle_name", "综合研究视角")
+    report_meta.setdefault("angle_name_en", "General Research Perspective")
+    report_meta.setdefault("search_query", "")
     topic_id = report_meta.get("focus_topic")
     if topic_id in config["topics"]:
         report_meta.setdefault("focus_topic_name", config["topics"][topic_id]["name"])
@@ -214,7 +217,7 @@ def render_report(
     view["stylesheet_url"] = relative_url(
         PROJECT_ROOT, public_stylesheet, target.parent
     )
-    view["image_aspect_ratio"] = config["render"].get("image_aspect_ratio", "16 / 10")
+    view["image_max_height"] = int(config["render"].get("image_max_height", 450))
     html = env.get_template(template_file.name).render(**view)
     target.write_text(html, encoding="utf-8")
     try:

@@ -13,6 +13,7 @@ import os
 import re
 import time
 from collections.abc import Iterable
+from copy import deepcopy
 from datetime import date, datetime, timedelta, timezone
 from datetime import time as datetime_time
 from email.utils import parsedate_to_datetime
@@ -30,9 +31,11 @@ from PIL import Image, UnidentifiedImageError
 try:
     from archive import report_slug
     from config import load_config, secret_from
+    from scheduler import build_search_query
 except ImportError:  # pragma: no cover - package execution
     from .archive import report_slug
     from .config import load_config, secret_from
+    from .scheduler import build_search_query
 
 
 LOGGER = logging.getLogger(__name__)
@@ -71,32 +74,12 @@ def paper_identity(paper: dict[str, Any]) -> str:
     )
 
 
-def _keyword_clause(keywords: Iterable[str]) -> str:
-    clauses: list[str] = []
-    for keyword in keywords:
-        escaped = keyword.replace('"', r"\"")
-        clauses.extend((f'ti:"{escaped}"', f'abs:"{escaped}"'))
-    return " OR ".join(clauses)
-
-
 def build_arxiv_query(
     topic: dict[str, Any], target_date: date, lookback_days: int
 ) -> str:
-    categories = " OR ".join(
-        f"cat:{category}" for category in topic.get("categories", [])
-    )
-    keywords = _keyword_clause(topic["keywords"])
-    start = datetime.combine(
-        target_date - timedelta(days=max(lookback_days - 1, 0)),
-        datetime_time.min,
-        tzinfo=timezone.utc,
-    )
-    end = datetime.combine(
-        target_date + timedelta(days=1), datetime_time.min, tzinfo=timezone.utc
-    )
-    date_range = f"submittedDate:[{start:%Y%m%d%H%M} TO {end:%Y%m%d%H%M}]"
-    category_clause = f"({categories}) AND " if categories else ""
-    return f"{category_clause}({keywords}) AND {date_range}"
+    """Backward-compatible alias for the scheduler-owned exact query builder."""
+
+    return build_search_query(topic, target_date, lookback_days)
 
 
 def _iso_datetime(value: datetime | date | str | None) -> str | None:
@@ -1140,7 +1123,9 @@ class OpenAlexSource:
         endpoint = f"{self.config.get('base_url', 'https://api.openalex.org').rstrip('/')}/works"
         retries = int(self.config.get("max_retries", 3))
         papers: list[dict[str, Any]] = []
-        for topic_id, topic in self.app_config["topics"].items():
+        max_topics = max(int(self.config.get("max_topics_per_run", 4)), 1)
+        ordered_topics = list(self.app_config["topics"].items())[:max_topics]
+        for topic_id, topic in ordered_topics:
             params: dict[str, Any] = {
                 "search": " OR ".join(str(item) for item in topic["keywords"][:10]),
                 "filter": (
@@ -1251,6 +1236,7 @@ def crawl_papers_with_diagnostics(
     config: dict[str, Any] | None = None,
     *,
     enrich_semantic_scholar: bool = True,
+    topic_order: list[str] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Fetch configured sources and return papers plus public-safe diagnostics.
 
@@ -1259,6 +1245,17 @@ def crawl_papers_with_diagnostics(
     """
 
     config = config or load_config()
+    if topic_order:
+        ordered_ids = [
+            topic_id for topic_id in topic_order if topic_id in config["topics"]
+        ]
+        ordered_ids.extend(
+            topic_id for topic_id in config["topics"] if topic_id not in ordered_ids
+        )
+        config = deepcopy(config)
+        config["topics"] = {
+            topic_id: config["topics"][topic_id] for topic_id in ordered_ids
+        }
     source_papers: list[dict[str, Any]] = []
     diagnostics: dict[str, Any] = {}
     if config["sources"]["arxiv"].get("enabled", True):
@@ -1323,6 +1320,7 @@ def crawl_papers(
     config: dict[str, Any] | None = None,
     *,
     enrich_semantic_scholar: bool = True,
+    topic_order: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Backward-compatible wrapper returning only merged papers."""
 
@@ -1330,6 +1328,7 @@ def crawl_papers(
         target_date,
         config,
         enrich_semantic_scholar=enrich_semantic_scholar,
+        topic_order=topic_order,
     )
     return papers
 

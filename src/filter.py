@@ -7,6 +7,7 @@ import logging
 import math
 import re
 import time
+from copy import deepcopy
 from datetime import date, datetime, timezone
 from typing import Any
 
@@ -14,8 +15,10 @@ import requests
 
 try:
     from config import load_config, secret_from
+    from prompts import build_daily_edition_prompt
 except ImportError:  # pragma: no cover
     from .config import load_config, secret_from
+    from .prompts import build_daily_edition_prompt
 
 
 LOGGER = logging.getLogger(__name__)
@@ -287,6 +290,62 @@ def coarse_classify_papers(
     return papers
 
 
+def prefilter_coarse_candidates(
+    papers: list[dict[str, Any]],
+    target_date: date,
+    config: dict[str, Any],
+    focus_topic: str,
+) -> list[dict[str, Any]]:
+    """Bound expensive LLM triage while preserving focus and cross-topic coverage."""
+
+    limit = int(config["selection"].get("coarse_candidate_limit", 36))
+    focus_minimum = min(int(config["selection"].get("coarse_focus_minimum", 18)), limit)
+    if len(papers) <= limit:
+        return papers
+    ranked: list[dict[str, Any]] = []
+    for paper in papers:
+        scores = keyword_topic_scores(paper, config)
+        focus_relevance = scores.get(focus_topic, 0.0)
+        best_relevance = max(scores.values(), default=0.0)
+        paper["prefilter_topic_scores"] = scores
+        paper["prefilter_score"] = round(
+            focus_relevance * 1.3
+            + best_relevance
+            + _recency_score(paper, target_date) * 0.35
+            + min(math.log1p(max(int(paper.get("citation_count", 0)), 0)), 5.0),
+            3,
+        )
+        ranked.append(paper)
+    ranked.sort(
+        key=lambda paper: (
+            paper.get("prefilter_score", 0),
+            paper.get("published_date", ""),
+        ),
+        reverse=True,
+    )
+    focus = [
+        paper
+        for paper in ranked
+        if focus_topic in paper.get("candidate_topics", [])
+        or (paper.get("prefilter_topic_scores") or {}).get(focus_topic, 0) > 0
+    ]
+    selected = focus[:focus_minimum]
+    selected_ids = {paper.get("paper_id") or id(paper) for paper in selected}
+    for paper in ranked:
+        if len(selected) >= limit:
+            break
+        identity = paper.get("paper_id") or id(paper)
+        if identity not in selected_ids:
+            selected.append(paper)
+            selected_ids.add(identity)
+    LOGGER.info(
+        "Prefilter retained %s/%s candidates for LLM coarse classification",
+        len(selected),
+        len(papers),
+    )
+    return selected
+
+
 def _recency_score(paper: dict[str, Any], target_date: date) -> float:
     published = _parse_datetime(paper.get("published_date"))
     if not published:
@@ -342,9 +401,12 @@ def select_daily_papers(
     papers: list[dict[str, Any]],
     target_date: date,
     config: dict[str, Any] | None = None,
+    *,
+    focus_topic: str | None = None,
+    target_count: int | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     config = config or load_config()
-    focus_topic = focus_topic_for_date(target_date, config)
+    focus_topic = focus_topic or focus_topic_for_date(target_date, config)
     eligible: list[dict[str, Any]] = []
     for paper in papers:
         if paper.get("eligible_by_date") is False:
@@ -368,7 +430,11 @@ def select_daily_papers(
     )
     focus_target = int(config["project"]["focus_count"])
     cross_target = int(config["project"]["cross_topic_count"])
-    total_target = int(config["project"]["edition_size"])
+    total_target = int(target_count or config["project"]["edition_size"])
+    total_target = max(total_target, 0)
+    if target_count is not None:
+        focus_target = min(focus_target, total_target)
+        cross_target = min(cross_target, max(total_target - focus_target, 0))
     focus_pool = [
         paper for paper in ranked if paper.get("primary_topic") == focus_topic
     ]
@@ -433,6 +499,282 @@ def select_daily_papers(
         else "按 6+1 主/跨主题策略选取。",
     }
     return selected, meta
+
+
+def rank_candidate_shortlist(
+    papers: list[dict[str, Any]],
+    target_date: date,
+    config: dict[str, Any],
+    focus_topic: str,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Create a balanced model shortlist larger than the final edition."""
+
+    return select_daily_papers(
+        papers,
+        target_date,
+        config,
+        focus_topic=focus_topic,
+        target_count=int(config["editorial_policy"]["candidate_shortlist_size"]),
+    )
+
+
+def _limited_string(value: Any, limit: int) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    return text[:limit]
+
+
+def _daily_editorial_fields(
+    result: dict[str, Any],
+    paper: dict[str, Any],
+    config: dict[str, Any],
+    *,
+    tier: str,
+    hero: bool,
+) -> dict[str, Any]:
+    if hero:
+        limits = {
+            "title": 90,
+            "dek": 150,
+            "background": 430,
+            "innovation": 140,
+            "findings": 430,
+        }
+    elif tier == "major":
+        limits = {
+            "title": 80,
+            "dek": 130,
+            "background": 330,
+            "innovation": 120,
+            "findings": 330,
+        }
+    else:
+        limits = {
+            "title": 80,
+            "dek": 110,
+            "background": 0,
+            "innovation": 0,
+            "findings": 0,
+        }
+    innovations = result.get("core_innovations") or []
+    brief_points = result.get("brief_points") or []
+    if not isinstance(innovations, list) or not isinstance(brief_points, list):
+        raise TypeError("Daily editorial list fields must be arrays")
+    return {
+        "newspaper_title": _limited_string(
+            result.get("newspaper_title") or paper.get("title"), limits["title"]
+        ),
+        "dek": _limited_string(
+            result.get("dek") or paper.get("coarse_rationale") or paper.get("summary"),
+            limits["dek"],
+        ),
+        "background_and_pain": _limited_string(
+            result.get("background_and_pain"), limits["background"]
+        )
+        if tier == "major"
+        else "",
+        "core_innovations": [
+            _limited_string(item, limits["innovation"])
+            for item in innovations[: (4 if hero else 3)]
+            if _limited_string(item, limits["innovation"])
+        ]
+        if tier == "major"
+        else [],
+        "experimental_findings": _limited_string(
+            result.get("experimental_findings"), limits["findings"]
+        )
+        if tier == "major"
+        else "",
+        "brief_points": [
+            _limited_string(item, 100)
+            for item in brief_points[:3]
+            if _limited_string(item, 100)
+        ]
+        if tier == "brief"
+        else [],
+        "contribution_tags": _allowed_tags(
+            result.get("contribution_tags") or [], paper, config
+        ),
+        "editorial_model_status": "available_daily",
+    }
+
+
+def _editorial_character_count(papers: list[dict[str, Any]]) -> int:
+    fields = (
+        "newspaper_title",
+        "dek",
+        "background_and_pain",
+        "experimental_findings",
+    )
+    return sum(
+        sum(len(str(paper.get(field) or "")) for field in fields)
+        + sum(len(str(item)) for item in paper.get("core_innovations", []))
+        + sum(len(str(item)) for item in paper.get("brief_points", []))
+        for paper in papers
+    )
+
+
+def _parse_daily_edition_result(
+    response: str,
+    candidates: list[dict[str, Any]],
+    target_date: date,
+    config: dict[str, Any],
+    focus_topic: str,
+) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
+    result = parse_json_response(response)
+    if not isinstance(result, dict):
+        raise TypeError("Daily edition response must be an object")
+    if not result or next(reversed(result)) != "memory_payload":
+        raise ValueError("memory_payload must be the final top-level field")
+    requested = result.get("selected_papers")
+    if not isinstance(requested, list):
+        raise TypeError("selected_papers must be an array")
+    policy = config["editorial_policy"]
+    minimum = int(policy["min_selected_papers"])
+    maximum = int(policy["max_selected_papers"])
+    if not minimum <= len(requested) <= maximum:
+        raise ValueError("Model selected an invalid number of papers")
+    candidate_map = {str(paper.get("paper_id")): paper for paper in candidates}
+    selected: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    hero_count = 0
+    major_count = 0
+    for raw in requested:
+        if not isinstance(raw, dict):
+            raise TypeError("Selected paper entries must be objects")
+        paper_id = str(raw.get("paper_id") or "")
+        if paper_id not in candidate_map or paper_id in seen:
+            raise ValueError("Model selected an unknown or duplicate paper")
+        seen.add(paper_id)
+        tier = str(raw.get("content_tier") or "brief")
+        if tier not in {"major", "brief"}:
+            raise ValueError("Invalid content tier")
+        hero = bool(raw.get("is_hero"))
+        if hero and tier != "major":
+            raise ValueError("The hero paper must be a major feature")
+        hero_count += int(hero)
+        major_count += int(tier == "major")
+        paper = deepcopy(candidate_map[paper_id])
+        paper.update(
+            {
+                "content_tier": tier,
+                "is_hero": hero,
+                "major_candidate": tier == "major",
+                "major_reason": "daily_editor_pick" if tier == "major" else "brief",
+                "breakthrough": is_breakthrough(paper, config),
+                **_daily_editorial_fields(raw, paper, config, tier=tier, hero=hero),
+            }
+        )
+        if tier == "major" and not paper.get("core_innovations"):
+            raise ValueError("Major paper lacks core innovations")
+        if tier == "brief" and not paper.get("brief_points"):
+            raise ValueError("Brief paper lacks brief points")
+        selected.append(paper)
+    if hero_count != 1 or major_count < 1:
+        raise ValueError(
+            "Daily edition requires exactly one hero and at least one major"
+        )
+    if major_count > int(config["project"]["max_major_features"]):
+        raise ValueError("Daily edition contains too many major features")
+    character_count = _editorial_character_count(selected)
+    if character_count > int(policy["hard_max_total_characters"]):
+        raise ValueError("Daily edition exceeds the configured hard volume limit")
+    actual_focus = sum(paper.get("primary_topic") == focus_topic for paper in selected)
+    meta = {
+        "focus_topic": focus_topic,
+        "target_focus_count": None,
+        "target_cross_topic_count": None,
+        "actual_focus_count": actual_focus,
+        "actual_cross_topic_count": len(selected) - actual_focus,
+        "candidate_count": len(candidates),
+        "selected_count": len(selected),
+        "distribution_note": f"模型按质量自主精选 {len(selected)} 篇，并执行动态篇幅控制。",
+        "edition_selection_status": "available_daily",
+        "editorial_character_count": character_count,
+    }
+    memory_payload = result.get("memory_payload")
+    if not isinstance(memory_payload, dict):
+        raise TypeError("memory_payload must be an object")
+    return selected, meta, memory_payload
+
+
+def _fallback_daily_edition(
+    candidates: list[dict[str, Any]],
+    target_date: date,
+    config: dict[str, Any],
+    focus_topic: str,
+    client: OpenAICompatibleClient,
+    reason: str,
+) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
+    selected, meta = select_daily_papers(
+        candidates, target_date, config, focus_topic=focus_topic
+    )
+    for paper in selected:
+        editorialize_paper(paper, config, client)
+    meta["edition_selection_status"] = reason
+    meta["distribution_note"] = (
+        f"日级自主选文不可用（{reason}），已回退到稳定的规则选文与逐篇精编。"
+    )
+    meta["editorial_character_count"] = _editorial_character_count(selected)
+    return selected, meta, {"schema_version": 1, "concept_updates": []}
+
+
+def generate_memory_aware_edition(
+    candidates: list[dict[str, Any]],
+    target_date: date,
+    config: dict[str, Any],
+    schedule: dict[str, Any],
+    memory_context: list[dict[str, Any]],
+    client: OpenAICompatibleClient | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
+    """Generate one variable-volume edition and return its private memory payload."""
+
+    client = client or OpenAICompatibleClient(config["llm"]["editorial"])
+    focus_topic = str(schedule["topic_id"])
+    if not client.available:
+        return _fallback_daily_edition(
+            candidates,
+            target_date,
+            config,
+            focus_topic,
+            client,
+            "fallback_no_editorial_key",
+        )
+    prompt = build_daily_edition_prompt(schedule, memory_context, candidates, config)
+    response = client.complete(
+        [
+            {
+                "role": "system",
+                "content": "You are the senior editor of a memory-aware AI research intelligence brief. Obey the memory bypass rules and return JSON only.",
+            },
+            {"role": "user", "content": prompt},
+        ],
+        max_tokens=int(config["editorial_policy"].get("max_completion_tokens", 7000)),
+    )
+    if not response:
+        return _fallback_daily_edition(
+            candidates,
+            target_date,
+            config,
+            focus_topic,
+            client,
+            "fallback_daily_api_failure",
+        )
+    try:
+        return _parse_daily_edition_result(
+            response, candidates, target_date, config, focus_topic
+        )
+    except (json.JSONDecodeError, TypeError, ValueError, AttributeError) as exc:
+        LOGGER.warning(
+            "Invalid daily edition JSON; using stable fallback: %s", type(exc).__name__
+        )
+        return _fallback_daily_edition(
+            candidates,
+            target_date,
+            config,
+            focus_topic,
+            client,
+            "fallback_invalid_daily_json",
+        )
 
 
 def _abstract_sentences(summary: str) -> list[str]:
@@ -716,6 +1058,18 @@ def generate_editorial_content(
     for index, paper in enumerate(papers, 1):
         LOGGER.info("Editorial generation %s/%s", index, len(papers))
         editorialize_paper(paper, config, client)
+        explain_figure(paper, client)
+    return papers
+
+
+def generate_figure_explanations(
+    papers: list[dict[str, Any]], config: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
+    """Generate figure explanations after final selection and image enrichment."""
+
+    config = config or load_config()
+    client = OpenAICompatibleClient(config["llm"]["editorial"])
+    for paper in papers:
         explain_figure(paper, client)
     return papers
 

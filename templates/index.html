@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ stylesheet_url }}">
 </head>
 
-<body style="--figure-aspect-ratio: {{ image_aspect_ratio }}">
+<body style="--figure-max-height: {{ image_max_height }}px">
     <main class="page">
         <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
                 Theory</span><span>{{ report_date.strftime('%A, %d %B %Y') }}</span></div>
@@ -19,15 +19,20 @@
         </header>
         <div class="focus-strip">
             <div><strong>今日焦点 · {{ report.focus_topic_name }}</strong><br>{{ report.focus_topic_name_en }}</div>
-            <div><b>{{ report.actual_focus_count|default(0) }}</b> 主主题 / <b>{{
-                    report.actual_cross_topic_count|default(0) }}</b> 跨主题</div>
-            <div><b>{{ report.candidate_count|default(papers|length) }}</b> 候选论文</div>
+            <div><span class="strip-label">今日视角</span><br><b>{{ report.angle_name }}</b><br>{{
+                report.angle_name_en }}</div>
+            <div><b>{{ report.selected_count|default(papers|length) }}</b> 精选 / <b>{{
+                    report.candidate_count|default(papers|length) }}</b> 候选</div>
             <div>{{ report.distribution_note|default('Daily curated edition') }}</div>
         </div>
+        {% if report.search_query %}<details class="query-strip">
+            <summary>Today's Search Query · 今日检索式</summary>
+            <code>{{ report.search_query }}</code>
+        </details>{% endif %}
         {% if hero %}<div class="section-kicker">Lead Story · 今日头条</div>
         <article class="hero{% if not hero.figure_url %} no-figure{% endif %}">
             {% if hero.figure_url %}<div class="hero-media" data-figure-media>
-                <figure>
+                <figure class="paper-figure">
                     <div class="figure-frame"><img src="{{ hero.figure_url }}" alt="{{ hero.title }} Figure 1"
                             loading="eager" referrerpolicy="no-referrer"
                             onerror="this.closest('.hero').classList.add('no-figure');this.closest('[data-figure-media]').remove()">
@@ -77,16 +82,18 @@
         {% if major_features %}<div class="section-kicker">Major Features · 重点论文</div>
         <section class="feature-grid">{% for paper in major_features %}<article
                 class="feature{% if not paper.figure_url %} no-figure{% endif %}">
-                {% if paper.figure_url %}<div data-figure-media>
-                    <div class="figure-frame"><img src="{{ paper.figure_url }}" alt="{{ paper.title }} Figure 1"
-                            loading="lazy" referrerpolicy="no-referrer"
-                            onerror="this.closest('.feature').classList.add('no-figure');this.closest('[data-figure-media]').remove()">
-                    </div>{% if paper.figure_explanation
-                    %}<div class="feature-figure-note"><strong>图解：</strong>{{ paper.figure_explanation }}</div>{% endif
-                    %}
-                    {% if paper.figure_caption %}<figcaption>{{ paper.figure_caption }}</figcaption>{% endif %}
+                {% if paper.figure_url %}<div class="feature-media" data-figure-media>
+                    <figure class="paper-figure">
+                        <div class="figure-frame"><img src="{{ paper.figure_url }}" alt="{{ paper.title }} Figure 1"
+                                loading="lazy" referrerpolicy="no-referrer"
+                                onerror="this.closest('.feature').classList.add('no-figure');this.closest('[data-figure-media]').remove()">
+                        </div>
+                        {% if paper.figure_caption %}<figcaption>{{ paper.figure_caption }}</figcaption>{% endif %}
+                    </figure>
+                    {% if paper.figure_explanation %}<div class="feature-figure-note"><strong>图解：</strong>{{
+                        paper.figure_explanation }}</div>{% endif %}
                 </div>{% endif %}
-                <div>
+                <div class="feature-copy">
                     <div class="eyebrow">{{ paper.topic_name_en }}</div>
                     <h3>{{ paper.newspaper_title }}</h3>
                     <div class="tags">{% if paper.breakthrough %}<span class="tag breakthrough">重大突破</span>{% endif %}{%

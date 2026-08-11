@@ -19,6 +19,59 @@ topic_rotation:
   saturday: subquadratic_attention
   sunday: cot_agentic_ai
 
+# Legacy weekday rotation remains for old archives and external callers. New daily
+# runs use the volume-independent cooldown scheduler below.
+scheduler:
+  topic_pool:
+    - engineering_deployment
+    - kv_cache_memory
+    - subquadratic_attention
+    - ssm_mamba
+    - cot_agentic_ai
+    - process_reward_models
+    - world_models
+    - causal_inference
+    - interpretability
+    - theory_loss_landscape
+  cooldown_days: 7
+  starvation_days: 21
+  unseen_topic_days: 365
+  angle_cooldown_days: 4
+  angle_starvation_days: 12
+  unseen_angle_days: 365
+  angle_pool:
+    - paradigm_evolution
+    - engineering_edge_cases
+    - first_principles
+    - failure_counterexamples
+    - evaluation_methodology
+    - systems_tradeoffs
+  angles:
+    paradigm_evolution:
+      name: "范式冲突与技术演进"
+      name_en: "Paradigm Conflict & Evolution"
+      instruction: "比较新方案与主流范式的核心假设、替代关系和演进路径，指出真正改变范式之处。"
+    engineering_edge_cases:
+      name: "工程落地与 Edge Case"
+      name_en: "Engineering & Edge Cases"
+      instruction: "从部署约束、极端输入、故障恢复和维护成本切入，区分论文演示与真实系统可用性。"
+    first_principles:
+      name: "底层理论与第一性原理"
+      name_en: "Theory & First Principles"
+      instruction: "从目标函数、归纳偏置、复杂度或信息流推导方法为何有效，以及依赖哪些不可省略的假设。"
+    failure_counterexamples:
+      name: "反例、失效模式与适用边界"
+      name_en: "Failures & Counterexamples"
+      instruction: "优先寻找反例、分布外失效、脆弱假设与负结果，明确论文结论不能外推到哪些场景。"
+    evaluation_methodology:
+      name: "评测可信度与实验方法学"
+      name_en: "Evaluation Methodology"
+      instruction: "检查基线、公平预算、数据污染、消融和统计证据，判断改进是否真的由所宣称机制带来。"
+    systems_tradeoffs:
+      name: "系统权衡与成本结构"
+      name_en: "System Trade-offs & Cost Structure"
+      instruction: "比较时延、吞吐、显存、训练成本、可扩展性和质量之间的交换关系，识别隐藏成本。"
+
 topics:
   engineering_deployment:
     name: "Transformer 工程部署改进"
@@ -44,6 +97,23 @@ topics:
       - "Speculative Decoding"
       - "Serving"
       - "Inference Acceleration"
+    concepts: [llm_serving, continuous_batching, speculative_decoding, quantization]
+
+  kv_cache_memory:
+    name: "KV Cache 与推理内存系统"
+    name_en: "KV Cache & Inference Memory"
+    categories: ["cs.CL", "cs.LG", "cs.AI", "cs.DC", "cs.PF"]
+    keywords:
+      - "KV cache"
+      - "key value cache"
+      - "paged attention"
+      - "prefix caching"
+      - "cache eviction"
+      - "cache compression"
+      - "context caching"
+      - "attention memory"
+    contribution_tags: ["KV Cache", "Paged Attention", "Cache Compression", "Serving"]
+    concepts: [kv_cache, paged_attention, prefix_caching, cache_eviction]
 
   subquadratic_attention:
     name: "亚二次方注意力探索"
@@ -67,6 +137,22 @@ topics:
       - "RWKV"
       - "Recurrent"
       - "Long Context"
+    concepts: [linear_attention, hybrid_attention, long_context_complexity]
+
+  ssm_mamba:
+    name: "状态空间模型与 Mamba"
+    name_en: "State Space Models & Mamba"
+    categories: ["cs.CL", "cs.LG", "cs.AI", "stat.ML"]
+    keywords:
+      - "Mamba"
+      - "state space model"
+      - "structured state space"
+      - "selective state space"
+      - "S4"
+      - "state space duality"
+      - "state space language model"
+    contribution_tags: ["Mamba", "SSM", "Recurrent", "Long Context"]
+    concepts: [state_space_model, selective_scan, state_space_duality, mamba]
 
   cot_agentic_ai:
     name: "CoT 与 Agent 实现"
@@ -92,6 +178,66 @@ topics:
       - "Multi-Agent"
       - "Planning"
       - "Agent Memory"
+    concepts: [chain_of_thought, test_time_reasoning, tool_use, agent_memory, planning]
+
+  process_reward_models:
+    name: "过程奖励模型与推理监督"
+    name_en: "Process Reward Models"
+    categories: ["cs.CL", "cs.AI", "cs.LG"]
+    keywords:
+      - "process reward model"
+      - "process supervision"
+      - "step-level reward"
+      - "outcome reward model"
+      - "reasoning verifier"
+      - "process verifier"
+      - "reward hacking reasoning"
+    contribution_tags: ["PRM", "Process Supervision", "Verifier", "Reasoning"]
+    concepts: [process_reward_model, outcome_reward_model, step_level_supervision, verifier]
+
+  world_models:
+    name: "世界模型与生成式环境模拟"
+    name_en: "World Models"
+    categories: ["cs.AI", "cs.LG", "cs.RO", "cs.CV"]
+    keywords:
+      - "world model"
+      - "latent dynamics"
+      - "model-based reinforcement learning"
+      - "video world model"
+      - "generative simulator"
+      - "predictive environment model"
+    contribution_tags: ["World Model", "Latent Dynamics", "Model-Based RL", "Planning"]
+    concepts: [world_model, latent_dynamics, model_based_rl, generative_simulator]
+
+  causal_inference:
+    name: "因果推断与因果表征"
+    name_en: "Causal Inference & Representation"
+    categories: ["cs.LG", "cs.AI", "stat.ML", "stat.ME"]
+    keywords:
+      - "causal inference"
+      - "causal representation"
+      - "causal discovery"
+      - "counterfactual"
+      - "structural causal model"
+      - "treatment effect"
+      - "causal abstraction"
+    contribution_tags: ["Causal Inference", "Causal Discovery", "Counterfactual", "Representation"]
+    concepts: [structural_causal_model, causal_discovery, counterfactual, treatment_effect]
+
+  interpretability:
+    name: "可解释性与机制分析"
+    name_en: "Interpretability & Mechanisms"
+    categories: ["cs.LG", "cs.AI", "cs.CL", "stat.ML"]
+    keywords:
+      - "mechanistic interpretability"
+      - "interpretability"
+      - "circuit analysis"
+      - "feature attribution"
+      - "sparse autoencoder"
+      - "activation steering"
+      - "representation probing"
+    contribution_tags: ["Mechanistic Interpretability", "Circuit Analysis", "Sparse Autoencoder", "Representation Geometry"]
+    concepts: [mechanistic_interpretability, circuit_analysis, sparse_autoencoder, activation_steering]
 
   theory_loss_landscape:
     name: "理论分析与机理研究"
@@ -116,6 +262,7 @@ topics:
       - "Expressivity"
       - "Representation Geometry"
       - "Scaling Laws"
+    concepts: [loss_landscape, optimization_dynamics, scaling_law, grokking]
 
 selection:
   breakthrough_threshold: 8.5
@@ -123,6 +270,9 @@ selection:
   recent_high_citation_threshold: 20
   recent_days: 120
   candidate_limit_per_topic: 45
+  # Bound expensive per-paper LLM triage after multi-source merging.
+  coarse_candidate_limit: 18
+  coarse_focus_minimum: 10
   top_venues:
     - NeurIPS
     - NIPS
@@ -195,6 +345,20 @@ selection:
     - Expressivity
     - Representation Geometry
     - Scaling Laws
+    - Paged Attention
+    - Cache Compression
+    - PRM
+    - Process Supervision
+    - Verifier
+    - World Model
+    - Latent Dynamics
+    - Model-Based RL
+    - Causal Inference
+    - Causal Discovery
+    - Counterfactual
+    - Representation
+    - Circuit Analysis
+    - Sparse Autoencoder
 
 sources:
   user_agent: "Daily-AI-Research-Gazette/2.0 (personal research digest)"
@@ -242,6 +406,8 @@ sources:
     mailto_env: "OPENALEX_MAILTO"
     lookback_days: 3
     max_results_per_topic: 25
+    # Topics are already ordered with today's fair-scheduled focus first.
+    max_topics_per_run: 4
     timeout_seconds: 25
     requests_per_second: 1.0
     max_retries: 3
@@ -268,6 +434,26 @@ llm:
     max_retries: 3
     temperature: 0.25
 
+editorial_policy:
+  candidate_shortlist_size: 12
+  min_selected_papers: 3
+  max_selected_papers: 7
+  target_total_characters: 3600
+  hard_max_total_characters: 5200
+  abstract_character_limit: 1800
+  max_completion_tokens: 7000
+
+memory:
+  provider: "github_gist"
+  base_url: "https://api.github.com"
+  gist_id_env: "GIST_ID"
+  token_env: "GIST_TOKEN"
+  filename: "concept_ledger.json"
+  codec: "plaintext-json"
+  context_concept_limit: 12
+  timeout_seconds: 15
+  max_retries: 2
+
 render:
   template: "index.html"
   stylesheet: "styles.css"
@@ -275,4 +461,4 @@ render:
   output_dir: "daily_html"
   json_dir: "daily_json"
   title_max_length: 48
-  image_aspect_ratio: "16 / 10"
+  image_max_height: 450

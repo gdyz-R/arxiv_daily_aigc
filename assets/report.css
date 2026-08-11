@@ -89,6 +89,37 @@ a {
     color: var(--accent)
 }
 
+.strip-label {
+    font: 800 10px/1 var(--sans);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted)
+}
+
+.query-strip {
+    border-bottom: 1px solid var(--rule);
+    padding: 8px 0 10px;
+    font: 11px/1.5 var(--sans)
+}
+
+.query-strip summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase
+}
+
+.query-strip code {
+    display: block;
+    margin-top: 8px;
+    padding: 9px 11px;
+    background: rgba(38, 34, 32, .055);
+    color: var(--ink);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere
+}
+
 .section-kicker {
     margin: 22px 0 10px;
     border-top: 5px solid var(--rule);
@@ -100,40 +131,37 @@ a {
 }
 
 .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.12fr) minmax(420px, .88fr);
-    gap: 26px;
+    display: block;
     padding: 14px 0 24px;
     border-bottom: 2px solid var(--rule)
 }
 
-.hero.no-figure {
-    grid-template-columns: minmax(0, 1fr)
-}
-
-.hero.no-figure .hero-copy {
-    border-left: 0;
-    padding-left: 0
-}
-
 .hero-media {
-    min-width: 0
+    min-width: 0;
+    margin-bottom: 18px
+}
+
+.paper-figure {
+    margin: 0
 }
 
 .figure-frame {
     background: #e9d9cb;
     border: 1px solid rgba(38, 34, 32, .45);
     overflow: hidden;
-    aspect-ratio: var(--figure-aspect-ratio, 16/10);
-    display: grid;
-    place-items: center
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    min-height: 120px
 }
 
 .figure-frame img {
-    width: 100%;
-    height: 100%;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: var(--figure-max-height, 450px);
     object-fit: contain;
-    background: #fff;
     display: block
 }
 
@@ -144,8 +172,8 @@ figcaption {
 }
 
 .hero-copy {
-    border-left: 1px solid var(--rule);
-    padding-left: 25px
+    max-width: 1180px;
+    margin: 0 auto
 }
 
 .eyebrow {
@@ -274,9 +302,7 @@ h3 {
 }
 
 .feature {
-    display: grid;
-    grid-template-columns: minmax(340px, .72fr) minmax(0, 1.28fr);
-    gap: 28px;
+    display: block;
     padding: 18px 0 26px
 }
 
@@ -285,12 +311,13 @@ h3 {
     border-top: 1px solid var(--rule)
 }
 
-.feature.no-figure {
-    grid-template-columns: minmax(0, 1fr)
+.feature-media {
+    margin-bottom: 18px
 }
 
-.feature .figure-frame {
-    aspect-ratio: 4/3
+.feature-copy {
+    max-width: 1180px;
+    margin: 0 auto
 }
 
 .feature h3 {
@@ -406,21 +433,8 @@ footer {
 }
 
 @media(max-width:1060px) {
-    .hero {
-        grid-template-columns: 1fr
-    }
-
-    .hero-copy {
-        border-left: 0;
-        padding-left: 0
-    }
-
     .feature-grid {
         grid-template-columns: 1fr
-    }
-
-    .feature {
-        grid-template-columns: minmax(270px, .85fr) minmax(0, 1.15fr)
     }
 
     .briefs-grid {
@@ -465,7 +479,6 @@ footer {
     }
 
     .analysis-grid,
-    .feature,
     .feature-analysis,
     .briefs-grid {
         grid-template-columns: 1fr
@@ -488,6 +501,15 @@ footer {
 
     .hero h2 {
         font-size: 34px
+    }
+
+    .figure-frame {
+        padding: 6px;
+        min-height: 80px
+    }
+
+    .figure-frame img {
+        max-height: min(var(--figure-max-height, 450px), 320px)
     }
 
     footer {

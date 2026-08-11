@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
+from unittest.mock import patch
 
 from src.archive import report_paths, safe_filename
 from src.config import load_config
@@ -33,6 +35,14 @@ class ArchivePrivacyTests(unittest.TestCase):
         self.assertEqual(cleaned["nested"]["ok"], "public")
         self.assertNotIn(r"C:\Users", cleaned["path"])
 
+    def test_privacy_scanner_detects_configured_gist_identifiers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "report.json"
+            path.write_text('{"debug":"gist-identifier-12345"}', encoding="utf-8")
+            with patch.dict(os.environ, {"GIST_ID": "gist-identifier-12345"}):
+                findings = scan_paths([path])
+        self.assertTrue(any("configured secret value" in item for item in findings))
+
     def test_privacy_scanner_detects_secret_like_output(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "report.json"
@@ -53,6 +63,11 @@ class ArchivePrivacyTests(unittest.TestCase):
                 encoding="utf-8",
             )
             self.assertTrue(scan_paths([path]))
+
+    def test_daily_workflow_injects_optional_gist_secrets(self):
+        workflow = Path(".github/workflows/daily_arxiv.yml").read_text(encoding="utf-8")
+        self.assertIn("GIST_ID: ${{ secrets.GIST_ID }}", workflow)
+        self.assertIn("GIST_TOKEN: ${{ secrets.GIST_TOKEN }}", workflow)
 
 
 if __name__ == "__main__":

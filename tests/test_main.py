@@ -5,10 +5,12 @@ import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from src.config import load_config
 from src.main import _report_paths, _update_reports_index, generate_daily_report
+from src.memory import MemoryReadResult, MemoryWriteResult
+from src.scheduler import ScheduleDecision
 
 
 class MainArchiveTests(unittest.TestCase):
@@ -101,6 +103,132 @@ class MainArchiveTests(unittest.TestCase):
             self.assertFalse(json_path.exists())
             self.assertFalse(html_path.exists())
             render_report.assert_not_called()
+
+    def test_full_pipeline_keeps_memory_payload_out_of_public_report(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            config = load_config()
+            config["_meta"]["project_root"] = directory
+            paper = {
+                "paper_id": "paper:1",
+                "title": "Private Memory Test",
+                "summary": "We propose a system and report experiments.",
+                "authors": ["A"],
+                "primary_topic": "kv_cache_memory",
+                "topic_scores": {"kv_cache_memory": 9},
+                "novelty_score": 9,
+                "potential_impact_score": 9,
+                "clarity_score": 8,
+                "is_relevant": True,
+                "citation_count": 0,
+                "venue_tags": [],
+                "categories": ["cs.CL"],
+                "published_date": "2026-08-10T00:00:00+00:00",
+                "abstract_url": "https://example.com/abs",
+                "pdf_url": "https://example.com/pdf",
+                "content_tier": "major",
+                "is_hero": True,
+                "newspaper_title": "测试日报",
+                "dek": "导语",
+                "background_and_pain": "背景",
+                "core_innovations": ["创新"],
+                "experimental_findings": "结论",
+                "brief_points": [],
+                "contribution_tags": ["KV Cache"],
+            }
+            decision = ScheduleDecision(
+                topic_id="kv_cache_memory",
+                topic_name="KV Cache 与推理内存系统",
+                topic_name_en="KV Cache & Inference Memory",
+                angle_id="systems_tradeoffs",
+                angle_name="系统权衡与成本结构",
+                angle_name_en="System Trade-offs & Cost Structure",
+                angle_instruction="分析成本结构",
+                search_query="private query",
+                days_unselected=12,
+                cooldown_readiness=0.8,
+                selection_reason="cooldown_weighted_rotation",
+            )
+            memory_client = MagicMock()
+            memory_client.write.return_value = MemoryWriteResult("updated", True)
+            private_summary = "PRIVATE_LEDGER_SUMMARY_MUST_NOT_PUBLISH"
+            read = MemoryReadResult(
+                {
+                    "schema_version": 1,
+                    "updated_at": None,
+                    "concepts": {
+                        "kv_cache": {
+                            "name": "KV Cache",
+                            "status": "learning",
+                            "mastery_level": 0.5,
+                            "mastery_summary": private_summary,
+                            "source_reports": [],
+                        }
+                    },
+                },
+                "available",
+                True,
+            )
+            payload_summary = "PRIVATE_PAYLOAD_MUST_NOT_PUBLISH"
+            with (
+                patch("src.main.PROJECT_ROOT", root),
+                patch("src.main.schedule_daily_focus", return_value=decision),
+                patch(
+                    "src.main._read_private_memory", return_value=(memory_client, read)
+                ),
+                patch(
+                    "src.main.crawl_papers_with_diagnostics",
+                    return_value=(
+                        [paper],
+                        {"arxiv": {"status": "available", "result_count": 1}},
+                    ),
+                ),
+                patch("src.main.coarse_classify_papers", return_value=[paper]),
+                patch("src.main.prefilter_coarse_candidates", return_value=[paper]),
+                patch(
+                    "src.main.rank_candidate_shortlist",
+                    return_value=([paper], {"candidate_count": 1}),
+                ),
+                patch(
+                    "src.main.generate_memory_aware_edition",
+                    return_value=(
+                        [paper],
+                        {
+                            "focus_topic": "kv_cache_memory",
+                            "actual_focus_count": 1,
+                            "actual_cross_topic_count": 0,
+                            "candidate_count": 1,
+                            "selected_count": 1,
+                            "distribution_note": "动态精选。",
+                        },
+                        {
+                            "concept_updates": [
+                                {
+                                    "concept_id": "kv_cache",
+                                    "name": "KV Cache",
+                                    "status": "mastered",
+                                    "mastery_level": 0.9,
+                                    "mastery_summary": payload_summary,
+                                }
+                            ]
+                        },
+                    ),
+                ),
+                patch("src.main.enrich_selected_figures", return_value=[paper]),
+                patch("src.main.generate_figure_explanations", return_value=[paper]),
+                patch("src.main.render_report") as render_report,
+            ):
+                json_path, _ = generate_daily_report(
+                    date(2026, 8, 11), config, force=True
+                )
+            public_text = json_path.read_text(encoding="utf-8")
+            public_payload = json.loads(public_text)
+        self.assertNotIn(private_summary, public_text)
+        self.assertNotIn(payload_summary, public_text)
+        self.assertNotIn("memory_payload", public_text)
+        self.assertEqual(public_payload["report"]["memory_write_status"], "updated")
+        memory_client.write.assert_called_once()
+        render_report.assert_called_once()
 
 
 if __name__ == "__main__":

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "report": {
+    "date": "2026-08-11",
+    "newspaper_name": "Daily AI Research Gazette",
+    "subtitle": "LLM Systems, Efficient Sequence Models, Agents & Theory",
+    "focus_topic": "subquadratic_attention",
+    "focus_topic_name": "亚二次方注意力探索",
+    "focus_topic_name_en": "Sub-quadratic Attention",
+    "generated_at": "2026-08-11T01:29:07.574730+00:00",
+    "target_focus_count": 6,
+    "target_cross_topic_count": 1,
+    "actual_focus_count": 0,
+    "actual_cross_topic_count": 0,
+    "candidate_count": 0,
+    "selected_count": 0,
+    "distribution_note": "按 6+1 主/跨主题策略选取。"
+  },
+  "papers": []
+}

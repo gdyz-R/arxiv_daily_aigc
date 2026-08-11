@@ -1,79 +1,146 @@
 # Daily AI Research Gazette
 
-A memory-aware personal AI/ML research intelligence brief built from arXiv, OpenAlex, Semantic Scholar, and verified NeurIPS pages. It uses volume-independent cooldown scheduling, rotating editorial angles, an optional private Gist concept ledger, and responsive static monthly archives.
+[中文说明](README_ZH.md) | English
 
-## Key behavior
+An automated AI/ML research brief that collects papers from arXiv, OpenAlex, Semantic Scholar, and official conference pages, then uses two OpenAI-compatible models for candidate triage and daily editorial generation. Reports are archived as static HTML/JSON and published through GitHub Pages.
 
-- Figures are included only after successful download and image decoding. Papers without a figure use a full-width layout with no placeholder or empty media area.
-- New archives use `daily_html/YYYY-MM/YYYY-MM-DD-edition-title.html`, matching JSON paths, and monthly figure directories. Existing legacy archives remain indexed.
-- Search topics, keywords, edition size, topic allocation, venue aliases, source switches, models, and output paths are edited in `config.yaml`.
-- Layout CSS is maintained in `templates/styles.css` and published as `assets/report.css`.
-- Topic selection uses equal base weights, days-unselected cooldown recovery, and starvation protection; paper volume never enters the scheduler.
-- The daily model can select 3–7 papers according to quality and applies a standardized total volume budget.
-- Mastered concepts bypass introductory teaching, while first-contact concepts receive only concise background.
+## Highlights
 
-## Sources and venues
+- Fair topic and editorial-angle rotation without using paper volume as scheduler weight.
+- Configurable topics, venues, source adapters, edition size, and output paths in `config.yaml`.
+- Optional private Gist concept memory with safe empty-memory fallback.
+- Validated figure downloads and responsive no-placeholder layouts.
+- GitHub Actions generation, privacy scanning, artifact commits, and Pages deployment.
 
-The default sources are arXiv, OpenAlex, Semantic Scholar, and official NeurIPS pages. The configured venue set covers NeurIPS, ICLR, ICML, AAAI, IJCAI, ACL, EMNLP, NAACL, COLM, CVPR, ICCV, ECCV, KDD, WWW, SIGIR, AISTATS, UAI, CoRL, RSS, JMLR, and TMLR. Extend coverage through `selection.top_venues` and `selection.venue_aliases` without changing Python.
+## Deploy a fork
 
-## Local setup
+1. Fork the repository and enable workflows in the **Actions** tab.
+2. Open **Settings → Actions → General → Workflow permissions** and select **Read and write permissions**.
+3. Open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**.
+4. Add the Repository Secrets and Variables below under **Settings → Secrets and variables → Actions**.
+5. Run **Actions → Daily AI Research Gazette → Run workflow**.
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-Copy-Item .env.example .env
-python src/main.py --date 2026-08-10 --force
-```
 
-The local `.env` is ignored by Git. Never store real keys in YAML, JSON, documentation, or workflow files.
+## Model configuration
 
-## Configuration interfaces
+### Required Repository Secrets
 
-- Edition size and allocation: `project.edition_size`, `focus_count`, `cross_topic_count`, `max_major_features`
-- Fair topic/angle scheduling: `scheduler.*`
-- Search focus and memory concepts: `topics.*.categories/keywords/concepts`
-- Variable edition volume: `editorial_policy.*`
-- Private Gist storage: `memory.*`
-- Conference scope: `selection.top_venues` and `selection.venue_aliases`
-- Source settings: `sources.arxiv`, `sources.openalex`, `sources.semantic_scholar`, `sources.neurips`
-- Models: `llm.coarse` and `llm.editorial`
-- Template, stylesheet, and archive directories: `render.*`
+| Name | Purpose |
+| --- | --- |
+| `COARSE_LLM_API_KEY` | Credential for candidate triage. |
+| `EDITORIAL_LLM_API_KEY` | Credential for final selection, writing, and optional figure explanation. |
 
-## GitHub Actions
+### Required Repository Variables
 
-Create these **Repository Secrets** under **Settings → Secrets and variables → Actions**:
+| Name | Purpose |
+| --- | --- |
+| `COARSE_LLM_BASE_URL` | Coarse-model API root, without `/chat/completions`. |
+| `COARSE_LLM_MODEL` | Coarse-model identifier. |
+| `EDITORIAL_LLM_BASE_URL` | Editorial-model API root, without `/chat/completions`. |
+| `EDITORIAL_LLM_MODEL` | Editorial-model identifier. |
 
-- `DEEPSEEK_API_KEY` — required
-- `DASUAPI_API_KEY` — required
-- `SEMANTIC_SCHOLAR_API_KEY` — optional
-- `GIST_ID` — optional secret/unlisted Gist containing `concept_ledger.json`
-- `GIST_TOKEN` — optional token that can read/update that Gist
 
-Optionally add the non-secret repository variable `OPENALEX_MAILTO`.
+### Optional Repository Variables
 
-The daily workflow runs tests, verifies required Secrets, generates the report, scans public outputs for injected secret values and local paths, and commits only report artifacts. The Pages workflow assembles a restricted `_site` containing only entry pages, indexes, reports, JSON, images, and CSS.
+| Name | Default | Purpose |
+| --- | --- | --- |
+| `COARSE_LLM_TOKEN_FIELD` | `max_tokens` | Request field used for the output-token limit. |
+| `EDITORIAL_LLM_TOKEN_FIELD` | `max_tokens` | Use `max_completion_tokens` when required by the endpoint. |
+| `COARSE_LLM_REASONING_FORMAT` | `none` | `none`, `flat`, or `nested`. |
+| `EDITORIAL_LLM_REASONING_FORMAT` | `none` | `none`, `flat`, or `nested`. |
+| `COARSE_LLM_REASONING_EFFORT` | empty | Provider-supported effort value such as `low` or `high`. |
+| `EDITORIAL_LLM_REASONING_EFFORT` | empty | Provider-supported effort value such as `high` or `max`. |
+| `OPENALEX_MAILTO` | empty | Optional OpenAlex polite-pool contact email. |
 
-Gist configuration is deliberately optional. Missing credentials, network errors, invalid JSON, or write failures switch the pipeline to empty-memory mode without failing report publication.
+- `none`: send no reasoning field.
+- `flat`: send `"reasoning_effort": "<value>"`.
+- `nested`: send `"reasoning": {"effort": "<value>"}`.
+- If the effort value is empty, no reasoning field is sent.
 
-Initialize `concept_ledger.json` with:
+### Optional Repository Secrets
+
+| Name | Purpose |
+| --- | --- |
+| `SEMANTIC_SCHOLAR_API_KEY` | Enables Semantic Scholar metadata enrichment. |
+| `GIST_ID` | Secret/unlisted Gist containing `concept_ledger.json`. |
+| `GIST_TOKEN` | Token allowed to read and update that Gist. |
+
+Minimal Gist content:
 
 ```json
 {"schema_version": 1, "updated_at": null, "concepts": {}}
 ```
 
-Security note: a GitHub secret Gist is unlisted, not end-to-end encrypted. This release stores readable JSON behind the Gist access controls. Storage and encoding are separated by `MemoryCodec`; unsupported future codec settings fail closed rather than silently writing plaintext.
+Gist failures do not block publication. A secret Gist is unlisted, not end-to-end encrypted; do not store credentials or sensitive personal data in it.
 
-## Validation
+## Local setup
 
-```powershell
-python -m compileall src
-python -m unittest discover -s tests -v
-python src/privacy.py daily_json daily_html reports.json assets/report.css
+```bash
+python -m venv .venv
 ```
 
-Images are byte- and pixel-limited, decoded with Pillow, restricted to PNG/JPEG/WebP, re-encoded to PNG, and written atomically. Invalid images never create an HTML media slot.
+Activate the environment:
 
-Public reports intentionally contain paper metadata and editorial results. API keys, authorization headers, `.env`, local absolute paths, internal `_meta`, and raw request exceptions are removed or rejected before publication. If configured research interests are sensitive, use a private repository and do not enable public GitHub Pages.
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+```
 
-The full ledger, prompt memory context, and model `memory_payload` remain private runtime data and are never persisted in public report JSON/HTML. Only non-sensitive memory status strings and update counts may appear in report metadata.
+```bat
+:: Windows CMD
+.venv\Scripts\activate.bat
+```
+
+```bash
+# Linux/macOS
+source .venv/bin/activate
+```
+
+Install and configure:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Copy `.env.example` to `.env`, then fill in the same model settings used by Actions. The local `.env` is ignored by Git and never overrides existing process variables.
+
+## Run and validate
+
+```bash
+python -m compileall src
+python -m unittest discover -s tests -v
+
+python src/main.py
+python src/main.py --date 2026-08-10 --force
+python src/main.py --date 2026-08-10 --offline-render
+python src/privacy.py daily_json daily_html reports.json assets/report.css assets/figures
+```
+
+Preview the static site from the repository root:
+
+```bash
+python -m http.server 8000
+```
+
+Open <http://localhost:8000/>. Do not use `file://`, because browsers may block `reports.json` requests.
+
+## Main configuration and outputs
+
+- `config.yaml`: topics, scheduling, sources, editorial policy, memory, rendering, timeouts, retries, and temperatures.
+- `templates/index.html` and `templates/styles.css`: report layout and style source.
+- `daily_json/YYYY-MM/`: generated report data.
+- `daily_html/YYYY-MM/`: generated report pages.
+- `assets/figures/YYYY-MM/`: validated cached figures.
+- `reports.json`: reverse-chronological archive index.
+
+The workflow runs daily at `00:00 UTC`, executes offline tests, validates required model configuration, generates the report, scans public outputs, commits report artifacts, and triggers the Pages deployment workflow.
+
+## Common issues
+
+- **Missing model configuration:** verify the exact Repository Secret/Variable names above in the current fork.
+- **401/404:** verify the API key, model identifier, base URL, and that `/chat/completions` is not duplicated.
+- **Invalid model response:** verify JSON mode, token-field name, and reasoning format support.
+- **arXiv 429:** keep RSS fallback enabled, reduce candidate limits, or rerun later.
+- **Push rejected:** enable workflow read/write permission and check branch protection rules.
+- **Pages 404:** select GitHub Actions as the Pages source and confirm generated artifacts reached `main`.

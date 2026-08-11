@@ -9,15 +9,15 @@ import re
 import time
 from copy import deepcopy
 from datetime import date, datetime, timezone
-from typing import Any
+from typing import Any, Protocol
 
 import requests
 
 try:
-    from config import load_config, secret_from
+    from config import ConfigError, environment_value_from, load_config, secret_from
     from prompts import build_daily_edition_prompt
 except ImportError:  # pragma: no cover
-    from .config import load_config, secret_from
+    from .config import ConfigError, environment_value_from, load_config, secret_from
     from .prompts import build_daily_edition_prompt
 
 
@@ -31,6 +31,16 @@ WEEKDAY_NAMES = (
     "saturday",
     "sunday",
 )
+
+
+class CompletionClient(Protocol):
+    """Small interface shared by the runtime client and deterministic test doubles."""
+
+    available: bool
+
+    def complete(
+        self, messages: list[dict[str, Any]], *, max_tokens: int = 1800
+    ) -> str | None: ...
 
 
 def focus_topic_for_date(target_date: date, config: dict[str, Any]) -> str:
@@ -69,43 +79,63 @@ def parse_json_response(text: str) -> Any:
 
 
 class OpenAICompatibleClient:
-    """Minimal OpenAI-compatible client with provider-specific reasoning fields."""
+    """Minimal OpenAI-compatible client with configuration-driven request fields."""
 
     def __init__(
         self, section: dict[str, Any], session: requests.Session | None = None
     ):
         self.section = section
         self.api_key = secret_from(section)
+        self.base_url = str(
+            environment_value_from(section, "base_url", "") or ""
+        ).rstrip("/")
+        self.model = str(environment_value_from(section, "model", "") or "").strip()
+        self.token_field = str(
+            environment_value_from(section, "token_field", "max_tokens") or "max_tokens"
+        ).strip()
+        self.reasoning_format = (
+            str(environment_value_from(section, "reasoning_format", "none") or "none")
+            .strip()
+            .lower()
+        )
+        self.reasoning_effort = str(
+            environment_value_from(section, "reasoning_effort", "") or ""
+        ).strip()
+        if self.reasoning_format not in {"none", "flat", "nested"}:
+            raise ConfigError("reasoning_format must be one of: none, flat, nested")
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", self.token_field):
+            raise ConfigError("token_field must be a valid JSON field name")
+        if self.api_key and (not self.base_url or not self.model):
+            raise ConfigError(
+                "An enabled LLM requires both base_url and model environment variables"
+            )
         self.session = session or requests.Session()
 
     @property
     def available(self) -> bool:
-        return bool(self.api_key)
+        return bool(self.api_key and self.base_url and self.model)
 
     def complete(
         self, messages: list[dict[str, Any]], *, max_tokens: int = 1800
     ) -> str | None:
-        if not self.api_key:
+        if not self.available:
             return None
         payload: dict[str, Any] = {
-            "model": self.section["model"],
+            "model": self.model,
             "messages": messages,
             "temperature": self.section.get("temperature", 0.2),
             "response_format": {"type": "json_object"},
         }
-        token_field = str(self.section.get("token_field", "max_tokens"))
-        payload[token_field] = max_tokens
-        effort = self.section.get("reasoning_effort")
-        if effort:
-            if self.section.get("provider") == "dasuapi":
-                payload["reasoning"] = {"effort": effort}
-            else:
-                payload["reasoning_effort"] = effort
+        payload[self.token_field] = max_tokens
+        if self.reasoning_effort and self.reasoning_format == "flat":
+            payload["reasoning_effort"] = self.reasoning_effort
+        elif self.reasoning_effort and self.reasoning_format == "nested":
+            payload["reasoning"] = {"effort": self.reasoning_effort}
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        url = f"{self.section['base_url'].rstrip('/')}/chat/completions"
+        url = f"{self.base_url}/chat/completions"
         retries = int(self.section.get("max_retries", 3))
         for attempt in range(retries):
             try:
@@ -123,7 +153,7 @@ class OpenAICompatibleClient:
             except (requests.RequestException, KeyError, IndexError, ValueError) as exc:
                 LOGGER.warning(
                     "%s API attempt %s/%s failed: %s",
-                    self.section.get("provider"),
+                    self.section.get("role", "llm"),
                     attempt + 1,
                     retries,
                     type(exc).__name__,
@@ -196,7 +226,7 @@ def _fallback_coarse(paper: dict[str, Any], config: dict[str, Any]) -> dict[str,
 
 
 def coarse_classify_paper(
-    paper: dict[str, Any], config: dict[str, Any], client: OpenAICompatibleClient
+    paper: dict[str, Any], config: dict[str, Any], client: CompletionClient
 ) -> dict[str, Any]:
     fallback = _fallback_coarse(paper, config)
     if not client.available:
@@ -702,7 +732,7 @@ def _fallback_daily_edition(
     target_date: date,
     config: dict[str, Any],
     focus_topic: str,
-    client: OpenAICompatibleClient,
+    client: CompletionClient,
     reason: str,
 ) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
     selected, meta = select_daily_papers(
@@ -724,7 +754,7 @@ def generate_memory_aware_edition(
     config: dict[str, Any],
     schedule: dict[str, Any],
     memory_context: list[dict[str, Any]],
-    client: OpenAICompatibleClient | None = None,
+    client: CompletionClient | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
     """Generate one variable-volume edition and return its private memory payload."""
 
@@ -863,7 +893,7 @@ def _fallback_editorial(
 
 
 def editorialize_paper(
-    paper: dict[str, Any], config: dict[str, Any], client: OpenAICompatibleClient
+    paper: dict[str, Any], config: dict[str, Any], client: CompletionClient
 ) -> dict[str, Any]:
     fallback = _fallback_editorial(paper, config)
     if not client.available:
@@ -967,9 +997,7 @@ def editorialize_paper(
     return paper
 
 
-def explain_figure(
-    paper: dict[str, Any], client: OpenAICompatibleClient
-) -> dict[str, Any]:
+def explain_figure(paper: dict[str, Any], client: CompletionClient) -> dict[str, Any]:
     if paper.get("content_tier") != "major":
         paper["figure_explanation"] = ""
         return paper

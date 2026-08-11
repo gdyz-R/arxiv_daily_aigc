@@ -47,8 +47,8 @@ TEXT_SUFFIXES = {
     ".yaml",
 }
 SECRET_ENV_NAMES = (
-    "DEEPSEEK_API_KEY",
-    "DASUAPI_API_KEY",
+    "COARSE_LLM_API_KEY",
+    "EDITORIAL_LLM_API_KEY",
     "SEMANTIC_SCHOLAR_API_KEY",
     "GIST_ID",
     "GIST_TOKEN",
@@ -140,7 +140,7 @@ def scan_paths(paths: Iterable[Path]) -> list[str]:
         ):
             findings.append(f"local absolute path in {path}")
         if re.search(
-            r"(?:(?:DEEPSEEK|DASUAPI|OPENROUTER|SEMANTIC_SCHOLAR)_API_KEY|GIST_ID|GIST_TOKEN)\s*=",
+            r"(?:[A-Z][A-Z0-9_]*_API_KEY|GIST_ID|GIST_TOKEN)\s*=",
             text,
         ):
             findings.append(f"API key assignment in {path}")

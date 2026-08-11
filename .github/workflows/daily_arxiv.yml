@@ -2,8 +2,7 @@ name: Daily AI Research Gazette
 
 on:
   schedule:
-    # Runs 'at 04:00 UTC' every day
-    - cron: '0 4 * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
     inputs:
       report_date:
@@ -43,18 +42,36 @@ jobs:
         python -m compileall src
         python -m unittest discover -s tests -v
 
-    - name: Verify required GitHub Secrets
+    - name: Verify required model Secrets and Variables
       env:
-        DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        DASUAPI_API_KEY: ${{ secrets.DASUAPI_API_KEY }}
+        COARSE_LLM_API_KEY: ${{ secrets.COARSE_LLM_API_KEY }}
+        EDITORIAL_LLM_API_KEY: ${{ secrets.EDITORIAL_LLM_API_KEY }}
+        COARSE_LLM_BASE_URL: ${{ vars.COARSE_LLM_BASE_URL }}
+        COARSE_LLM_MODEL: ${{ vars.COARSE_LLM_MODEL }}
+        EDITORIAL_LLM_BASE_URL: ${{ vars.EDITORIAL_LLM_BASE_URL }}
+        EDITORIAL_LLM_MODEL: ${{ vars.EDITORIAL_LLM_MODEL }}
       run: |
-        test -n "$DEEPSEEK_API_KEY" || { echo "Missing DEEPSEEK_API_KEY secret"; exit 1; }
-        test -n "$DASUAPI_API_KEY" || { echo "Missing DASUAPI_API_KEY secret"; exit 1; }
+        test -n "$COARSE_LLM_API_KEY" || { echo "Missing COARSE_LLM_API_KEY Repository Secret"; exit 1; }
+        test -n "$EDITORIAL_LLM_API_KEY" || { echo "Missing EDITORIAL_LLM_API_KEY Repository Secret"; exit 1; }
+        test -n "$COARSE_LLM_BASE_URL" || { echo "Missing COARSE_LLM_BASE_URL Repository Variable"; exit 1; }
+        test -n "$COARSE_LLM_MODEL" || { echo "Missing COARSE_LLM_MODEL Repository Variable"; exit 1; }
+        test -n "$EDITORIAL_LLM_BASE_URL" || { echo "Missing EDITORIAL_LLM_BASE_URL Repository Variable"; exit 1; }
+        test -n "$EDITORIAL_LLM_MODEL" || { echo "Missing EDITORIAL_LLM_MODEL Repository Variable"; exit 1; }
 
     - name: Run multi-source paper newspaper pipeline
       env:
-        DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        DASUAPI_API_KEY: ${{ secrets.DASUAPI_API_KEY }}
+        COARSE_LLM_API_KEY: ${{ secrets.COARSE_LLM_API_KEY }}
+        EDITORIAL_LLM_API_KEY: ${{ secrets.EDITORIAL_LLM_API_KEY }}
+        COARSE_LLM_BASE_URL: ${{ vars.COARSE_LLM_BASE_URL }}
+        COARSE_LLM_MODEL: ${{ vars.COARSE_LLM_MODEL }}
+        COARSE_LLM_TOKEN_FIELD: ${{ vars.COARSE_LLM_TOKEN_FIELD }}
+        COARSE_LLM_REASONING_FORMAT: ${{ vars.COARSE_LLM_REASONING_FORMAT }}
+        COARSE_LLM_REASONING_EFFORT: ${{ vars.COARSE_LLM_REASONING_EFFORT }}
+        EDITORIAL_LLM_BASE_URL: ${{ vars.EDITORIAL_LLM_BASE_URL }}
+        EDITORIAL_LLM_MODEL: ${{ vars.EDITORIAL_LLM_MODEL }}
+        EDITORIAL_LLM_TOKEN_FIELD: ${{ vars.EDITORIAL_LLM_TOKEN_FIELD }}
+        EDITORIAL_LLM_REASONING_FORMAT: ${{ vars.EDITORIAL_LLM_REASONING_FORMAT }}
+        EDITORIAL_LLM_REASONING_EFFORT: ${{ vars.EDITORIAL_LLM_REASONING_EFFORT }}
         SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
         GIST_ID: ${{ secrets.GIST_ID }}
         GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
@@ -69,8 +86,8 @@ jobs:
 
     - name: Check public outputs for secrets and local paths
       env:
-        DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        DASUAPI_API_KEY: ${{ secrets.DASUAPI_API_KEY }}
+        COARSE_LLM_API_KEY: ${{ secrets.COARSE_LLM_API_KEY }}
+        EDITORIAL_LLM_API_KEY: ${{ secrets.EDITORIAL_LLM_API_KEY }}
         SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
         GIST_ID: ${{ secrets.GIST_ID }}
         GIST_TOKEN: ${{ secrets.GIST_TOKEN }}

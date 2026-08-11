@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import os
 import unittest
 from datetime import date
+from unittest.mock import MagicMock, patch
 
-from src.config import load_config
+from src.config import ConfigError, load_config
 from src.filter import (
     OpenAICompatibleClient,
     editorialize_paper,
@@ -88,6 +90,90 @@ class FilterTests(unittest.TestCase):
         self.assertNotEqual(
             paper["background_and_pain"], paper["experimental_findings"]
         )
+
+    def test_openai_client_builds_provider_neutral_reasoning_payloads(self):
+        cases = (
+            (
+                "flat",
+                "max_tokens",
+                {"reasoning_effort": "high"},
+            ),
+            (
+                "nested",
+                "max_completion_tokens",
+                {"reasoning": {"effort": "high"}},
+            ),
+            ("none", "max_tokens", {}),
+        )
+        for reasoning_format, token_field, expected_reasoning in cases:
+            with self.subTest(reasoning_format=reasoning_format):
+                prefix = f"GAZETTE_TEST_{reasoning_format.upper()}"
+                environment = {
+                    f"{prefix}_KEY": "test-secret-value",
+                    f"{prefix}_URL": "https://llm.example/v1/",
+                    f"{prefix}_MODEL": "test-model",
+                    f"{prefix}_TOKEN_FIELD": token_field,
+                    f"{prefix}_REASONING_FORMAT": reasoning_format,
+                    f"{prefix}_REASONING_EFFORT": "high",
+                }
+                section = {
+                    "api_key_env": f"{prefix}_KEY",
+                    "base_url_env": f"{prefix}_URL",
+                    "model_env": f"{prefix}_MODEL",
+                    "token_field_env": f"{prefix}_TOKEN_FIELD",
+                    "reasoning_format_env": f"{prefix}_REASONING_FORMAT",
+                    "reasoning_effort_env": f"{prefix}_REASONING_EFFORT",
+                    "max_retries": 1,
+                }
+                session = MagicMock()
+                response = session.post.return_value
+                response.status_code = 200
+                response.json.return_value = {
+                    "choices": [{"message": {"content": "ok"}}]
+                }
+                with patch.dict(os.environ, environment):
+                    client = OpenAICompatibleClient(section, session)
+                    self.assertEqual(client.complete([], max_tokens=321), "ok")
+                _, kwargs = session.post.call_args
+                self.assertEqual(
+                    kwargs["json"][token_field],
+                    321,
+                )
+                self.assertEqual(kwargs["json"]["model"], "test-model")
+                self.assertEqual(
+                    kwargs["json"].get("reasoning_effort"),
+                    expected_reasoning.get("reasoning_effort"),
+                )
+                self.assertEqual(
+                    kwargs["json"].get("reasoning"),
+                    expected_reasoning.get("reasoning"),
+                )
+                self.assertEqual(
+                    session.post.call_args.args[0],
+                    "https://llm.example/v1/chat/completions",
+                )
+
+    def test_openai_client_rejects_unknown_reasoning_format(self):
+        with (
+            patch.dict(
+                os.environ,
+                {
+                    "GAZETTE_TEST_KEY": "test-secret-value",
+                    "GAZETTE_TEST_URL": "https://llm.example/v1",
+                    "GAZETTE_TEST_MODEL": "test-model",
+                    "GAZETTE_TEST_REASONING_FORMAT": "provider-specific",
+                },
+            ),
+            self.assertRaisesRegex(ConfigError, "reasoning_format"),
+        ):
+            OpenAICompatibleClient(
+                {
+                    "api_key_env": "GAZETTE_TEST_KEY",
+                    "base_url_env": "GAZETTE_TEST_URL",
+                    "model_env": "GAZETTE_TEST_MODEL",
+                    "reasoning_format_env": "GAZETTE_TEST_REASONING_FORMAT",
+                }
+            )
 
     def test_daily_editor_can_choose_variable_volume_and_return_payload(self):
         papers = [self.paper(i, "cot_agentic_ai", 9 - i / 10) for i in range(5)]

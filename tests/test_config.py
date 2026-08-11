@@ -5,8 +5,15 @@ import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
+from unittest.mock import patch
 
-from src.config import ConfigError, load_config, load_local_environment, validate_config
+from src.config import (
+    ConfigError,
+    environment_value_from,
+    load_config,
+    load_local_environment,
+    validate_config,
+)
 
 
 class ConfigEnvironmentTests(unittest.TestCase):
@@ -65,6 +72,32 @@ class ConfigEnvironmentTests(unittest.TestCase):
                 os.environ.pop(key, None)
             else:
                 os.environ[key] = original
+
+    def test_llm_runtime_value_comes_from_configured_environment_variable(self):
+        section = {
+            "model_env": "GAZETTE_TEST_MODEL",
+            "model": "fallback-model",
+        }
+        with patch.dict(os.environ, {"GAZETTE_TEST_MODEL": "runtime-model"}):
+            self.assertEqual(environment_value_from(section, "model"), "runtime-model")
+
+    def test_default_llm_config_contains_only_generic_environment_references(self):
+        config = load_config()
+        self.assertEqual(config["llm"]["coarse"]["api_key_env"], "COARSE_LLM_API_KEY")
+        self.assertEqual(
+            config["llm"]["editorial"]["api_key_env"],
+            "EDITORIAL_LLM_API_KEY",
+        )
+        for section in config["llm"].values():
+            self.assertNotIn("base_url", section)
+            self.assertNotIn("model", section)
+            self.assertNotIn("provider", section)
+
+    def test_llm_environment_references_must_be_uppercase_names(self):
+        config = load_config()
+        config["llm"]["coarse"]["model_env"] = "invalid-model-name"
+        with self.assertRaisesRegex(ConfigError, "llm.coarse.model_env"):
+            validate_config(config)
 
 
 if __name__ == "__main__":

@@ -69,6 +69,26 @@ class ArchivePrivacyTests(unittest.TestCase):
         self.assertIn("GIST_ID: ${{ secrets.GIST_ID }}", workflow)
         self.assertIn("GIST_TOKEN: ${{ secrets.GIST_TOKEN }}", workflow)
 
+    def test_daily_workflow_uses_generic_model_secrets_and_variables(self):
+        workflow = Path(".github/workflows/daily_arxiv.yml").read_text(encoding="utf-8")
+        expected_references = (
+            "COARSE_LLM_API_KEY: ${{ secrets.COARSE_LLM_API_KEY }}",
+            "EDITORIAL_LLM_API_KEY: ${{ secrets.EDITORIAL_LLM_API_KEY }}",
+            "COARSE_LLM_BASE_URL: ${{ vars.COARSE_LLM_BASE_URL }}",
+            "COARSE_LLM_MODEL: ${{ vars.COARSE_LLM_MODEL }}",
+            "EDITORIAL_LLM_BASE_URL: ${{ vars.EDITORIAL_LLM_BASE_URL }}",
+            "EDITORIAL_LLM_MODEL: ${{ vars.EDITORIAL_LLM_MODEL }}",
+        )
+        for reference in expected_references:
+            self.assertIn(reference, workflow)
+
+    def test_privacy_scanner_detects_generic_api_key_assignment(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "report.txt"
+            path.write_text("COARSE_LLM_API_KEY=secret", encoding="utf-8")
+            findings = scan_paths([path])
+        self.assertTrue(any("API key assignment" in item for item in findings))
+
 
 if __name__ == "__main__":
     unittest.main()

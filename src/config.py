@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,7 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config.yaml"
 DEFAULT_ENV_PATH = PROJECT_ROOT / ".env"
+ENVIRONMENT_NAME_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]*$")
 
 
 def load_local_environment(path: str | os.PathLike[str] | None = None) -> bool:
@@ -39,6 +41,20 @@ def _expand_environment(value: Any) -> Any:
     if isinstance(value, str):
         return os.path.expandvars(value)
     return value
+
+
+def environment_value_from(
+    section: dict[str, Any], field: str, default: Any = None
+) -> Any:
+    """Resolve a non-secret setting from its configured environment reference."""
+
+    env_name = section.get(f"{field}_env")
+    if env_name:
+        value = os.getenv(str(env_name))
+        if value is not None and value.strip():
+            return value.strip()
+    value = section.get(field, default)
+    return value.strip() if isinstance(value, str) else value
 
 
 def validate_config(config: dict[str, Any]) -> None:
@@ -129,6 +145,28 @@ def validate_config(config: dict[str, Any]) -> None:
             "editorial_policy requires 0 < min <= max <= candidate_shortlist_size"
         )
 
+    llm = config.get("llm", {})
+    for role in ("coarse", "editorial"):
+        section = llm.get(role)
+        if not isinstance(section, dict):
+            raise ConfigError(f"llm.{role} must be a mapping")
+        for field in ("api_key_env", "base_url_env", "model_env"):
+            env_name = str(section.get(field, "")).strip()
+            if not ENVIRONMENT_NAME_PATTERN.fullmatch(env_name):
+                raise ConfigError(
+                    f"llm.{role}.{field} must reference an uppercase environment variable"
+                )
+        for field in (
+            "token_field_env",
+            "reasoning_format_env",
+            "reasoning_effort_env",
+        ):
+            env_name = str(section.get(field, "")).strip()
+            if env_name and not ENVIRONMENT_NAME_PATTERN.fullmatch(env_name):
+                raise ConfigError(
+                    f"llm.{role}.{field} must reference an uppercase environment variable"
+                )
+
     memory = config.get("memory", {})
     if memory.get("provider") not in {"github_gist", "disabled"}:
         raise ConfigError("memory.provider must be github_gist or disabled")
@@ -195,4 +233,5 @@ def secret_from(section: dict[str, Any]) -> str | None:
     """Resolve a secret referenced by an ``api_key_env`` configuration field."""
 
     env_name = section.get("api_key_env")
-    return os.getenv(env_name) if env_name else None
+    value = os.getenv(str(env_name)) if env_name else None
+    return value.strip() if value and value.strip() else None

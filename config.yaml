@@ -414,22 +414,24 @@ sources:
 
 llm:
   coarse:
-    provider: "deepseek"
-    base_url: "https://api.deepseek.com/v1"
-    api_key_env: "DEEPSEEK_API_KEY"
-    model: "deepseek-v4-flash"
-    reasoning_effort: "low"
-    token_field: "max_tokens"
+    role: "coarse"
+    api_key_env: "COARSE_LLM_API_KEY"
+    base_url_env: "COARSE_LLM_BASE_URL"
+    model_env: "COARSE_LLM_MODEL"
+    token_field_env: "COARSE_LLM_TOKEN_FIELD"
+    reasoning_format_env: "COARSE_LLM_REASONING_FORMAT"
+    reasoning_effort_env: "COARSE_LLM_REASONING_EFFORT"
     timeout_seconds: 90
     max_retries: 3
     temperature: 0.1
   editorial:
-    provider: "dasuapi"
-    base_url: "https://dasuapi.com/v1"
-    api_key_env: "DASUAPI_API_KEY"
-    model: "gpt-5.6-terra"
-    reasoning_effort: "max"
-    token_field: "max_completion_tokens"
+    role: "editorial"
+    api_key_env: "EDITORIAL_LLM_API_KEY"
+    base_url_env: "EDITORIAL_LLM_BASE_URL"
+    model_env: "EDITORIAL_LLM_MODEL"
+    token_field_env: "EDITORIAL_LLM_TOKEN_FIELD"
+    reasoning_format_env: "EDITORIAL_LLM_REASONING_FORMAT"
+    reasoning_effort_env: "EDITORIAL_LLM_REASONING_EFFORT"
     timeout_seconds: 180
     max_retries: 3
     temperature: 0.25

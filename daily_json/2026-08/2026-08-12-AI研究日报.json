@@ -1,0 +1,609 @@
+{
+  "schema_version": 2,
+  "report": {
+    "date": "2026-08-12",
+    "newspaper_name": "Daily AI Research Gazette",
+    "subtitle": "LLM Systems, Efficient Sequence Models, Agents & Theory",
+    "focus_topic": "engineering_deployment",
+    "focus_topic_name": "Transformer 工程部署改进",
+    "focus_topic_name_en": "Engineering & Deployment",
+    "search_query": "(cat:cs.CL OR cat:cs.LG OR cat:cs.AI OR cat:cs.DC OR cat:cs.PF) AND (ti:\"KV cache\" OR abs:\"KV cache\" OR ti:\"paged attention\" OR abs:\"paged attention\" OR ti:\"FlashAttention\" OR abs:\"FlashAttention\" OR ti:\"quantization\" OR abs:\"quantization\" OR ti:\"speculative decoding\" OR abs:\"speculative decoding\" OR ti:\"inference acceleration\" OR abs:\"inference acceleration\" OR ti:\"LLM serving\" OR abs:\"LLM serving\" OR ti:\"vLLM\" OR abs:\"vLLM\" OR ti:\"TensorRT-LLM\" OR abs:\"TensorRT-LLM\" OR ti:\"continuous batching\" OR abs:\"continuous batching\" OR ti:\"mixture of experts serving\" OR abs:\"mixture of experts serving\" OR ti:\"model compression\" OR abs:\"model compression\") AND submittedDate:[202608100000 TO 202608130000]",
+    "angle_id": "failure_counterexamples",
+    "angle_name": "反例、失效模式与适用边界",
+    "angle_name_en": "Failures & Counterexamples",
+    "schedule_days_unselected": 365,
+    "schedule_cooldown_readiness": 1.0,
+    "schedule_selection_reason": "starvation_guard",
+    "memory_read_status": "available",
+    "memory_write_status": "updated",
+    "memory_concept_update_count": 4,
+    "generated_at": "2026-08-12T00:59:06.468627+00:00",
+    "source_diagnostics": {
+      "arxiv": {
+        "status": "available",
+        "api_topics_attempted": 10,
+        "api_topics_succeeded": 10,
+        "api_topics_failed": 0,
+        "api_result_count": 127,
+        "fallback_used": false,
+        "result_count": 105,
+        "errors": []
+      },
+      "neurips": {
+        "status": "empty",
+        "result_count": 0
+      },
+      "openalex": {
+        "status": "empty",
+        "result_count": 0
+      },
+      "merged_candidate_count": 105,
+      "semantic_scholar": {
+        "status": "disabled",
+        "paper_count": 105
+      }
+    },
+    "target_focus_count": null,
+    "target_cross_topic_count": null,
+    "actual_focus_count": 5,
+    "actual_cross_topic_count": 1,
+    "candidate_count": 12,
+    "selected_count": 6,
+    "distribution_note": "模型按质量自主精选 6 篇，并执行动态篇幅控制。",
+    "edition_selection_status": "available_daily",
+    "editorial_character_count": 2924,
+    "source_candidate_count": 18,
+    "shortlist_count": 12
+  },
+  "papers": [
+    {
+      "paper_id": "arxiv:2608.09412",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09412",
+      "arxiv_id": "2608.09412",
+      "title": "KVDiagnosis: A Diagnostic Benchmark for KV-Cache Compression in Long-Context Language Models",
+      "summary": "KV-cache compression reduces long-context memory, but aggregate task scores reveal neither which correct executions fail nor why. We present KVDiagnosis, a diagnostic dataset and benchmark with three contributions. First, a 25-method taxonomy groups methods into five mechanism families and links them to eight verified implementations and their valid diagnostic measurements. Second, for every supported method setting, we evaluate all sources in each fixed split against a per-source FullCache control before selecting FullCache-correct/compressed-wrong (C-to-W) rows separately for each method-setting, so no compressor defines another's test set. Third, a common record format links paired outputs and run metadata to cache, likelihood, attention, and decoding measurements with explicit applicability states. On Qwen3-8B, four evidence-aware workloads yield 59 800 supported compressed runs over 2600 sources and 12 520 C-to-W rows. Under fixed diagnostic rules, 63.2% have low or partial measured/projected coverage. Only 19 rows (0.2%) combine high measured/projected coverage with strong likelihood drift; another 2,126 (17.0%) preserve structural position addressability, for which representation fidelity remains unknown, while showing the same drift. Against C-to-C success controls, all ten diagnostics separate failed from successful compression (stratified AUROC 0.684-0.871). Among 96 reproducible low-EAR failures, a controlled 4x evidence-attention boost repairs 29.2%, versus 6.3% under a count-matched sham intervention and 3.3% degradation on matched C-to-C controls. Code and data are available at https://github.com/ChosenQC/KVDiagnosis.",
+      "url": "http://arxiv.org/abs/2608.09412v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09412v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09412v1",
+      "published_date": "2026-08-10T10:38:05+00:00",
+      "updated_date": "2026-08-10T10:38:05+00:00",
+      "categories": [
+        "cs.AI"
+      ],
+      "authors": [
+        "Chen Qiu",
+        "Ziwu Liu",
+        "Chao Fei",
+        "Guozhong Li",
+        "Panos Kalnis"
+      ],
+      "candidate_topics": [
+        "engineering_deployment",
+        "kv_cache_memory"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "no_figure",
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 2.1,
+        "kv_cache_memory": 4.65,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 10.754,
+      "is_relevant": true,
+      "primary_topic": "kv_cache_memory",
+      "topic_scores": {
+        "engineering_deployment": 8.0,
+        "kv_cache_memory": 10.0,
+        "subquadratic_attention": 1.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 0.0,
+        "causal_inference": 0.0,
+        "interpretability": 2.0,
+        "theory_loss_landscape": 1.0
+      },
+      "novelty_score": 7.0,
+      "potential_impact_score": 8.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "本文提出了一个针对KV缓存压缩的诊断基准，系统评估了多种压缩方法的失败模式，对长上下文推理优化具有重要价值。",
+      "contribution_tags": [
+        "Cache Compression",
+        "Representation"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 7.87,
+      "major_candidate": true,
+      "major_reason": "daily_editor_pick",
+      "breakthrough": false,
+      "content_tier": "major",
+      "is_hero": true,
+      "newspaper_title": "压缩的失效不只是总分下降：KV 缓存需要逐条诊断",
+      "dek": "KVDiagnosis 将“完整缓存正确、压缩缓存错误”的样本逐源配对，避免由某一压缩器定义其他方法的失败集。其结果提示：许多长上下文压缩失败可观测到证据覆盖不足或似然漂移，但可见的位置结构并不等于表征仍被保真。",
+      "background_and_pain": "KV 缓存压缩旨在降低长上下文推理的内存负担，但汇总任务分数无法回答两件部署上更关键的问题：哪些原本能答对的请求被压缩弄错，以及错误究竟来自证据未被保留、注意力未覆盖，还是解码行为变化。论文将关注点从平均性能转向逐条失败轨迹，契合“压缩收益与可靠性边界必须同时审计”的工程需求。",
+      "core_innovations": [
+        "建立含 25 种方法、五类机制家族的分类体系，并将其关联到八个已验证实现及各自适用的诊断测量，避免把不适用的指标硬套给不同压缩机制。",
+        "对每个方法—设置，先以同一来源样本的 FullCache 运行作对照，再独立选取 FullCache-correct/compressed-wrong（C-to-W）行；一个压缩器的失败样本不会成为另一个压缩器的测试集。",
+        "用统一记录格式连接成对输出、运行元数据、缓存、似然、注意力与解码测量，并显式标注测量是否适用，使失败归因可复核而非只看最终答案。"
+      ],
+      "experimental_findings": "在 Qwen3-8B 和四类 evidence-aware 工作负载上，作者报告了覆盖 2,600 个来源的 59,800 次受支持压缩运行，以及 12,520 条 C-to-W 记录。按固定规则，63.2% 的失败具有低或部分测得/投影覆盖；仅 19 条（0.2%）同时具有高覆盖与强似然漂移。另有 2,126 条（17.0%）保留结构性位置可寻址性却出现同样漂移，作者明确指出其表征保真度仍未知。十项诊断均能区分失败与成功压缩，分层 AUROC 为 0.684–0.871。对 96 个可复现的低-EAR 失败，4 倍证据注意力增强修复了 29.2%，高于计数匹配的伪干预 6.3%；匹配的 C-to-C 对照中有 3.3% 恶化。这是局限性也是真实信号：注意力修补只覆盖部分失败，不能被当作通用恢复手段；结论目前也限定在该模型、所列实现与诊断工作负载。",
+      "brief_points": [],
+      "editorial_model_status": "available_daily",
+      "figure_status_detail": "first HTML figure has no img element",
+      "figure_explanation": "",
+      "figure_model_status": "not_available"
+    },
+    {
+      "paper_id": "arxiv:2608.09291",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09291",
+      "arxiv_id": "2608.09291",
+      "title": "UnionSparse: An Index-Efficient Sparsity Framework for Low-Bit Sparse LLM Inference on Edge",
+      "summary": "Edge LLM inference combines sparsity and low-bit quantization to meet device memory, latency, and power limits. Yet quantization shrinks weight payloads without proportionally reducing sparse metadata, so index traffic and nonzero extraction become critical SpMM bottlenecks. We introduce the Payload-to-Metadata Ratio (PMR) and show that improving PMR raises effective compute intensity in decoding.\n  We present UnionSparse, an index-efficient framework that combines Index-Efficient Bitmap Encoding (IE-BME) with a SpMM kernel using Low-Bit Shared-Memory Parallel Decoding (LSPD). IE-BME amortizes metadata and aligns sparse traversal with fragment assembly, while LSPD improves small-batch execution. Under W4A4 quantization and 30%--70% sparsity, UnionSparse outperforms FlashLLM and SpInfer by 2.30x and 1.43x, and CUTLASS and cuBLAS Tensor Core by 1.56x and 3.46x, respectively. These results establish payload-extraction efficiency as a first-order concern for low-bit sparse inference on edge GPUs. Source code is available at: https://github.com/Victor-Alen/UnionSparse.",
+      "url": "http://arxiv.org/abs/2608.09291v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09291v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09291v1",
+      "published_date": "2026-08-10T08:43:19+00:00",
+      "updated_date": "2026-08-10T08:43:19+00:00",
+      "categories": [
+        "cs.DC"
+      ],
+      "authors": [
+        "Tianhao Jiang",
+        "Hang Gu",
+        "Teng Wang",
+        "Qianyu Cheng",
+        "ZhenDong Zheng",
+        "Cheng Tang",
+        "Qiyue Su",
+        "Wenqi Lou",
+        "Lei Gong",
+        "Chao Wang",
+        "Xi Li",
+        "Xuehai Zhou"
+      ],
+      "candidate_topics": [
+        "engineering_deployment"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "no_figure",
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 2.85,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 0.0,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "prefilter_score": 9.929,
+      "is_relevant": true,
+      "primary_topic": "engineering_deployment",
+      "topic_scores": {
+        "engineering_deployment": 10.0,
+        "kv_cache_memory": 2.0,
+        "subquadratic_attention": 1.0,
+        "ssm_mamba": 1.0,
+        "cot_agentic_ai": 1.0,
+        "process_reward_models": 1.0,
+        "world_models": 1.0,
+        "causal_inference": 1.0,
+        "interpretability": 1.0,
+        "theory_loss_landscape": 2.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 7.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "该论文提出一种针对边缘设备低比特稀疏大模型推理的索引高效稀疏框架，通过改善载荷-元数据比率和共享内存并行解码实现显著加速。",
+      "contribution_tags": [
+        "Quantization"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 9.13,
+      "major_candidate": true,
+      "major_reason": "daily_editor_pick",
+      "breakthrough": false,
+      "content_tier": "major",
+      "is_hero": false,
+      "newspaper_title": "低比特稀疏推理的瓶颈，可能先在索引而非权重",
+      "dek": "UnionSparse 指出，权重量化会缩小有效载荷，却不会等比例缩小稀疏索引元数据；在边缘端小批量解码中，提取非零元素和搬运索引可能成为 SpMM 的主导瓶颈。",
+      "background_and_pain": "量化与稀疏化常被并用以适配边缘设备的内存、时延和功耗约束，但“更低比特、更高稀疏度”不必然带来线性加速。原因在于稀疏矩阵乘中仍须读取、解释并遍历元数据；当权重载荷变小后，这部分固定成本的相对占比反而上升。论文的切入点不是进一步压缩数值，而是改善载荷相对元数据的效率。",
+      "core_innovations": [
+        "提出载荷—元数据比率（PMR），以此刻画低比特稀疏解码中有效数值载荷与索引开销的关系，并将提高 PMR 视为提升有效计算强度的路径。",
+        "提出 Index-Efficient Bitmap Encoding（IE-BME），通过摊薄元数据并使稀疏遍历与片段组装对齐，减少非零元素提取的索引负担。",
+        "配套 Low-Bit Shared-Memory Parallel Decoding（LSPD）SpMM 内核，面向小批量执行改善共享内存中的并行解码。"
+      ],
+      "experimental_findings": "在 W4A4 量化、30%–70% 稀疏度的报告设置下，UnionSparse 相对 FlashLLM 和 SpInfer 分别达到 2.30 倍和 1.43 倍性能；相对 CUTLASS 与 cuBLAS Tensor Core 分别为 1.56 倍和 3.46 倍。应克制解读这些数字：论文主张针对的是低比特稀疏、边缘 GPU、尤其小批量解码时的索引效率；摘要并未证明其在稠密计算、其他比特配置、不同稀疏模式或大批量服务中仍有同等收益。PMR 也提醒部署评估不能只报模型压缩率，必须同时审计元数据流量与实际内核执行路径。",
+      "brief_points": [],
+      "editorial_model_status": "available_daily",
+      "figure_status_detail": "first HTML figure has no img element",
+      "figure_explanation": "",
+      "figure_model_status": "not_available"
+    },
+    {
+      "paper_id": "arxiv:2608.09703",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09703",
+      "arxiv_id": "2608.09703",
+      "title": "Matryoshka Language Model Suites",
+      "summary": "Training a language model suite classically requires training each model separately and serving them independently. We improve both training and inference efficiency by stacking sub-models of increasing size into a single nested architecture trained end-to-end. This Matryoshka training framework reduces the total parameter count of the suite, enables low-cost distillation from the largest to all smaller sub-models at every training step, and is well-suited for speculative decoding as the draft model is contained within the verifier. We validate our approach by training a Matryoshka suite comprising 500M, 1.5B, and 3B sub-models. Our suite is on par with independently trained baselines on benchmark performance and validation and out-of-domain perplexities, while using 36% less training compute and improving the throughput of speculative decoding by 14-26%. We also ablate key architectural choices, offering guidance for building strong Matryoshka LM suites.",
+      "url": "http://arxiv.org/abs/2608.09703v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09703v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09703v1",
+      "published_date": "2026-08-10T15:07:29+00:00",
+      "updated_date": "2026-08-10T15:07:29+00:00",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "authors": [
+        "Nathan Godey",
+        "Yoav Artzi"
+      ],
+      "candidate_topics": [
+        "engineering_deployment"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 2.85,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 9.929,
+      "is_relevant": true,
+      "primary_topic": "engineering_deployment",
+      "topic_scores": {
+        "engineering_deployment": 9.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 0.0,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 8.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "提出嵌套式语言模型套件训练框架，同时降低训练成本并提升推测解码吞吐，工程价值显著。",
+      "contribution_tags": [
+        "Speculative Decoding",
+        "Serving",
+        "Verifier"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 8.97,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "嵌套模型套件：让草稿模型内生于验证器",
+      "dek": "Matryoshka Language Model Suites 将 500M、1.5B、3B 子模型嵌入一个端到端训练的嵌套架构，试图同时减少多模型训练冗余和推测解码中的模型配对成本。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "最大模型可在每一步向较小子模型提供低成本蒸馏；由于草稿模型包含在验证模型内，架构上适合推测解码。",
+        "作者报告：该套件在基准性能、验证集及分布外困惑度上与独立训练基线相当，训练计算量少 36%；推测解码吞吐提升 14%–26%。",
+        "适用边界应保持明确：实验套件的规模为 500M–3B；摘要未给出不同规模区间、不同嵌套设计或真实多租户服务负载下的同等结论。"
+      ],
+      "editorial_model_status": "available_daily",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.09595",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09595",
+      "arxiv_id": "2608.09595",
+      "title": "From Sweep to Seam: Interleaved Cross-Block Post-Training Quantization",
+      "summary": "Compressing large language models to two bits or fewer is increasingly feasible through block-wise post-training quantization; cross-block variants reconstruct neighboring Transformer blocks within a moving window. In the fixed two-block setting studied here, the matched sequential baseline moves this window through the network once, so errors introduced early in the sweep are not revisited. We propose Interleaved Cross-Block Quantization (ICBQ), a scheduling modification that revisits the boundary pair between consecutive chunks. Each seam pair is refined twice: first at the end of one chunk and again at the start of the next. The method retains the local two-block objective and reuses the calibration inputs of existing block-wise PTQ pipelines. Under stated local contraction and smoothness assumptions, we derive a depth-wise upper-bound comparison in which seam revisits multiply the propagated term while the residual remains bounded independently of depth. In the reported experiments, ICBQ reduces ternary-quantization perplexity relative to the matched Sequential CBQ baseline, yields finite perplexity in configurations where the baseline has severe degradation, and can also be used with 3-bit and 2-bit GPTQ.",
+      "url": "http://arxiv.org/abs/2608.09595v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09595v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09595v1",
+      "published_date": "2026-08-10T13:28:23+00:00",
+      "updated_date": "2026-08-10T13:28:23+00:00",
+      "categories": [
+        "cs.AI"
+      ],
+      "authors": [
+        "Achille Jacquemond",
+        "Yuma Ichikawa",
+        "Akira Sakai"
+      ],
+      "candidate_topics": [
+        "engineering_deployment"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 4.65,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 14.069,
+      "is_relevant": true,
+      "primary_topic": "engineering_deployment",
+      "topic_scores": {
+        "engineering_deployment": 4.65,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "novelty_score": 6.8,
+      "potential_impact_score": 7.33,
+      "clarity_score": 7.0,
+      "coarse_rationale": "规则降级：依据标题、摘要关键词和论文分类评分。",
+      "contribution_tags": [
+        "Quantization"
+      ],
+      "coarse_model_status": "fallback_rules",
+      "selection_score": 7.082,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "两比特以下的误差会跨块累积，接缝值得被重访",
+      "dek": "ICBQ 不改变固定两块的局部后训练量化目标，而是在相邻处理块的边界将同一对 Transformer 块优化两次，以对抗单向扫描留下的早期误差。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "顺序 cross-block PTQ 只向前移动窗口，早期重构误差不会被回看；ICBQ 在每个 chunk 末尾与下一 chunk 开头重复细化 seam pair，并复用既有校准输入。",
+        "在给定局部收缩与平滑假设下，论文给出深度方向上的上界比较；报告实验中，ICBQ 降低了相对匹配 Sequential CBQ 的三值量化困惑度，并在后者严重退化的部分配置中得到有限困惑度。",
+        "该结果主要是量化质量信号，而非端到端服务结论：摘要没有报告时延、吞吐或内存收益；理论比较也依赖其明确列出的局部假设。"
+      ],
+      "editorial_model_status": "available_daily",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.09225",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09225",
+      "arxiv_id": "2608.09225",
+      "title": "Governing the KV Cache: Preventing Timing Side-Channel Leakage in Multi-Tenant LLM Inference",
+      "summary": "The key-value (KV) cache is the primary throughput optimization in modern large language model (LLM) inference, enabling prefix reuse across requests. In multi-tenant deployments this cache is shared across tenants, creating a timing side channel: an adversarial tenant can reconstruct another tenant's private prompt by probing cache-hit latency. Three published attacks exploit it -- PROMPTPEEK, EarlyBird and InputSnatch -- reaching up to 100% attack success rate against unprotected vLLM and SGLang, with rates varying by cache architecture and prompt structure.\n  We present KVGov, a governance layer addressing all three attack families' prefix-cache paths under one mechanism. A per-principal salt sigma_p = HMAC_K(secret, principal_id) seeds the block-hash chain, making cache keys cryptographically disjoint across principals. An ablation (N=1000 trials, seed 2026, deterministic judges) isolates this salt as the necessary and sufficient component. KVGov adds ORIGAMI, a Stackelberg water-filling audit scheduler that reduces adversary expected utility by 12.6% at realistic tenant heterogeneity (Gini 0.63), and an evolutionary stability analysis giving a 31.6% adversary-prevalence tipping point below which global caching remains stable.\n  On real hardware (Qwen2.5-7B-Instruct, vLLM 0.26.0, NVIDIA A100) we measure a gate-verified cold/cached TTFT ratio of 0.22, confirming the channel is exploitable at production scale; the defense itself is evaluated in simulation calibrated to those measurements. We replicate the channel on an independent stack (llama.cpp on Apple Metal, ratio 0.093). Finally, isolation and cache efficiency need not conflict: identifying information resides only where prompts diverge, so injecting the salt at that boundary rather than the chain root retains an estimated 93% of the prefix-cache benefit with no cross-principal signal.",
+      "url": "http://arxiv.org/abs/2608.09225v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09225v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09225v1",
+      "published_date": "2026-08-10T07:47:57+00:00",
+      "updated_date": "2026-08-10T07:47:57+00:00",
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "authors": [
+        "Tejasvi C. Addagada"
+      ],
+      "candidate_topics": [
+        "engineering_deployment",
+        "kv_cache_memory"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 4.65,
+        "kv_cache_memory": 3.9,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 14.069,
+      "is_relevant": true,
+      "primary_topic": "engineering_deployment",
+      "topic_scores": {
+        "engineering_deployment": 4.65,
+        "kv_cache_memory": 3.9,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "novelty_score": 5.5,
+      "potential_impact_score": 7.33,
+      "clarity_score": 7.0,
+      "coarse_rationale": "规则降级：依据标题、摘要关键词和论文分类评分。",
+      "contribution_tags": [
+        "KV Cache"
+      ],
+      "coarse_model_status": "fallback_rules",
+      "selection_score": 6.77,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "共享前缀缓存的隐性代价：命中时延可泄露租户提示",
+      "dek": "KVGov 将 KV 前缀复用视为多租户隔离问题：如果不同租户可共享缓存命中路径，攻击者可能从首 token 时延推断其他租户的提示前缀。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "论文称 PROMPTPEEK、EarlyBird 与 InputSnatch 三类已发表攻击在未防护 vLLM、SGLang 上最高可达 100% 成功率，且成功率受缓存架构和提示结构影响。",
+        "KVGov 以每主体 HMAC 盐值初始化块哈希链，使不同主体的缓存键在密码学上隔离；另提出 ORIGAMI 审计调度器。作者在 Qwen2.5-7B-Instruct、vLLM 0.26.0、A10",
+        "需要区分证据层级：摘要说明防御本身是在由硬件测量校准的仿真中评估，而非在生产多租户环境中直接完成全量验证。隔离强度、缓存复用率与服务公平性仍须联测。"
+      ],
+      "editorial_model_status": "available_daily",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.09444",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.09444",
+      "arxiv_id": "2608.09444",
+      "title": "Depth-adaptive Inference of Looped Language Models via Continuous Depth Batching",
+      "summary": "A main promise of looped language models (LMs) is depth-adaptive inference. By iterating a block of shared layers a variable number of times, the model can use less compute for \"easy\" tokens and more for \"hard\" ones. However, this adaptivity breaks standard batching: tokens in the same batch now require a different number of loops, so there is no unified forward pass, making efficient inference difficult. Standard inference frameworks like vLLM schedule on the token level and cannot handle this because tokens need to be removed from the batch within the forward pass. Loop-level scheduling has been proposed as a solution, but never implemented end to end. The key challenge is that looped architectures also contain non-looped boundary stages (e.g., token embedding and LM head) that must be scheduled at different frequencies than the loop. We introduce continuous depth batching (CDB), which schedules at the granularity of individual loop iterations. CDB handles boundary stages and loop steps in separate priority queues, makes exit decisions one step ahead, and overlaps all scheduling work with GPU computation. On Ouro 1.4B and Huginn 3.5B, CDB can realize up to $99\\%$ of the theoretical maximum speed-up from adaptive-depth, translating to $1.5$-$1.9\\times$ higher offline throughput and $45$-$90\\%$ lower normalized latency under dynamic serving load.",
+      "url": "http://arxiv.org/abs/2608.09444v1",
+      "abstract_url": "http://arxiv.org/abs/2608.09444v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.09444v1",
+      "published_date": "2026-08-10T11:20:14+00:00",
+      "updated_date": "2026-08-10T11:20:14+00:00",
+      "categories": [
+        "cs.LG",
+        "cs.CL",
+        "cs.DC"
+      ],
+      "authors": [
+        "Kristian Schwethelm",
+        "Daniel Rueckert",
+        "Georgios Kaissis"
+      ],
+      "candidate_topics": [
+        "engineering_deployment"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 2.85,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 9.929,
+      "is_relevant": true,
+      "primary_topic": "engineering_deployment",
+      "topic_scores": {
+        "engineering_deployment": 2.85,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "novelty_score": 6.15,
+      "potential_impact_score": 6.42,
+      "clarity_score": 7.0,
+      "coarse_rationale": "规则降级：依据标题、摘要关键词和论文分类评分。",
+      "contribution_tags": [
+        "Serving"
+      ],
+      "coarse_model_status": "fallback_rules",
+      "selection_score": 6.15,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "连续深度批处理：自适应层数终于进入在线调度",
+      "dek": "循环式语言模型允许不同 token 走不同循环次数，却因此失去统一前向批次。CDB 把调度粒度降至单次循环迭代，并处理循环边界外阶段与循环主体的不同频率。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "CDB 为边界阶段和循环步骤维护独立优先队列，提前一步作退出决策，并将调度工作与 GPU 计算重叠；其目标是把模型的 token 难度自适应转化为可执行的服务调度。",
+        "在 Ouro 1.4B 与 Huginn 3.5B 上，作者报告实现理论最大自适应深度加速的最高 99%，离线吞吐提高 1.5–1.9 倍；动态服务负载下归一化延迟降低 45%–90%。",
+        "这是循环共享层架构的专门方案，不能直接外推到普通固定深度 Transformer；收益还取决于退出策略确实产生足够的深度差异。"
+      ],
+      "editorial_model_status": "available_daily",
+      "figure_explanation": ""
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Daily AI Research Gazette — 2026-08-12</title>
+    <link rel="stylesheet" href="../../assets/report.css">
+</head>
+
+<body style="--figure-max-height: 450px">
+    <main class="page">
+        <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
+                Theory</span><span>Wednesday, 12 August 2026</span></div>
+        <header class="masthead">
+            <h1>Daily AI Research Gazette</h1>
+            <p>LLM Systems, Efficient Sequence Models, Agents &amp; Theory</p>
+        </header>
+        <div class="focus-strip">
+            <div><strong>今日焦点 · Transformer 工程部署改进</strong><br>Engineering &amp; Deployment</div>
+            <div><span class="strip-label">今日视角</span><br><b>反例、失效模式与适用边界</b><br>Failures &amp; Counterexamples</div>
+            <div><b>6</b> 精选 / <b>12</b> 候选</div>
+            <div>模型按质量自主精选 6 篇，并执行动态篇幅控制。</div>
+        </div>
+<details class="query-strip">
+            <summary>Today's Search Query · 今日检索式</summary>
+            <code>(cat:cs.CL OR cat:cs.LG OR cat:cs.AI OR cat:cs.DC OR cat:cs.PF) AND (ti:&#34;KV cache&#34; OR abs:&#34;KV cache&#34; OR ti:&#34;paged attention&#34; OR abs:&#34;paged attention&#34; OR ti:&#34;FlashAttention&#34; OR abs:&#34;FlashAttention&#34; OR ti:&#34;quantization&#34; OR abs:&#34;quantization&#34; OR ti:&#34;speculative decoding&#34; OR abs:&#34;speculative decoding&#34; OR ti:&#34;inference acceleration&#34; OR abs:&#34;inference acceleration&#34; OR ti:&#34;LLM serving&#34; OR abs:&#34;LLM serving&#34; OR ti:&#34;vLLM&#34; OR abs:&#34;vLLM&#34; OR ti:&#34;TensorRT-LLM&#34; OR abs:&#34;TensorRT-LLM&#34; OR ti:&#34;continuous batching&#34; OR abs:&#34;continuous batching&#34; OR ti:&#34;mixture of experts serving&#34; OR abs:&#34;mixture of experts serving&#34; OR ti:&#34;model compression&#34; OR abs:&#34;model compression&#34;) AND submittedDate:[202608100000 TO 202608130000]</code>
+        </details><div class="section-kicker">Lead Story · 今日头条</div>
+        <article class="hero no-figure">
+            <div class="hero-copy">
+                <div class="eyebrow">KV Cache &amp; Inference Memory</div>
+                <h2>压缩的失效不只是总分下降：KV 缓存需要逐条诊断</h2>
+                <p class="dek">KVDiagnosis 将“完整缓存正确、压缩缓存错误”的样本逐源配对，避免由某一压缩器定义其他方法的失败集。其结果提示：许多长上下文压缩失败可观测到证据覆盖不足或似然漂移，但可见的位置结构并不等于表征仍被保真。</p>
+                <div class="tags"><span class="tag">Cache Compression</span><span class="tag">Representation</span></div>
+                <div class="meta-line">引用 0 · 创新度 7.0/10 ·
+                    综合优先级 7.87</div>
+                <div class="analysis-grid">
+                    <section>
+                        <h4>背景与痛点</h4>
+                        <p>KV 缓存压缩旨在降低长上下文推理的内存负担，但汇总任务分数无法回答两件部署上更关键的问题：哪些原本能答对的请求被压缩弄错，以及错误究竟来自证据未被保留、注意力未覆盖，还是解码行为变化。论文将关注点从平均性能转向逐条失败轨迹，契合“压缩收益与可靠性边界必须同时审计”的工程需求。</p>
+                    </section>
+                    <section>
+                        <h4>核心创新</h4>
+                        <ul><li>建立含 25 种方法、五类机制家族的分类体系，并将其关联到八个已验证实现及各自适用的诊断测量，避免把不适用的指标硬套给不同压缩机制。</li><li>对每个方法—设置，先以同一来源样本的 FullCache 运行作对照，再独立选取 FullCache-correct/compressed-wrong（C-to-W）行；一个压缩器的失败样本不会成为另一个压缩器的测试集。</li><li>用统一记录格式连接成对输出、运行元数据、缓存、似然、注意力与解码测量，并显式标注测量是否适用，使失败归因可复核而非只看最终答案。</li></ul>
+                    </section>
+                    <section>
+                        <h4>实验结论</h4>
+                        <p>在 Qwen3-8B 和四类 evidence-aware 工作负载上，作者报告了覆盖 2,600 个来源的 59,800 次受支持压缩运行，以及 12,520 条 C-to-W 记录。按固定规则，63.2% 的失败具有低或部分测得/投影覆盖；仅 19 条（0.2%）同时具有高覆盖与强似然漂移。另有 2,126 条（17.0%）保留结构性位置可寻址性却出现同样漂移，作者明确指出其表征保真度仍未知。十项诊断均能区分失败与成功压缩，分层 AUROC 为 0.684–0.871。对 96 个可复现的低-EAR 失败，4 倍证据注意力增强修复了 29.2%，高于计数匹配的伪干预 6.3%；匹配的 C-to-C 对照中有 3.3% 恶化。这是局限性也是真实信号：注意力修补只覆盖部分失败，不能被当作通用恢复手段；结论目前也限定在该模型、所列实现与诊断工作负载。</p>
+                    </section>
+                    <section>
+                        <h4>论文信息</h4>
+                        <p>Chen Qiu、Ziwu Liu、Chao Fei、Guozhong Li、Panos Kalnis</p>
+                        <p>cs.AI</p>
+                    </section>
+                </div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.09412v1" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="https://arxiv.org/pdf/2608.09412v1" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: KVDiagnosis: A Diagnostic Benchmark for KV-Cache Compression in Long-Context Language Models</div>
+            </div>
+        </article><div class="section-kicker">Major Features · 重点论文</div>
+        <section class="feature-grid"><article
+                class="feature no-figure">
+                <div class="feature-copy">
+                    <div class="eyebrow">Engineering &amp; Deployment</div>
+                    <h3>低比特稀疏推理的瓶颈，可能先在索引而非权重</h3>
+                    <div class="tags"><span class="tag">Quantization</span>                    </div>
+                    <p class="dek">UnionSparse 指出，权重量化会缩小有效载荷，却不会等比例缩小稀疏索引元数据；在边缘端小批量解码中，提取非零元素和搬运索引可能成为 SpMM 的主导瓶颈。</p>
+                    <div class="feature-analysis">
+                        <section>
+                            <h4>问题背景</h4>
+                            <p>量化与稀疏化常被并用以适配边缘设备的内存、时延和功耗约束，但“更低比特、更高稀疏度”不必然带来线性加速。原因在于稀疏矩阵乘中仍须读取、解释并遍历元数据；当权重载荷变小后，这部分固定成本的相对占比反而上升。论文的切入点不是进一步压缩数值，而是改善载荷相对元数据的效率。</p>
+                        </section>
+                        <section>
+                            <h4>方法与贡献</h4>
+                            <ul><li>提出载荷—元数据比率（PMR），以此刻画低比特稀疏解码中有效数值载荷与索引开销的关系，并将提高 PMR 视为提升有效计算强度的路径。</li><li>提出 Index-Efficient Bitmap Encoding（IE-BME），通过摊薄元数据并使稀疏遍历与片段组装对齐，减少非零元素提取的索引负担。</li><li>配套 Low-Bit Shared-Memory Parallel Decoding（LSPD）SpMM 内核，面向小批量执行改善共享内存中的并行解码。</li></ul>
+                        </section>
+                        <section class="wide">
+                            <h4>实验与结论</h4>
+                            <p>在 W4A4 量化、30%–70% 稀疏度的报告设置下，UnionSparse 相对 FlashLLM 和 SpInfer 分别达到 2.30 倍和 1.43 倍性能；相对 CUTLASS 与 cuBLAS Tensor Core 分别为 1.56 倍和 3.46 倍。应克制解读这些数字：论文主张针对的是低比特稀疏、边缘 GPU、尤其小批量解码时的索引效率；摘要并未证明其在稠密计算、其他比特配置、不同稀疏模式或大批量服务中仍有同等收益。PMR 也提醒部署评估不能只报模型压缩率，必须同时审计元数据流量与实际内核执行路径。</p>
+                        </section>
+                    </div>
+                    <div class="meta-line">引用 0 · 创新度 8.0/10
+                    </div>
+                    <div class="read-links"><a href="http://arxiv.org/abs/2608.09291v1" target="_blank" rel="noopener">Abstract
+                            ↗</a><a href="https://arxiv.org/pdf/2608.09291v1" target="_blank" rel="noopener">PDF ↗</a></div>
+                    <div class="original-title">UnionSparse: An Index-Efficient Sparsity Framework for Low-Bit Sparse LLM Inference on Edge</div>
+                </div>
+            </article></section><div class="section-kicker">Research Briefs · 论文快讯</div>
+        <section class="briefs-grid"><article class="brief">
+                <div class="eyebrow">Engineering &amp; Deployment</div>
+                <h3>嵌套模型套件：让草稿模型内生于验证器</h3>
+                <div class="tags"><span class="tag">Speculative Decoding</span><span class="tag">Serving</span><span class="tag">Verifier</span></div><ul><li>最大模型可在每一步向较小子模型提供低成本蒸馏；由于草稿模型包含在验证模型内，架构上适合推测解码。
+                    </li><li>作者报告：该套件在基准性能、验证集及分布外困惑度上与独立训练基线相当，训练计算量少 36%；推测解码吞吐提升 14%–26%。
+                    </li><li>适用边界应保持明确：实验套件的规模为 500M–3B；摘要未给出不同规模区间、不同嵌套设计或真实多租户服务负载下的同等结论。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.AI, cs.CL</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.09703v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Matryoshka Language Model Suites</div>
+            </article><article class="brief">
+                <div class="eyebrow">Engineering &amp; Deployment</div>
+                <h3>两比特以下的误差会跨块累积，接缝值得被重访</h3>
+                <div class="tags"><span class="tag">Quantization</span></div><ul><li>顺序 cross-block PTQ 只向前移动窗口，早期重构误差不会被回看；ICBQ 在每个 chunk 末尾与下一 chunk 开头重复细化 seam pair，并复用既有校准输入。
+                    </li><li>在给定局部收缩与平滑假设下，论文给出深度方向上的上界比较；报告实验中，ICBQ 降低了相对匹配 Sequential CBQ 的三值量化困惑度，并在后者严重退化的部分配置中得到有限困惑度。
+                    </li><li>该结果主要是量化质量信号，而非端到端服务结论：摘要没有报告时延、吞吐或内存收益；理论比较也依赖其明确列出的局部假设。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.8/10 · cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.09595v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">From Sweep to Seam: Interleaved Cross-Block Post-Training Quantization</div>
+            </article><article class="brief">
+                <div class="eyebrow">Engineering &amp; Deployment</div>
+                <h3>共享前缀缓存的隐性代价：命中时延可泄露租户提示</h3>
+                <div class="tags"><span class="tag">KV Cache</span></div><ul><li>论文称 PROMPTPEEK、EarlyBird 与 InputSnatch 三类已发表攻击在未防护 vLLM、SGLang 上最高可达 100% 成功率，且成功率受缓存架构和提示结构影响。
+                    </li><li>KVGov 以每主体 HMAC 盐值初始化块哈希链，使不同主体的缓存键在密码学上隔离；另提出 ORIGAMI 审计调度器。作者在 Qwen2.5-7B-Instruct、vLLM 0.26.0、A10
+                    </li><li>需要区分证据层级：摘要说明防御本身是在由硬件测量校准的仿真中评估，而非在生产多租户环境中直接完成全量验证。隔离强度、缓存复用率与服务公平性仍须联测。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 5.5/10 · cs.CR, cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.09225v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Governing the KV Cache: Preventing Timing Side-Channel Leakage in Multi-Tenant LLM Inference</div>
+            </article><article class="brief">
+                <div class="eyebrow">Engineering &amp; Deployment</div>
+                <h3>连续深度批处理：自适应层数终于进入在线调度</h3>
+                <div class="tags"><span class="tag">Serving</span></div><ul><li>CDB 为边界阶段和循环步骤维护独立优先队列，提前一步作退出决策，并将调度工作与 GPU 计算重叠；其目标是把模型的 token 难度自适应转化为可执行的服务调度。
+                    </li><li>在 Ouro 1.4B 与 Huginn 3.5B 上，作者报告实现理论最大自适应深度加速的最高 99%，离线吞吐提高 1.5–1.9 倍；动态服务负载下归一化延迟降低 45%–90%。
+                    </li><li>这是循环共享层架构的专门方案，不能直接外推到普通固定深度 Transformer；收益还取决于退出策略确实产生足够的深度差异。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.15/10 · cs.LG, cs.CL, cs.DC</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.09444v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Depth-adaptive Inference of Looped Language Models via Continuous Depth Batching</div>
+            </article></section>        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
+                appear
+                only when officially verified.</span><span>Generated 2026-08-12 00:59 UTC</span></footer>
+    </main>
+</body>
+
+</html>

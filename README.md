@@ -144,3 +144,7 @@ The workflow runs daily at `00:00 UTC`, executes offline tests, validates requir
 - **arXiv 429:** keep RSS fallback enabled, reduce candidate limits, or rerun later.
 - **Push rejected:** enable workflow read/write permission and check branch protection rules.
 - **Pages 404:** select GitHub Actions as the Pages source and confirm generated artifacts reached `main`.
+
+## Development internals
+
+For architecture, data contracts, extension points, prominence-policy enforcement, rendering behavior, and testing conventions, see the [Technical implementation and secondary development guide](docs/secondary-development.md).

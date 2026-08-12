@@ -248,6 +248,18 @@ h3 {
     border-color: var(--ink)
 }
 
+.tag.prominent {
+    color: #fff;
+    background: var(--blue);
+    border-color: var(--blue)
+}
+
+.tag.historical {
+    color: #fff;
+    background: #6f4b1f;
+    border-color: #6f4b1f
+}
+
 .analysis-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -375,13 +387,23 @@ h3 {
 
 .briefs-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     border-bottom: 2px solid var(--rule)
 }
 
 .brief {
+    grid-column: span 2;
     padding: 14px 18px 19px 0;
     min-width: 0
+}
+
+.brief:nth-last-child(1):nth-child(3n+1) {
+    grid-column: 1 / -1
+}
+
+.brief:nth-last-child(2):nth-child(3n+1),
+.brief:nth-last-child(1):nth-child(3n+2) {
+    grid-column: span 3
 }
 
 .brief:not(:nth-child(3n+1)) {
@@ -441,8 +463,20 @@ footer {
         grid-template-columns: repeat(2, minmax(0, 1fr))
     }
 
+    .brief,
+    .brief:nth-last-child(1):nth-child(3n+1),
+    .brief:nth-last-child(2):nth-child(3n+1),
+    .brief:nth-last-child(1):nth-child(3n+2) {
+        grid-column: auto
+    }
+
+    .brief:last-child:nth-child(odd) {
+        grid-column: 1 / -1
+    }
+
     .brief:not(:nth-child(3n+1)) {
-        border-left: 0
+        border-left: 0;
+        padding-left: 0
     }
 
     .brief:nth-child(even) {
@@ -491,6 +525,7 @@ footer {
     .brief,
     .brief:not(:nth-child(3n+1)),
     .brief:nth-child(even) {
+        grid-column: auto;
         border-left: 0;
         padding-left: 0
     }

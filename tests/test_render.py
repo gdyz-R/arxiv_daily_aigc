@@ -86,6 +86,25 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("aspect-ratio:", css)
         self.assertNotIn("height: 100%", css)
 
+    def test_brief_grid_redistributes_incomplete_last_rows(self):
+        report = json.loads(self.fixture.read_text(encoding="utf-8"))
+        while len(report["papers"]) < 6:
+            clone = dict(report["papers"][-1])
+            clone["paper_id"] = f"brief:{len(report['papers'])}"
+            clone["title"] = f"Brief {len(report['papers'])}"
+            clone["newspaper_title"] = clone["title"]
+            clone["content_tier"] = "brief"
+            clone["is_hero"] = False
+            report["papers"].append(clone)
+        with tempfile.TemporaryDirectory() as directory:
+            render_report(report, Path(directory) / "report.html", self.config)
+            css = Path("assets/report.css").read_text(encoding="utf-8")
+        self.assertIn("grid-template-columns: repeat(6", css)
+        self.assertIn(".brief:nth-last-child(1):nth-child(3n+1)", css)
+        self.assertIn("grid-column: 1 / -1", css)
+        self.assertIn(".brief:last-child:nth-child(odd)", css)
+        self.assertIn("border-left: 0;\n        padding-left: 0", css)
+
 
 if __name__ == "__main__":
     unittest.main()

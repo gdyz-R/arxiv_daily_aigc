@@ -121,9 +121,12 @@ class MainArchiveTests(unittest.TestCase):
                 "clarity_score": 8,
                 "is_relevant": True,
                 "citation_count": 0,
-                "venue_tags": [],
+                "venue_tags": ["ICLR"],
+                "well_known": True,
+                "well_known_reasons": ["top_venue:ICLR"],
+                "historical_anchor": True,
                 "categories": ["cs.CL"],
-                "published_date": "2026-08-10T00:00:00+00:00",
+                "published_date": "2022-01-01T00:00:00+00:00",
                 "abstract_url": "https://example.com/abs",
                 "pdf_url": "https://example.com/pdf",
                 "content_tier": "major",
@@ -229,6 +232,75 @@ class MainArchiveTests(unittest.TestCase):
         self.assertEqual(public_payload["report"]["memory_write_status"], "updated")
         memory_client.write.assert_called_once()
         render_report.assert_called_once()
+
+    def test_prominence_noncompliant_report_is_not_written(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            config = load_config()
+            config["_meta"]["project_root"] = directory
+            paper = {
+                "paper_id": "paper:recent",
+                "title": "Recent Paper",
+                "summary": "We propose a recent method.",
+                "primary_topic": "kv_cache_memory",
+                "candidate_topics": ["kv_cache_memory"],
+                "published_date": "2026-08-10T00:00:00+00:00",
+                "well_known": False,
+                "historical_anchor": False,
+            }
+            decision = ScheduleDecision(
+                topic_id="kv_cache_memory",
+                topic_name="KV Cache 与推理内存系统",
+                topic_name_en="KV Cache & Inference Memory",
+                angle_id="systems_tradeoffs",
+                angle_name="系统权衡与成本结构",
+                angle_name_en="System Trade-offs & Cost Structure",
+                angle_instruction="分析成本结构",
+                search_query="query",
+                days_unselected=5,
+                cooldown_readiness=0.5,
+                selection_reason="cooldown_weighted_rotation",
+            )
+            with (
+                patch("src.main.PROJECT_ROOT", root),
+                patch("src.main.schedule_daily_focus", return_value=decision),
+                patch(
+                    "src.main._read_private_memory",
+                    return_value=(None, MemoryReadResult({"concepts": {}}, "empty")),
+                ),
+                patch(
+                    "src.main.crawl_papers_with_diagnostics",
+                    return_value=(
+                        [paper],
+                        {"arxiv": {"status": "available", "result_count": 1}},
+                    ),
+                ),
+                patch("src.main.prefilter_coarse_candidates", return_value=[paper]),
+                patch("src.main.coarse_classify_papers", return_value=[paper]),
+                patch(
+                    "src.main.rank_candidate_shortlist",
+                    return_value=([paper], {"candidate_count": 1}),
+                ),
+                patch(
+                    "src.main.generate_memory_aware_edition",
+                    return_value=(
+                        [paper],
+                        {
+                            "candidate_count": 1,
+                            "selected_count": 1,
+                            "distribution_note": "测试。",
+                        },
+                        {"concept_updates": []},
+                    ),
+                ),
+                patch("src.main.render_report") as render_report,
+            ):
+                json_path, html_path = _report_paths(date(2026, 8, 11), config)
+                with self.assertRaisesRegex(RuntimeError, "prominence-noncompliant"):
+                    generate_daily_report(date(2026, 8, 11), config, force=True)
+            self.assertFalse(json_path.exists())
+            self.assertFalse(html_path.exists())
+            render_report.assert_not_called()
 
 
 if __name__ == "__main__":

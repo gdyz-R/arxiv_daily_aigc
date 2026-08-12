@@ -16,6 +16,7 @@ from src.crawl import (
     ArxivFigureEnricher,
     ArxivRSSSource,
     ArxivSource,
+    HistoricalOpenAlexSource,
     NeurIPSSource,
     OpenAlexSource,
     SemanticScholarEnricher,
@@ -57,9 +58,11 @@ class FakeSession:
         self.response = response
         self.headers = {}
         self.last_url = None
+        self.calls = 0
 
     def get(self, url, **kwargs):
         self.last_url = url
+        self.calls += 1
         return self.response
 
 
@@ -267,6 +270,12 @@ class CrawlTests(unittest.TestCase):
             ),
             ["ICML"],
         )
+        self.assertEqual(
+            derive_venue_tags(
+                {"venue": "ICML Workshop on Efficient Inference"}, self.config
+            ),
+            [],
+        )
 
     def test_neurips_presentation_uses_official_event_pages(self):
         papers_url = "https://neurips.cc/virtual/2025/papers.html"
@@ -328,6 +337,93 @@ class CrawlTests(unittest.TestCase):
         assert paper is not None
         self.assertEqual(paper["venue_tags"], ["ICML"])
         self.assertEqual(paper["summary"], "Agent memory")
+
+    def test_historical_openalex_keeps_old_cited_or_top_conference_papers(self):
+        works = [
+            {
+                "id": "https://openalex.org/W1",
+                "title": "Foundational Agent Memory",
+                "publication_date": "2022-01-01",
+                "cited_by_count": 240,
+                "abstract_inverted_index": {"Agent": [0], "memory": [1]},
+                "primary_location": {
+                    "landing_page_url": "https://example.test/w1",
+                    "source": {"display_name": "Unlisted Workshop"},
+                },
+            },
+            {
+                "id": "https://openalex.org/W2",
+                "title": "Top Venue Tool Use",
+                "publication_date": "2023-01-01",
+                "cited_by_count": 4,
+                "abstract_inverted_index": {"Tool": [0], "use": [1]},
+                "primary_location": {
+                    "landing_page_url": "https://example.test/w2",
+                    "source": {
+                        "display_name": "International Conference on Learning Representations"
+                    },
+                },
+            },
+            {
+                "id": "https://openalex.org/W3",
+                "title": "Low Impact Agent Note",
+                "publication_date": "2021-01-01",
+                "cited_by_count": 3,
+                "abstract_inverted_index": {"Agent": [0]},
+                "primary_location": {
+                    "landing_page_url": "https://example.test/w3",
+                    "source": {"display_name": "Unlisted Workshop"},
+                },
+            },
+        ]
+        session = FakeSession(FakeResponse(payload={"results": works}))
+        source = HistoricalOpenAlexSource(
+            self.config, session=cast(requests.Session, session)
+        )
+        source.interval = 0
+        papers = source.fetch(date(2026, 8, 12), "cot_agentic_ai")
+        self.assertEqual(
+            [paper["source_id"] for paper in papers],
+            [
+                "https://openalex.org/W1",
+                "https://openalex.org/W2",
+            ],
+        )
+        self.assertEqual(papers[1]["venue_tags"], ["ICLR"])
+        self.assertGreaterEqual(session.calls, 2)
+
+    def test_historical_openalex_builds_separate_citation_and_venue_queries(self):
+        session = FakeSession(FakeResponse(payload={"results": []}))
+        source = HistoricalOpenAlexSource(
+            self.config, session=cast(requests.Session, session)
+        )
+        source.interval = 0
+        captured: list[dict] = []
+        original_get = session.get
+
+        def recording_get(url, **kwargs):
+            captured.append(kwargs["params"])
+            return original_get(url, **kwargs)
+
+        session.get = recording_get
+        source.fetch(date(2026, 8, 12), "cot_agentic_ai")
+        filters = [str(params["filter"]) for params in captured]
+        self.assertTrue(any("cited_by_count" in value for value in filters))
+        self.assertTrue(
+            any(
+                "primary_location.source.display_name.search" in value
+                for value in filters
+            )
+        )
+        venue_filter = next(
+            value
+            for value in filters
+            if "primary_location.source.display_name.search" in value
+        )
+        self.assertIn(
+            "international conference on learning representations", venue_filter
+        )
+        self.assertNotIn("+", venue_filter)
 
     def test_briefs_do_not_request_figures(self):
         config = deepcopy(self.config)

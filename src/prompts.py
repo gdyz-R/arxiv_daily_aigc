@@ -31,6 +31,9 @@ def _paper_for_prompt(paper: dict[str, Any], abstract_limit: int) -> dict[str, A
         "venue": paper.get("venue", ""),
         "venue_tags": paper.get("venue_tags", []),
         "presentation_type": paper.get("presentation_type", ""),
+        "well_known": bool(paper.get("well_known")),
+        "well_known_reasons": paper.get("well_known_reasons", []),
+        "historical_anchor": bool(paper.get("historical_anchor")),
         "coarse_rationale": paper.get("coarse_rationale", ""),
         "contribution_tags": paper.get("contribution_tags", []),
     }
@@ -64,6 +67,13 @@ def build_daily_edition_prompt(
             "max_selected_papers": int(policy["max_selected_papers"]),
             "max_major_features": int(config["project"]["max_major_features"]),
             "topic_balance": "多数论文应服务今日主题，但可保留真正重要且形成对照的跨主题论文。",
+            "well_known_papers": {
+                "definition": "仅 well_known=true 可计入；其依据必须是配置内顶会入选或引用量达到阈值。",
+                "focus_domain_only": "粗筛完成后只统计 primary_topic 等于今日 topic_id 的论文；未分类候选仅用 candidate_topics 做前置保留。",
+                "minimum": int(config["selection"]["min_well_known_papers"]),
+                "maximum": int(config["selection"]["max_well_known_papers"]),
+                "historical_requirement": "至少选择一篇 historical_anchor=true 的知名论文，确保日报不全是近期新发论文。",
+            },
         },
         "volume_policy": {
             "target_total_chinese_characters": int(policy["target_total_characters"]),

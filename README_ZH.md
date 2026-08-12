@@ -145,3 +145,7 @@ python -m http.server 8000
 - **arXiv 429**：保持 RSS fallback 开启，减少候选规模，或稍后重试。
 - **Action 无法 push**：开启工作流读写权限，并检查 Branch protection / Ruleset。
 - **Pages 404**：确认 Pages Source 为 GitHub Actions，且生成产物已经提交到 `main`。
+
+## 二次开发
+
+系统架构、数据契约、扩展点、知名论文约束、渲染机制和测试规范见 [技术实现与二次开发指南](docs/secondary-development.md)。

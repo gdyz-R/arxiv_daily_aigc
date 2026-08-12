@@ -40,6 +40,12 @@ class PromptTests(unittest.TestCase):
         self.assertIn("首次接触", bypass)
         self.assertEqual(prompt["selection_policy"]["min_selected_papers"], 3)
         self.assertEqual(prompt["selection_policy"]["max_selected_papers"], 7)
+        self.assertEqual(prompt["selection_policy"]["well_known_papers"]["minimum"], 1)
+        self.assertEqual(prompt["selection_policy"]["well_known_papers"]["maximum"], 3)
+        self.assertIn(
+            "historical_anchor",
+            prompt["selection_policy"]["well_known_papers"]["historical_requirement"],
+        )
         self.assertIn("memory_payload", prompt["output_contract"])
         self.assertIn(
             schedule["angle_instruction"], prompt["today"]["angle_instruction"]

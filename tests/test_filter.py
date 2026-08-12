@@ -38,8 +38,23 @@ class FilterTests(unittest.TestCase):
             "venue_tags": [],
         }
 
+    def historical_known_paper(self, index: int, topic: str) -> dict:
+        paper = self.paper(index, topic, 8.4)
+        paper.update(
+            {
+                "published_date": "2022-01-01T00:00:00+00:00",
+                "citation_count": 240,
+                "well_known": True,
+                "well_known_reasons": ["high_citation:240"],
+                "historical_anchor": True,
+                "candidate_topics": [topic],
+            }
+        )
+        return paper
+
     def test_six_plus_one_selection(self):
         papers = [self.paper(i, "cot_agentic_ai", 9 - i / 10) for i in range(8)]
+        papers.append(self.historical_known_paper(90, "cot_agentic_ai"))
         papers += [
             self.paper(20 + i, "subquadratic_attention", 8 - i / 10) for i in range(3)
         ]
@@ -55,6 +70,7 @@ class FilterTests(unittest.TestCase):
 
     def test_top_venue_marks_major(self):
         papers = [self.paper(i, "cot_agentic_ai", 8) for i in range(7)]
+        papers.append(self.historical_known_paper(90, "cot_agentic_ai"))
         papers[3]["venue_tags"] = ["NeurIPS"]
         selected, _ = select_daily_papers(papers, self.target_date, self.config)
         top_venue = next(p for p in selected if p["paper_id"] == "paper:3")
@@ -177,6 +193,7 @@ class FilterTests(unittest.TestCase):
 
     def test_daily_editor_can_choose_variable_volume_and_return_payload(self):
         papers = [self.paper(i, "cot_agentic_ai", 9 - i / 10) for i in range(5)]
+        papers[0].update(self.historical_known_paper(0, "cot_agentic_ai"))
 
         class Client:
             available = True
@@ -229,6 +246,7 @@ class FilterTests(unittest.TestCase):
 
     def test_invalid_daily_editor_output_uses_stable_fallback(self):
         papers = [self.paper(i, "cot_agentic_ai", 9 - i / 10) for i in range(7)]
+        papers.append(self.historical_known_paper(90, "cot_agentic_ai"))
 
         class Client:
             available = True
@@ -272,6 +290,9 @@ class FilterTests(unittest.TestCase):
             }
             for index in range(25)
         ]
+        historical = self.historical_known_paper(999, "cot_agentic_ai")
+        historical["title"] = "Foundational agent memory"
+        papers.append(historical)
         self.config["selection"]["coarse_candidate_limit"] = 12
         self.config["selection"]["coarse_focus_minimum"] = 8
         selected = prefilter_coarse_candidates(
@@ -282,6 +303,110 @@ class FilterTests(unittest.TestCase):
             sum("cot_agentic_ai" in paper["candidate_topics"] for paper in selected),
             8,
         )
+        self.assertIn("paper:999", {paper["paper_id"] for paper in selected})
+
+    def test_selection_guarantees_one_to_three_known_papers_and_old_anchor(self):
+        papers = [self.paper(i, "cot_agentic_ai", 9 - i / 10) for i in range(10)]
+        papers += [
+            self.historical_known_paper(100 + index, "cot_agentic_ai")
+            for index in range(4)
+        ]
+        selected, meta = select_daily_papers(
+            papers, self.target_date, self.config, focus_topic="cot_agentic_ai"
+        )
+        known = [paper for paper in selected if paper.get("well_known")]
+        self.assertGreaterEqual(len(known), 1)
+        self.assertLessEqual(len(known), 3)
+        self.assertTrue(any(paper.get("historical_anchor") for paper in known))
+        self.assertEqual(meta["well_known_paper_count"], len(known))
+
+    def test_all_known_candidates_are_capped_by_shrinking_variable_volume(self):
+        papers = [
+            self.historical_known_paper(100 + index, "cot_agentic_ai")
+            for index in range(6)
+        ]
+        selected, meta = select_daily_papers(
+            papers, self.target_date, self.config, focus_topic="cot_agentic_ai"
+        )
+        self.assertEqual(len(selected), 3)
+        self.assertEqual(meta["well_known_paper_count"], 3)
+
+    def test_explicit_zero_target_selects_nothing(self):
+        selected, _ = select_daily_papers(
+            [self.historical_known_paper(1, "cot_agentic_ai")],
+            self.target_date,
+            self.config,
+            focus_topic="cot_agentic_ai",
+            target_count=0,
+        )
+        self.assertEqual(selected, [])
+
+    def test_classified_cross_topic_paper_does_not_count_for_focus_quota(self):
+        papers = [self.paper(i, "cot_agentic_ai", 8) for i in range(6)]
+        cross_topic = self.historical_known_paper(90, "world_models")
+        cross_topic["candidate_topics"] = ["cot_agentic_ai"]
+        papers.append(cross_topic)
+        selected, meta = select_daily_papers(
+            papers, self.target_date, self.config, focus_topic="cot_agentic_ai"
+        )
+        self.assertEqual(meta["well_known_paper_count"], 0)
+        self.assertFalse(
+            any(
+                paper.get("paper_id") == "paper:90"
+                and paper.get("primary_topic") == "cot_agentic_ai"
+                for paper in selected
+            )
+        )
+
+    def test_editor_output_without_historical_known_paper_falls_back(self):
+        papers = [self.paper(i, "cot_agentic_ai", 9 - i / 10) for i in range(4)]
+        papers.append(self.historical_known_paper(90, "cot_agentic_ai"))
+
+        class Client:
+            available = True
+
+            def complete(self, messages, *, max_tokens=1800):
+                del messages, max_tokens
+                selected = []
+                for index, paper in enumerate(papers[:3]):
+                    selected.append(
+                        {
+                            "paper_id": paper["paper_id"],
+                            "content_tier": "major" if index == 0 else "brief",
+                            "is_hero": index == 0,
+                            "newspaper_title": "标题",
+                            "dek": "导语",
+                            "background_and_pain": "背景" if index == 0 else "",
+                            "core_innovations": ["创新"] if index == 0 else [],
+                            "experimental_findings": "结论" if index == 0 else "",
+                            "brief_points": [] if index == 0 else ["要点"],
+                            "contribution_tags": [],
+                        }
+                    )
+                return __import__("json").dumps(
+                    {
+                        "selected_papers": selected,
+                        "memory_payload": {"schema_version": 1, "concept_updates": []},
+                    },
+                    ensure_ascii=False,
+                )
+
+        schedule = {
+            "topic_id": "cot_agentic_ai",
+            "topic_name": "CoT 与 Agent 实现",
+            "topic_name_en": "CoT & Agentic AI",
+            "search_query": "query",
+            "angle_id": "first_principles",
+            "angle_name": "底层理论",
+            "angle_instruction": "分析假设",
+        }
+        selected, meta, _ = generate_memory_aware_edition(
+            papers, self.target_date, self.config, schedule, [], Client()
+        )
+        self.assertEqual(
+            meta["edition_selection_status"], "fallback_invalid_daily_json"
+        )
+        self.assertTrue(any(paper.get("historical_anchor") for paper in selected))
 
 
 if __name__ == "__main__":

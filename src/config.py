@@ -145,6 +145,52 @@ def validate_config(config: dict[str, Any]) -> None:
             "editorial_policy requires 0 < min <= max <= candidate_shortlist_size"
         )
 
+    selection = config.get("selection", {})
+    min_well_known = int(selection.get("min_well_known_papers", 0))
+    max_well_known = int(selection.get("max_well_known_papers", 0))
+    if not 1 <= min_well_known <= max_well_known <= 3:
+        raise ConfigError(
+            "selection requires 1 <= min_well_known_papers <= "
+            "max_well_known_papers <= 3"
+        )
+    capacity_limits = {
+        "editorial_policy.max_selected_papers": maximum,
+        "editorial_policy.candidate_shortlist_size": shortlist,
+        "selection.coarse_candidate_limit": int(
+            selection.get("coarse_candidate_limit", 0)
+        ),
+        "project.edition_size": edition_size,
+    }
+    impossible_limits = [
+        name for name, value in capacity_limits.items() if value < min_well_known
+    ]
+    if impossible_limits:
+        raise ConfigError(
+            "selection.min_well_known_papers exceeds capacity: "
+            + ", ".join(impossible_limits)
+        )
+    if int(selection.get("high_citation_threshold", 0)) <= 0:
+        raise ConfigError("selection.high_citation_threshold must be positive")
+    if int(selection.get("recent_days", 0)) <= 0:
+        raise ConfigError("selection.recent_days must be positive")
+    well_known_venues = selection.get("well_known_venues", [])
+    if not isinstance(well_known_venues, list) or not well_known_venues:
+        raise ConfigError("selection.well_known_venues must not be empty")
+    unknown_well_known_venues = set(well_known_venues) - set(
+        selection.get("top_venues", [])
+    )
+    if unknown_well_known_venues:
+        raise ConfigError(
+            "selection.well_known_venues must be a subset of top_venues: "
+            + ", ".join(sorted(unknown_well_known_venues))
+        )
+
+    historical = config.get("sources", {}).get("openalex_historical", {})
+    if historical.get("enabled", True) and int(historical.get("max_results", 0)) <= 0:
+        raise ConfigError("sources.openalex_historical.max_results must be positive")
+    if historical.get("enabled", True) and int(historical.get("max_pages", 0)) <= 0:
+        raise ConfigError("sources.openalex_historical.max_pages must be positive")
+
     llm = config.get("llm", {})
     for role in ("coarse", "editorial"):
         section = llm.get(role)

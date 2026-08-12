@@ -31,10 +31,12 @@ from PIL import Image, UnidentifiedImageError
 try:
     from archive import report_slug
     from config import load_config, secret_from
+    from prominence import annotate_well_known_paper
     from scheduler import build_search_query
 except ImportError:  # pragma: no cover - package execution
     from .archive import report_slug
     from .config import load_config, secret_from
+    from .prominence import annotate_well_known_paper
     from .scheduler import build_search_query
 
 
@@ -557,10 +559,14 @@ class SemanticScholarEnricher:
                 payload = response.json()
                 publication_venue = payload.get("publicationVenue") or {}
                 venue = payload.get("venue") or publication_venue.get("name") or ""
+                citation_count = max(
+                    int(paper.get("citation_count") or 0),
+                    int(payload.get("citationCount") or 0),
+                )
                 paper.update(
                     {
-                        "citation_count": int(payload.get("citationCount") or 0),
-                        "venue": venue,
+                        "citation_count": citation_count,
+                        "venue": venue or paper.get("venue", ""),
                         "publication_year": payload.get("year"),
                         "publication_types": payload.get("publicationTypes") or [],
                         "semantic_scholar_external_ids": payload.get("externalIds")
@@ -998,6 +1004,19 @@ def _abstract_from_inverted_index(value: Any) -> str:
 
 def _configured_venue_tag(venue: str, config: dict[str, Any]) -> str | None:
     normalized = f" {normalize_title(venue)} "
+    disqualifying_markers = (
+        " workshop ",
+        " workshops ",
+        " tutorial ",
+        " challenge ",
+        " companion ",
+        " demo track ",
+        " doctoral consortium ",
+        " co located ",
+        " co-located ",
+    )
+    if any(marker in normalized for marker in disqualifying_markers):
+        return None
     aliases = config["selection"].get("venue_aliases", {})
     for tag in config["selection"].get("top_venues", []):
         for alias in aliases.get(tag, [tag]):
@@ -1051,24 +1070,33 @@ class OpenAlexSource:
         return None
 
     def _paper_from_work(
-        self, work: dict[str, Any], topic_id: str
+        self,
+        work: dict[str, Any],
+        topic_id: str,
+        *,
+        require_top_venue: bool = True,
+        source_name: str = "openalex",
     ) -> dict[str, Any] | None:
         primary_location = work.get("primary_location") or {}
         locations = [primary_location, *(work.get("locations") or [])]
         venue = ""
+        fallback_venue = ""
         venue_tag = None
         for location in locations:
             source = location.get("source") or {}
             candidate_venue = str(
                 source.get("display_name") or location.get("raw_source_name") or ""
             )
+            if candidate_venue and not fallback_venue:
+                fallback_venue = candidate_venue
             candidate_tag = _configured_venue_tag(candidate_venue, self.app_config)
             if candidate_tag:
                 venue = candidate_venue
                 venue_tag = candidate_tag
                 break
-        if not venue_tag:
+        if require_top_venue and not venue_tag:
             return None
+        venue = venue or fallback_venue
         best_oa = work.get("best_oa_location") or {}
         ids = work.get("ids") or {}
         arxiv_id = self._arxiv_id(work)
@@ -1089,8 +1117,8 @@ class OpenAlexSource:
         publication_date = str(work.get("publication_date") or "")
         return {
             "paper_id": f"openalex:{str(work.get('id') or normalize_title(title)).rsplit('/', 1)[-1]}",
-            "source": "openalex",
-            "sources": ["openalex"],
+            "source": source_name,
+            "sources": [source_name],
             "source_id": work.get("id"),
             "arxiv_id": arxiv_id,
             "title": title,
@@ -1109,7 +1137,7 @@ class OpenAlexSource:
             "candidate_topics": [topic_id],
             "citation_count": int(work.get("cited_by_count") or 0),
             "venue": venue,
-            "venue_tags": [venue_tag],
+            "venue_tags": [venue_tag] if venue_tag else [],
             "presentation_type": "",
             "official_venue_verified": False,
             "figure_url": None,
@@ -1169,6 +1197,129 @@ class OpenAlexSource:
         return papers
 
 
+class HistoricalOpenAlexSource(OpenAlexSource):
+    """Discover older, high-impact papers for the scheduled focus topic."""
+
+    def __init__(self, config: dict[str, Any], session: requests.Session | None = None):
+        super().__init__(config, session=session)
+        self.config = {
+            **config["sources"].get("openalex", {}),
+            **config["sources"].get("openalex_historical", {}),
+        }
+        self.interval = 1 / max(
+            float(self.config.get("requests_per_second", 1.0)), 0.01
+        )
+
+    def _request_pages(
+        self, endpoint: str, params: dict[str, Any]
+    ) -> list[dict[str, Any]]:
+        retries = int(self.config.get("max_retries", 3))
+        max_pages = max(int(self.config.get("max_pages", 2)), 1)
+        cursor = "*"
+        works: list[dict[str, Any]] = []
+        for _ in range(max_pages):
+            page_params = {**params, "cursor": cursor}
+            for attempt in range(retries):
+                self._throttle()
+                try:
+                    response = self.session.get(
+                        endpoint,
+                        params=page_params,
+                        timeout=float(self.config.get("timeout_seconds", 25)),
+                    )
+                    self._last_request = time.monotonic()
+                    if response.status_code == 429:
+                        time.sleep(min(2 ** (attempt + 1), 20))
+                        continue
+                    response.raise_for_status()
+                    payload = response.json()
+                    works.extend(payload.get("results", []))
+                    cursor = str((payload.get("meta") or {}).get("next_cursor") or "")
+                    break
+                except (requests.RequestException, ValueError, TypeError) as exc:
+                    LOGGER.warning(
+                        "Historical OpenAlex page attempt %s/%s failed: %s",
+                        attempt + 1,
+                        retries,
+                        type(exc).__name__,
+                    )
+                    if attempt + 1 < retries:
+                        time.sleep(min(2**attempt, 10))
+            else:
+                break
+            if not cursor:
+                break
+        return works
+
+    def fetch(self, target_date: date, topic_id: str) -> list[dict[str, Any]]:
+        topic = self.app_config["topics"][topic_id]
+        recent_days = int(self.app_config["selection"].get("recent_days", 120))
+        cutoff_date = target_date - timedelta(days=recent_days + 1)
+        threshold = int(
+            self.app_config["selection"].get("high_citation_threshold", 100)
+        )
+        endpoint = f"{self.config.get('base_url', 'https://api.openalex.org').rstrip('/')}/works"
+        base_params: dict[str, Any] = {
+            "search": " OR ".join(str(item) for item in topic["keywords"][:10]),
+            "per-page": min(int(self.config.get("max_results", 50)), 100),
+        }
+        mailto_env = self.config.get("mailto_env")
+        if mailto_env and os.getenv(str(mailto_env)):
+            base_params["mailto"] = os.getenv(str(mailto_env))
+        cited_params = {
+            **base_params,
+            "filter": (
+                f"to_publication_date:{cutoff_date.isoformat()},"
+                f"cited_by_count:>{max(threshold - 1, 0)}"
+            ),
+            "sort": "cited_by_count:desc",
+        }
+        venue_params = {
+            **base_params,
+            "filter": (
+                f"to_publication_date:{cutoff_date.isoformat()},"
+                "primary_location.source.display_name.search:"
+                + "|".join(
+                    normalize_title(str(alias))
+                    for tag in self.app_config["selection"].get("well_known_venues", [])
+                    for alias in self.app_config["selection"]
+                    .get("venue_aliases", {})
+                    .get(tag, [tag])
+                    if normalize_title(str(alias))
+                )
+            ),
+            "sort": "publication_date:desc",
+        }
+        works: dict[str, dict[str, Any]] = {}
+        for work in [
+            *self._request_pages(endpoint, cited_params),
+            *self._request_pages(endpoint, venue_params),
+        ]:
+            identity = str(work.get("id") or normalize_title(work.get("title", "")))
+            works[identity] = work
+        papers: list[dict[str, Any]] = []
+        for work in works.values():
+            paper = self._paper_from_work(
+                work,
+                topic_id,
+                require_top_venue=False,
+                source_name="openalex_historical",
+            )
+            if not paper:
+                continue
+            published = str(paper.get("published_date") or "")[:10]
+            if published and published > cutoff_date.isoformat():
+                continue
+            if int(paper.get("citation_count") or 0) < threshold and not (
+                set(paper.get("venue_tags", []))
+                & set(self.app_config["selection"].get("well_known_venues", []))
+            ):
+                continue
+            paper["historical_discovery"] = True
+            papers.append(paper)
+        return papers
+
+
 def merge_papers(papers: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
     merged: dict[str, dict[str, Any]] = {}
     by_title: dict[str, str] = {}
@@ -1209,26 +1360,21 @@ def merge_papers(papers: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
             int(current.get("citation_count") or 0),
             int(paper.get("citation_count") or 0),
         )
+        current["historical_discovery"] = bool(
+            current.get("historical_discovery") or paper.get("historical_discovery")
+        )
     return list(merged.values())
 
 
 def derive_venue_tags(paper: dict[str, Any], config: dict[str, Any]) -> list[str]:
-    venue_text = (
-        f"{paper.get('venue', '')} {' '.join(paper.get('venue_tags', []))}".lower()
-    )
-    aliases = config["selection"].get("venue_aliases", {})
-    tags = [
-        str(tag)
-        for tag in config["selection"].get("top_venues", [])
-        if any(
-            f" {normalize_title(str(alias))} " in f" {normalize_title(venue_text)} "
-            for alias in aliases.get(tag, [tag])
-        )
-    ]
+    configured = {str(tag) for tag in config["selection"].get("top_venues", [])}
+    tags = {str(tag) for tag in paper.get("venue_tags", []) if str(tag) in configured}
+    if venue_tag := _configured_venue_tag(str(paper.get("venue") or ""), config):
+        tags.add(venue_tag)
     # Prefer the modern name when both strings occur.
     if "NeurIPS" in tags and "NIPS" in tags:
         tags.remove("NIPS")
-    return tags
+    return sorted(tags)
 
 
 def crawl_papers_with_diagnostics(
@@ -1284,6 +1430,29 @@ def crawl_papers_with_diagnostics(
         }
     else:
         diagnostics["openalex"] = {"status": "disabled", "result_count": 0}
+    historical_config = config["sources"].get("openalex_historical", {})
+    if historical_config.get("enabled", True):
+        focus_topic = next(iter(config["topics"]))
+        try:
+            historical_papers = HistoricalOpenAlexSource(config).fetch(
+                target_date, focus_topic
+            )
+            historical_status = "available" if historical_papers else "empty"
+        except Exception as exc:  # preserve independent-source failure semantics
+            LOGGER.warning("Historical OpenAlex source failed: %s", type(exc).__name__)
+            historical_papers = []
+            historical_status = "failed"
+        source_papers.extend(historical_papers)
+        diagnostics["openalex_historical"] = {
+            "status": historical_status,
+            "result_count": len(historical_papers),
+            "focus_topic": focus_topic,
+        }
+    else:
+        diagnostics["openalex_historical"] = {
+            "status": "disabled",
+            "result_count": 0,
+        }
     papers = merge_papers(source_papers)
     diagnostics["merged_candidate_count"] = len(papers)
 
@@ -1309,6 +1478,7 @@ def crawl_papers_with_diagnostics(
         paper["venue_tags"] = sorted(
             set(paper.get("venue_tags", [])) | set(derive_venue_tags(paper, config))
         )
+        annotate_well_known_paper(paper, target_date, config)
         paper["metadata_quality_score"] = round(
             math.log1p(max(int(paper.get("citation_count", 0)), 0)), 3
         )

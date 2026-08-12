@@ -269,6 +269,10 @@ selection:
   high_citation_threshold: 100
   recent_high_citation_threshold: 20
   recent_days: 120
+  # Every published edition must include 1-3 well-known papers in the scheduled
+  # focus domain. At least one must be older than recent_days.
+  min_well_known_papers: 1
+  max_well_known_papers: 3
   candidate_limit_per_topic: 45
   # Bound expensive per-paper LLM triage after multi-source merging.
   coarse_candidate_limit: 18
@@ -284,6 +288,29 @@ selection:
     - COLM
     - JMLR
     - TMLR
+    - CVPR
+    - ICCV
+    - ECCV
+    - AAAI
+    - IJCAI
+    - KDD
+    - WWW
+    - SIGIR
+    - AISTATS
+    - UAI
+    - CoRL
+    - RSS
+  # Only conference tags in this list count as "top-conference acceptance" for
+  # the well-known-paper quota. Journals may remain in top_venues for ranking.
+  well_known_venues:
+    - NeurIPS
+    - NIPS
+    - ICLR
+    - ICML
+    - ACL
+    - EMNLP
+    - NAACL
+    - COLM
     - CVPR
     - ICCV
     - ECCV
@@ -408,6 +435,18 @@ sources:
     max_results_per_topic: 25
     # Topics are already ordered with today's fair-scheduled focus first.
     max_topics_per_run: 4
+    timeout_seconds: 25
+    requests_per_second: 1.0
+    max_retries: 3
+  # Historical high-impact candidates for the scheduled focus topic. A paper is
+  # eligible when it is from a configured top venue or reaches the citation
+  # threshold above, and is older than selection.recent_days.
+  openalex_historical:
+    enabled: true
+    base_url: "https://api.openalex.org"
+    mailto_env: "OPENALEX_MAILTO"
+    max_results: 50
+    max_pages: 2
     timeout_seconds: 25
     requests_per_second: 1.0
     max_retries: 3

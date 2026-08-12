@@ -99,6 +99,20 @@ class ConfigEnvironmentTests(unittest.TestCase):
         with self.assertRaisesRegex(ConfigError, "llm.coarse.model_env"):
             validate_config(config)
 
+    def test_well_known_quota_must_stay_between_one_and_three(self):
+        config = load_config()
+        config["selection"]["max_well_known_papers"] = 4
+        with self.assertRaisesRegex(ConfigError, "max_well_known_papers"):
+            validate_config(config)
+
+    def test_well_known_minimum_cannot_exceed_edition_capacity(self):
+        config = load_config()
+        config["selection"]["min_well_known_papers"] = 3
+        config["editorial_policy"]["min_selected_papers"] = 2
+        config["editorial_policy"]["max_selected_papers"] = 2
+        with self.assertRaisesRegex(ConfigError, "exceeds capacity"):
+            validate_config(config)
+
 
 if __name__ == "__main__":
     unittest.main()

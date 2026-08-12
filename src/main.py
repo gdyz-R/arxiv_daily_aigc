@@ -31,6 +31,7 @@ try:
         relevant_memory_context,
     )
     from privacy import sanitize_public_report
+    from prominence import prominence_policy_errors, prominence_summary
     from render import normalize_report_payload, render_report
     from scheduler import schedule_daily_focus, topic_query_order
 except ImportError:  # pragma: no cover
@@ -53,6 +54,7 @@ except ImportError:  # pragma: no cover
         relevant_memory_context,
     )
     from .privacy import sanitize_public_report
+    from .prominence import prominence_policy_errors, prominence_summary
     from .render import normalize_report_payload, render_report
     from .scheduler import schedule_daily_focus, topic_query_order
 
@@ -225,6 +227,16 @@ def generate_daily_report(
         LOGGER.info("Selected %s papers (%s)", len(selected), meta["distribution_note"])
         if not selected and not allow_empty:
             raise _empty_report_error(target_date, source_diagnostics, "editorial")
+        if selected:
+            prominence_errors = prominence_policy_errors(
+                selected, decision.topic_id, config
+            )
+            if prominence_errors:
+                raise RuntimeError(
+                    f"Refusing to publish a prominence-noncompliant report for "
+                    f"{target_date}: {'; '.join(prominence_errors)}"
+                )
+            meta.update(prominence_summary(selected, decision.topic_id))
         selected = enrich_selected_figures(selected, config, target_date)
         selected = generate_figure_explanations(selected, config)
         memory_write, concept_update_count = _update_private_memory(

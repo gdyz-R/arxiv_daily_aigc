@@ -22,7 +22,10 @@
             <div><span class="strip-label">今日视角</span><br><b>{{ report.angle_name }}</b><br>{{
                 report.angle_name_en }}</div>
             <div><b>{{ report.selected_count|default(papers|length) }}</b> 精选 / <b>{{
-                    report.candidate_count|default(papers|length) }}</b> 候选</div>
+                    report.candidate_count|default(papers|length) }}</b> 候选{% if report.well_known_paper_count is
+                defined %}<br><b>{{
+                    report.well_known_paper_count|default(0) }}</b> 知名 / <b>{{
+                    report.historical_anchor_count|default(0) }}</b> 经典{% endif %}</div>
             <div>{{ report.distribution_note|default('Daily curated edition') }}</div>
         </div>
         {% if report.search_query %}<details class="query-strip">
@@ -44,7 +47,9 @@
                     %}</div>
                 <h2>{{ hero.newspaper_title }}</h2>
                 <p class="dek">{{ hero.dek }}</p>
-                <div class="tags">{% if hero.breakthrough %}<span class="tag breakthrough">重大突破</span>{% endif %}{% for
+                <div class="tags">{% if hero.breakthrough %}<span class="tag breakthrough">重大突破</span>{% endif %}{% if
+                    hero.historical_anchor %}<span class="tag historical">经典知名论文</span>{% elif hero.well_known %}<span
+                        class="tag prominent">知名论文</span>{% endif %}{% for
                     tag in hero.venue_tags %}<span class="tag venue">{{ tag }}</span>{% endfor %}{% if
                     hero.presentation_type %}<span class="tag presentation">{{ hero.presentation_type }}</span>{% endif
                     %}{% for tag in hero.contribution_tags %}<span class="tag">{{ tag }}</span>{% endfor %}</div>
@@ -97,6 +102,9 @@
                     <div class="eyebrow">{{ paper.topic_name_en }}</div>
                     <h3>{{ paper.newspaper_title }}</h3>
                     <div class="tags">{% if paper.breakthrough %}<span class="tag breakthrough">重大突破</span>{% endif %}{%
+                        if
+                        paper.historical_anchor %}<span class="tag historical">经典知名论文</span>{% elif paper.well_known
+                        %}<span class="tag prominent">知名论文</span>{% endif %}{%
                         for tag in paper.venue_tags %}<span class="tag venue">{{ tag }}</span>{% endfor %}{% if
                         paper.presentation_type %}<span class="tag presentation">{{ paper.presentation_type }}</span>{%
                         endif %}{% for tag in paper.contribution_tags %}<span class="tag">{{ tag }}</span>{% endfor %}
@@ -128,7 +136,9 @@
         <section class="briefs-grid">{% for paper in briefs %}<article class="brief">
                 <div class="eyebrow">{{ paper.topic_name_en }}</div>
                 <h3>{{ paper.newspaper_title }}</h3>
-                <div class="tags">{% for tag in paper.venue_tags %}<span class="tag venue">{{ tag }}</span>{% endfor
+                <div class="tags">{% if paper.historical_anchor %}<span class="tag historical">经典知名论文</span>{% elif
+                    paper.well_known %}<span class="tag prominent">知名论文</span>{% endif %}{% for tag in paper.venue_tags
+                    %}<span class="tag venue">{{ tag }}</span>{% endfor
                     %}{% if paper.presentation_type %}<span class="tag presentation">{{ paper.presentation_type
                         }}</span>{% endif %}{% for tag in paper.contribution_tags %}<span class="tag">{{ tag }}</span>{%
                     endfor %}</div>{% if paper.brief_points %}<ul>{% for item in paper.brief_points %}<li>{{ item }}

@@ -15,9 +15,19 @@ import requests
 
 try:
     from config import ConfigError, environment_value_from, load_config, secret_from
+    from prominence import (
+        is_focus_well_known,
+        prominence_policy_errors,
+        prominence_summary,
+    )
     from prompts import build_daily_edition_prompt
 except ImportError:  # pragma: no cover
     from .config import ConfigError, environment_value_from, load_config, secret_from
+    from .prominence import (
+        is_focus_well_known,
+        prominence_policy_errors,
+        prominence_summary,
+    )
     from .prompts import build_daily_edition_prompt
 
 
@@ -36,7 +46,8 @@ WEEKDAY_NAMES = (
 class CompletionClient(Protocol):
     """Small interface shared by the runtime client and deterministic test doubles."""
 
-    available: bool
+    @property
+    def available(self) -> bool: ...
 
     def complete(
         self, messages: list[dict[str, Any]], *, max_tokens: int = 1800
@@ -330,8 +341,6 @@ def prefilter_coarse_candidates(
 
     limit = int(config["selection"].get("coarse_candidate_limit", 36))
     focus_minimum = min(int(config["selection"].get("coarse_focus_minimum", 18)), limit)
-    if len(papers) <= limit:
-        return papers
     ranked: list[dict[str, Any]] = []
     for paper in papers:
         scores = keyword_topic_scores(paper, config)
@@ -353,14 +362,36 @@ def prefilter_coarse_candidates(
         ),
         reverse=True,
     )
+    if len(papers) <= limit:
+        return ranked
+    historical_focus = [
+        paper
+        for paper in ranked
+        if paper.get("historical_anchor") and is_focus_well_known(paper, focus_topic)
+    ]
+    known_focus = [
+        paper
+        for paper in ranked
+        if is_focus_well_known(paper, focus_topic) and paper not in historical_focus
+    ]
+    reserved = (historical_focus[:1] + known_focus)[
+        : int(config["selection"].get("max_well_known_papers", 3))
+    ]
     focus = [
         paper
         for paper in ranked
         if focus_topic in paper.get("candidate_topics", [])
         or (paper.get("prefilter_topic_scores") or {}).get(focus_topic, 0) > 0
     ]
-    selected = focus[:focus_minimum]
+    selected = list(reserved)
     selected_ids = {paper.get("paper_id") or id(paper) for paper in selected}
+    for paper in focus:
+        if len(selected) >= focus_minimum:
+            break
+        identity = paper.get("paper_id") or id(paper)
+        if identity not in selected_ids:
+            selected.append(paper)
+            selected_ids.add(identity)
     for paper in ranked:
         if len(selected) >= limit:
             break
@@ -460,7 +491,9 @@ def select_daily_papers(
     )
     focus_target = int(config["project"]["focus_count"])
     cross_target = int(config["project"]["cross_topic_count"])
-    total_target = int(target_count or config["project"]["edition_size"])
+    total_target = int(
+        config["project"]["edition_size"] if target_count is None else target_count
+    )
     total_target = max(total_target, 0)
     if target_count is not None:
         focus_target = min(focus_target, total_target)
@@ -480,6 +513,81 @@ def select_daily_papers(
         if identity not in selected_ids:
             selected.append(paper)
             selected_ids.add(identity)
+
+    def ensure_selected(required: dict[str, Any]) -> None:
+        identity = required.get("paper_id") or id(required)
+        if identity in selected_ids or total_target <= 0:
+            return
+        replaceable = [
+            paper
+            for paper in reversed(selected)
+            if not (
+                paper.get("historical_anchor")
+                and is_focus_well_known(paper, focus_topic)
+            )
+        ]
+        if len(selected) < total_target:
+            selected.append(required)
+        elif replaceable:
+            replaced = replaceable[0]
+            selected.remove(replaced)
+            selected_ids.discard(replaced.get("paper_id") or id(replaced))
+            selected.append(required)
+        else:
+            return
+        selected_ids.add(identity)
+
+    historical_focus = [
+        paper
+        for paper in ranked
+        if paper.get("historical_anchor") and is_focus_well_known(paper, focus_topic)
+    ]
+    known_focus = [paper for paper in ranked if is_focus_well_known(paper, focus_topic)]
+    if historical_focus:
+        ensure_selected(historical_focus[0])
+    minimum_known = int(config["selection"].get("min_well_known_papers", 1))
+    for paper in known_focus:
+        if (
+            sum(is_focus_well_known(item, focus_topic) for item in selected)
+            >= minimum_known
+        ):
+            break
+        ensure_selected(paper)
+
+    maximum_known = int(config["selection"].get("max_well_known_papers", 3))
+    while (
+        sum(is_focus_well_known(item, focus_topic) for item in selected) > maximum_known
+    ):
+        historical_count = sum(
+            is_focus_well_known(paper, focus_topic)
+            and bool(paper.get("historical_anchor"))
+            for paper in selected
+        )
+        extra = next(
+            (
+                paper
+                for paper in reversed(selected)
+                if is_focus_well_known(paper, focus_topic)
+                and (not paper.get("historical_anchor") or historical_count > 1)
+            ),
+            None,
+        )
+        replacement = next(
+            (
+                paper
+                for paper in ranked
+                if not is_focus_well_known(paper, focus_topic)
+                and (paper.get("paper_id") or id(paper)) not in selected_ids
+            ),
+            None,
+        )
+        if not extra:
+            break
+        selected.remove(extra)
+        selected_ids.discard(extra.get("paper_id") or id(extra))
+        if replacement:
+            selected.append(replacement)
+            selected_ids.add(replacement.get("paper_id") or id(replacement))
     selected.sort(key=lambda item: item.get("selection_score", 0), reverse=True)
     major_candidates = []
     for paper in selected:
@@ -527,6 +635,7 @@ def select_daily_papers(
         "distribution_note": "主主题候选不足，已按综合评分回填。"
         if actual_focus < min(focus_target, len(selected))
         else "按 6+1 主/跨主题策略选取。",
+        **prominence_summary(selected, focus_topic),
     }
     return selected, meta
 
@@ -705,6 +814,9 @@ def _parse_daily_edition_result(
         )
     if major_count > int(config["project"]["max_major_features"]):
         raise ValueError("Daily edition contains too many major features")
+    prominence_errors = prominence_policy_errors(selected, focus_topic, config)
+    if prominence_errors:
+        raise ValueError("; ".join(prominence_errors))
     character_count = _editorial_character_count(selected)
     if character_count > int(policy["hard_max_total_characters"]):
         raise ValueError("Daily edition exceeds the configured hard volume limit")
@@ -720,6 +832,7 @@ def _parse_daily_edition_result(
         "distribution_note": f"模型按质量自主精选 {len(selected)} 篇，并执行动态篇幅控制。",
         "edition_selection_status": "available_daily",
         "editorial_character_count": character_count,
+        **prominence_summary(selected, focus_topic),
     }
     memory_payload = result.get("memory_payload")
     if not isinstance(memory_payload, dict):

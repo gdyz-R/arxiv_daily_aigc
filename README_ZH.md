@@ -10,7 +10,7 @@
 - 主题、会议、信息源、日报篇数和输出路径统一由 `config.yaml` 控制。
 - 可选 Private Gist 概念记忆；未配置或读取失败时自动使用空记忆模式。
 - 图片下载后进行格式、大小和解码校验；。
-- GitHub Actions 自动生成、隐私扫描、提交产物并部署 Pages。
+- GitHub Actions 自动生成、提交产物并部署 Pages。
 
 ## Fork 后快速部署
 
@@ -106,17 +106,15 @@ python -m pip install -r requirements.txt
 
 复制 `.env.example` 为 `.env`，填写与 Actions 相同的模型配置。`.env` 已被 Git 忽略，并且不会覆盖终端中已经存在的环境变量。
 
-## 生成、测试与预览
+## 本地生成与预览
 
 ```bash
-python -m compileall src
-python -m unittest discover -s tests -v
-
 python src/main.py
 python src/main.py --date 2026-08-10 --force
 python src/main.py --date 2026-08-10 --offline-render
-python src/privacy.py daily_json daily_html reports.json assets/report.css assets/figures
 ```
+
+开发时如需验证，可在本地运行 `python -m unittest discover -s tests -v`；定时发布工作流不会执行该测试。
 
 在仓库根目录启动本地静态服务：
 
@@ -135,7 +133,7 @@ python -m http.server 8000
 - `assets/figures/YYYY-MM/`：通过校验的论文图片。
 - `reports.json`：按日期倒序排列的归档索引。
 
-工作流每天 `00:00 UTC` 运行
+工作流每天 `00:00 UTC` 运行：安装依赖、生成日报、提交产物，并触发 Pages 部署。模型配置缺失或无效时，由实际生成命令直接报错。
 
 ## 常见问题
 

@@ -10,7 +10,7 @@ An automated AI/ML research brief that collects papers from arXiv, OpenAlex, Sem
 - Configurable topics, venues, source adapters, edition size, and output paths in `config.yaml`.
 - Optional private Gist concept memory with safe empty-memory fallback.
 - Validated figure downloads and responsive no-placeholder layouts.
-- GitHub Actions generation, privacy scanning, artifact commits, and Pages deployment.
+- GitHub Actions generation, artifact commits, and Pages deployment.
 
 ## Deploy a fork
 
@@ -105,17 +105,15 @@ python -m pip install -r requirements.txt
 
 Copy `.env.example` to `.env`, then fill in the same model settings used by Actions. The local `.env` is ignored by Git and never overrides existing process variables.
 
-## Run and validate
+## Run locally
 
 ```bash
-python -m compileall src
-python -m unittest discover -s tests -v
-
 python src/main.py
 python src/main.py --date 2026-08-10 --force
 python src/main.py --date 2026-08-10 --offline-render
-python src/privacy.py daily_json daily_html reports.json assets/report.css assets/figures
 ```
+
+For development-only validation, run `python -m unittest discover -s tests -v` locally. It is not part of the scheduled publishing workflow.
 
 Preview the static site from the repository root:
 
@@ -134,7 +132,7 @@ Open <http://localhost:8000/>. Do not use `file://`, because browsers may block 
 - `assets/figures/YYYY-MM/`: validated cached figures.
 - `reports.json`: reverse-chronological archive index.
 
-The workflow runs daily at `00:00 UTC`, executes offline tests, validates required model configuration, generates the report, scans public outputs, commits report artifacts, and triggers the Pages deployment workflow.
+The workflow runs daily at `00:00 UTC`, installs dependencies, generates the report, commits report artifacts, and triggers the Pages deployment workflow. Missing or invalid model settings are reported by the generation command itself.
 
 ## Common issues
 

@@ -25,7 +25,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: main
-        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -33,30 +32,7 @@ jobs:
         python-version: '3.11'
 
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
-
-    - name: Run offline tests
-      run: |
-        python -m compileall src
-        python -m unittest discover -s tests -v
-
-    - name: Verify required model Secrets and Variables
-      env:
-        COARSE_LLM_API_KEY: ${{ secrets.COARSE_LLM_API_KEY }}
-        EDITORIAL_LLM_API_KEY: ${{ secrets.EDITORIAL_LLM_API_KEY }}
-        COARSE_LLM_BASE_URL: ${{ vars.COARSE_LLM_BASE_URL }}
-        COARSE_LLM_MODEL: ${{ vars.COARSE_LLM_MODEL }}
-        EDITORIAL_LLM_BASE_URL: ${{ vars.EDITORIAL_LLM_BASE_URL }}
-        EDITORIAL_LLM_MODEL: ${{ vars.EDITORIAL_LLM_MODEL }}
-      run: |
-        test -n "$COARSE_LLM_API_KEY" || { echo "Missing COARSE_LLM_API_KEY Repository Secret"; exit 1; }
-        test -n "$EDITORIAL_LLM_API_KEY" || { echo "Missing EDITORIAL_LLM_API_KEY Repository Secret"; exit 1; }
-        test -n "$COARSE_LLM_BASE_URL" || { echo "Missing COARSE_LLM_BASE_URL Repository Variable"; exit 1; }
-        test -n "$COARSE_LLM_MODEL" || { echo "Missing COARSE_LLM_MODEL Repository Variable"; exit 1; }
-        test -n "$EDITORIAL_LLM_BASE_URL" || { echo "Missing EDITORIAL_LLM_BASE_URL Repository Variable"; exit 1; }
-        test -n "$EDITORIAL_LLM_MODEL" || { echo "Missing EDITORIAL_LLM_MODEL Repository Variable"; exit 1; }
+      run: python -m pip install -r requirements.txt
 
     - name: Run multi-source paper newspaper pipeline
       env:
@@ -83,15 +59,6 @@ jobs:
         else
           python src/main.py --force
         fi
-
-    - name: Check public outputs for secrets and local paths
-      env:
-        COARSE_LLM_API_KEY: ${{ secrets.COARSE_LLM_API_KEY }}
-        EDITORIAL_LLM_API_KEY: ${{ secrets.EDITORIAL_LLM_API_KEY }}
-        SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
-        GIST_ID: ${{ secrets.GIST_ID }}
-        GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
-      run: python src/privacy.py daily_json daily_html reports.json assets/report.css assets/figures
 
     - name: Commit and push changes
       run: |

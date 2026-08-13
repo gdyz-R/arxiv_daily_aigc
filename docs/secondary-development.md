@@ -38,7 +38,7 @@
 | `src/filter.py` | 粗筛、评分、shortlist、规则选文、LLM 输出解析和内容生成 |
 | `src/prompts.py` | 日级编辑 JSON prompt 与输出契约 |
 | `src/memory.py` | 私有概念账本读取、校验、合并和写回 |
-| `src/privacy.py` | 公开字段清洗、密钥与本地路径扫描 |
+| `src/privacy.py` | 公开字段清洗与敏感信息脱敏 |
 | `src/render.py` | schema 兼容、视图模型准备、Jinja 渲染、样式发布 |
 | `src/archive.py` | 安全文件名、月度 JSON/HTML 路径、相对资源 URL |
 | `src/main.py` | 全流程编排、拒绝空日报、拒绝不合规日报、落盘和索引更新 |
@@ -210,15 +210,16 @@ python src/main.py --date 2026-08-12 --offline-render
 | Gist 读取/写入失败 | 空记忆或跳过写入，公开日报继续 |
 | 无候选论文 | 默认拒绝空日报；仅显式 `--allow-empty` 可覆盖 |
 
-## 10. 测试与质量门禁
+## 10. 本地测试
 
-本地和 CI 使用：
+开发时可在本地运行：
 
 ```bash
 python -m compileall src
 python -m unittest discover -s tests -v
-python src/privacy.py daily_json daily_html reports.json assets/report.css assets/figures
 ```
+
+这些开发验证不会在定时发布工作流中执行。
 
 测试目录约定：
 
@@ -228,13 +229,13 @@ python src/privacy.py daily_json daily_html reports.json assets/report.css asset
 - `test_prompts.py`：prompt 数据和输出契约。
 - `test_render.py`：HTML、资源相对路径和响应式版面。
 - `test_main.py`：文件写入边界、空日报/不合规日报拒绝、隐私记忆隔离。
-- `test_archive_privacy.py`：归档命名、workflow 配置、公开扫描。
+- `test_archive_privacy.py`：归档命名、公开字段脱敏与精简 workflow 配置。
 
 任何网络功能都必须允许注入 session/client，测试不得依赖真实网络、真实 Key 或当天数据。
 
 ## 11. GitHub Actions 与公开产物
 
-`.github/workflows/daily_arxiv.yml` 每天执行：安装依赖 → 离线测试 → 校验模型变量 → 生成日报 → 隐私扫描 → 提交产物。
+`.github/workflows/daily_arxiv.yml` 每天执行：安装依赖 → 生成日报 → 提交产物。随后 `deploy_pages.yml` 将公开静态站点部署到 GitHub Pages；工作流不运行离线测试、模型配置预检或产物扫描。
 
 需要提交的生成产物：
 

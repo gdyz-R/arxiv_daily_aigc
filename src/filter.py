@@ -162,12 +162,18 @@ class OpenAICompatibleClient:
                 response.raise_for_status()
                 return response.json()["choices"][0]["message"]["content"].strip()
             except (requests.RequestException, KeyError, IndexError, ValueError) as exc:
+                status_code = getattr(
+                    getattr(exc, "response", None), "status_code", None
+                )
+                error_detail = type(exc).__name__
+                if status_code is not None:
+                    error_detail += f"(status={status_code})"
                 LOGGER.warning(
                     "%s API attempt %s/%s failed: %s",
                     self.section.get("role", "llm"),
                     attempt + 1,
                     retries,
-                    type(exc).__name__,
+                    error_detail,
                 )
                 if attempt + 1 < retries:
                     time.sleep(min(2**attempt, 10))

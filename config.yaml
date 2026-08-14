@@ -270,7 +270,10 @@ selection:
   recent_high_citation_threshold: 20
   recent_days: 120
   # Every published edition must include 1-3 well-known papers in the scheduled
-  # focus domain. At least one must be older than recent_days.
+  # focus domain. At least one should be older than recent_days. When an
+  # upstream historical source is temporarily unavailable, warn preserves a
+  # transparent rule-based edition; block refuses publication instead.
+  prominence_failure_mode: warn
   min_well_known_papers: 1
   max_well_known_papers: 3
   candidate_limit_per_topic: 45

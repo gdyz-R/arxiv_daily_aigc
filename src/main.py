@@ -231,12 +231,31 @@ def generate_daily_report(
             prominence_errors = prominence_policy_errors(
                 selected, decision.topic_id, config
             )
+            prominence_status = "compliant"
             if prominence_errors:
-                raise RuntimeError(
-                    f"Refusing to publish a prominence-noncompliant report for "
-                    f"{target_date}: {'; '.join(prominence_errors)}"
+                prominence_status = "degraded"
+                failure_mode = str(
+                    config["selection"].get("prominence_failure_mode", "warn")
+                ).lower()
+                message = (
+                    f"Prominence policy unmet for {target_date}: "
+                    f"{'; '.join(prominence_errors)}"
                 )
-            meta.update(prominence_summary(selected, decision.topic_id))
+                if failure_mode == "block":
+                    raise RuntimeError(
+                        "Refusing to publish a prominence-noncompliant report for "
+                        f"{target_date}: {'; '.join(prominence_errors)}"
+                    )
+                LOGGER.warning(
+                    "%s; publishing a transparently degraded edition", message
+                )
+            meta.update(
+                {
+                    **prominence_summary(selected, decision.topic_id),
+                    "prominence_policy_status": prominence_status,
+                    "prominence_policy_errors": prominence_errors,
+                }
+            )
         selected = enrich_selected_figures(selected, config, target_date)
         selected = generate_figure_explanations(selected, config)
         memory_write, concept_update_count = _update_private_memory(

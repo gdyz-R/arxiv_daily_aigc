@@ -133,12 +133,12 @@ python -m http.server 8000
 - `assets/figures/YYYY-MM/`：通过校验的论文图片。
 - `reports.json`：按日期倒序排列的归档索引。
 
-工作流每天 `00:00 UTC` 运行：安装依赖、生成日报、提交产物，并触发 Pages 部署。模型配置缺失或无效时，由实际生成命令直接报错。
+工作流每天 `00:00 UTC` 运行：安装依赖、生成日报、提交产物，并触发 Pages 部署。若编辑模型或历史论文源临时失败，系统会使用规则选文发布，并在日报元数据中标记 `prominence_policy_status: degraded` 及具体原因；这避免了单个上游服务异常中断整期日报。若希望严格拒绝任何缺少焦点领域历史知名论文的期刊，可将 `config.yaml` 的 `selection.prominence_failure_mode` 改为 `block`。
 
 ## 常见问题
 
 - **提示缺少模型配置**：检查当前 Fork 中 Repository Secret/Variable 的名称是否与上表完全一致。
-- **模型返回 401/404**：检查 Key、模型名、Base URL，并确认没有重复添加 `/chat/completions`。
+- **模型返回 `HTTPError(status=401/404/429/5xx)`**：检查 Key、模型名、Base URL，并确认没有重复添加 `/chat/completions`；`429` 请等待限流窗口后重试，`5xx` 通常是上游服务暂时不可用。
 - **模型返回格式错误**：确认服务支持 JSON mode、配置的 Token 字段和思考参数格式。
 - **arXiv 429**：保持 RSS fallback 开启，减少候选规模，或稍后重试。
 - **Action 无法 push**：开启工作流读写权限，并检查 Branch protection / Ruleset。

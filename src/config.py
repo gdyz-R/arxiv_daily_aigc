@@ -173,6 +173,13 @@ def validate_config(config: dict[str, Any]) -> None:
         raise ConfigError("selection.high_citation_threshold must be positive")
     if int(selection.get("recent_days", 0)) <= 0:
         raise ConfigError("selection.recent_days must be positive")
+    prominence_failure_mode = str(
+        selection.get("prominence_failure_mode", "warn")
+    ).lower()
+    if prominence_failure_mode not in {"warn", "block"}:
+        raise ConfigError(
+            "selection.prominence_failure_mode must be either warn or block"
+        )
     well_known_venues = selection.get("well_known_venues", [])
     if not isinstance(well_known_venues, list) or not well_known_venues:
         raise ConfigError("selection.well_known_venues must not be empty")

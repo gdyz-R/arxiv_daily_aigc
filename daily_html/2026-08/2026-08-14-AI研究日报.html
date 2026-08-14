@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Daily AI Research Gazette — 2026-08-14</title>
+    <link rel="stylesheet" href="../../assets/report.css">
+</head>
+
+<body style="--figure-max-height: 450px">
+    <main class="page">
+        <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
+                Theory</span><span>Friday, 14 August 2026</span></div>
+        <header class="masthead">
+            <h1>Daily AI Research Gazette</h1>
+            <p>LLM Systems, Efficient Sequence Models, Agents &amp; Theory</p>
+        </header>
+        <div class="focus-strip">
+            <div><strong>今日焦点 · 可解释性与机制分析</strong><br>Interpretability &amp; Mechanisms</div>
+            <div><span class="strip-label">今日视角</span><br><b>工程落地与 Edge Case</b><br>Engineering &amp; Edge Cases</div>
+            <div><b>7</b> 精选 / <b>12</b> 候选<br><b>0</b> 知名 / <b>0</b> 经典</div>
+            <div>日级自主选文不可用（fallback_invalid_daily_json），已回退到稳定的规则选文与逐篇精编。</div>
+        </div>
+<details class="query-strip">
+            <summary>Today's Search Query · 今日检索式</summary>
+            <code>(cat:cs.LG OR cat:cs.AI OR cat:cs.CL OR cat:stat.ML) AND (ti:&#34;mechanistic interpretability&#34; OR abs:&#34;mechanistic interpretability&#34; OR ti:&#34;interpretability&#34; OR abs:&#34;interpretability&#34; OR ti:&#34;circuit analysis&#34; OR abs:&#34;circuit analysis&#34; OR ti:&#34;feature attribution&#34; OR abs:&#34;feature attribution&#34; OR ti:&#34;sparse autoencoder&#34; OR abs:&#34;sparse autoencoder&#34; OR ti:&#34;activation steering&#34; OR abs:&#34;activation steering&#34; OR ti:&#34;representation probing&#34; OR abs:&#34;representation probing&#34;) AND submittedDate:[202608120000 TO 202608150000]</code>
+        </details><div class="section-kicker">Lead Story · 今日头条</div>
+        <article class="hero">
+<div class="hero-media" data-figure-media>
+                <figure class="paper-figure">
+                    <div class="figure-frame"><img src="../../assets/figures/2026-08/2026-08-14-AI研究日报/2608.11224-figure1.png" alt="Harnessing agent memory to build lifelong AI partners for materials scientists Figure 1"
+                            loading="eager" referrerpolicy="no-referrer"
+                            onerror="this.closest('.hero').classList.add('no-figure');this.closest('[data-figure-media]').remove()">
+                    </div><figcaption>Figure 1 : Memory-centric self-evolving agent for lifelong materials research. (a) Materials scientists develop judgement by accumulating literature, notes, successful experiences, failure guardrails and scientific taste.
+(b) Human experience is cumulative but fragmented, whereas current AI agents execute strongly but usually lack a mechanism for test-time knowledge accumulation.
+(c) A memory-centric agent acquires experience from real tasks, consolidates it into structured facts and skills, and retrieves it for new problems.
+(d) Examples of fact-memory and skill-memory from a VASP phonon workflow, including job provenance, failure diagnosis, recommended action, DFT relaxation followed by a DFPT phonon calculation and HPC execution notes.
+(e) Three-round task-success trends on the MatTools materials-tool-use benchmark show that full memory evolution improves GPT-5.2 from 62.3% to 75.4%, beyond sandbox-only and memory-only variants.</figcaption>                </figure>
+            </div>            <div class="hero-copy">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h2>让材料科学智能体把经验留下来</h2>
+                <p class="dek">一项研究提出以持久记忆而非单一模型为中心的框架，将材料计算中的观察、协议、失败边界和验证规则沉淀为可检查、可执行、可迁移的科学资产，意在改善复现与知识传承。</p>
+                <div class="tags"><span class="tag">Agent Memory</span><span class="tag">Tool Use</span></div>
+                <div class="meta-line">引用 0 · 创新度 7.0/10 ·
+                    综合优先级 7.375</div>
+                <div class="analysis-grid">
+                    <section>
+                        <h4>背景与痛点</h4>
+                        <p>材料研究的进展往往不只来自论文结论，也来自可复用的脚本、经验证的操作流程、对失败计算的警示，以及将新问题同旧结果相连的判断。这些经验散落在实验记录本、代码仓库、作业日志和研究人员个人记忆中，难以检索、审计和交接。随着工具调用型智能体参与计算工作流，经验通常还被锁定在特定模型或代理实现内；一旦更换模型、系统或人员，重复试错与结果不可复现的风险便会重现。</p>
+                    </section>
+                    <section>
+                        <h4>核心创新</h4>
+                        <ul><li>框架将科学经验拆分为可检查的事实与可执行的技能：前者记录观察、失败条件和验证要求，后者封装可复用的操作协议，令记忆成为代理之外可管理的层。</li><li>研究强调记忆可被检索、修订和迁移，而非绑定某一智能体实现；这使历史经验能够在模型和代理栈更替后继续参与决策，并保留审查与更新的接口。</li><li>在计算开始前，将已知的波函数初始化失败转写为预执行护栏，尝试把一次性纠错转化为后续任务的风险规避规则，体现记忆从记录到行动约束的角色。</li></ul>
+                    </section>
+                    <section>
+                        <h4>实验结论</h4>
+                        <p>实验将框架置于三类计算场景。在49个真实世界材料工具使用问题、共138项可执行子任务中，加入记忆后，GPT-5.2的任务成功率接近翻倍，且未更新模型参数。元素固体状态方程计算中，结果由22/1/4（正确/部分正确/错误）改善至25/2/0，并避免92%的重复错误。另在13条实际模拟工作流中，到第三轮，聚合轨迹负担（tokens）减半、工具调用降至不足原来一半，同时保留带隙、声子、空位和功函数分析中具有物理意义的输出。</p>
+                    </section>
+                    <section>
+                        <h4>论文信息</h4>
+                        <p>Siyu Liu、Bo Hu、Beilin Ye、He Cao、David J. Srolovitz、Tongqi Wen</p>
+                        <p>cond-mat.mtrl-sci, cs.AI, cs.CE, cs.CL, cs.MA</p>
+                    </section>
+                </div>
+<div class="figure-note">
+                    <h4>图解</h4>
+                    <p>图1对比了人类研究经验虽可持续积累但较分散，与现有AI代理虽能执行指令和工具调用、却通常缺少测试时知识积累机制的差异。其信息流为：真实任务中的文献、人工指令、计算资源、数据分析和环境反馈形成经验轨迹，经整理后写入由事实与技能组成的知识库；该记忆可被检索、复用、更新或删除，并用于回答新问题、生成可复用脚本和规范化文档，且可迁移给其他AI科学家或人类。作者据此主张以持续演化的结构化记忆作为长期材料研究伙伴的核心资产；图中基准趋势显示，完整记忆演化系统的任务成功率从第1轮62.3%升至第3轮75.4%，高于所示对照变体。</p>
+                </div>                <div class="read-links"><a href="https://arxiv.org/abs/2608.11224" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="https://arxiv.org/pdf/2608.11224" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: Harnessing agent memory to build lifelong AI partners for materials scientists</div>
+            </div>
+        </article><div class="section-kicker">Research Briefs · 论文快讯</div>
+        <section class="briefs-grid"><article class="brief">
+                <div class="eyebrow">Interpretability &amp; Mechanisms</div>
+                <h3>皮肤病变分类引入不确定性筛选</h3>
+                <div class="tags"></div><ul><li>框架集成MaxViT-Tiny、ConvNeXt-Tiny与EfficientNetV2-B0，用于HAM10000多类别皮肤病变分类。
+                    </li><li>MC Dropout以熵和置信度识别不可靠结果；Grad-CAM++呈现影响分类的病变区域。
+                    </li><li>在熵低于1.0、置信度不低于0.7的筛选下，论文报告准确率96%、ROC-AUC为99%；这些指标基于过滤后的预测。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 3.0/10 · cs.AI, cs.CV, cs.LG, eess.IV</div>
+                <div class="read-links"><a href="https://arxiv.org/abs/2608.11280" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Uncertainty-Aware and Explainable Ensemble Deep Learning Framework for Multi-Class Skin Lesion Classification</div>
+            </article><article class="brief">
+                <div class="eyebrow">Interpretability &amp; Mechanisms</div>
+                <h3>激活引导的副作用，可在部署前预报</h3>
+                <div class="tags"><span class="tag">Representation</span><span class="tag">Mechanistic Interpretability</span></div><ul><li>覆盖67类行为和3个开放权重模型的交叉效应矩阵，测量引导对非目标行为的影响。
+                    </li><li>副作用普遍、结构化且常不对称，难以由相似性启发式解释。
+                    </li><li>幅度主要由目标行为决定；未引导表征可更准确预测影响方向。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 5.5/10 · cs.AI, cs.LG</div>
+                <div class="read-links"><a href="https://arxiv.org/abs/2608.11227" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Forecasting Side Effects of Activation Steering</div>
+            </article><article class="brief">
+                <div class="eyebrow">Interpretability &amp; Mechanisms</div>
+                <h3>双曲几何试图拓展模糊规则推理的表示边界</h3>
+                <div class="tags"><span class="tag">Representation Geometry</span><span class="tag">Expressivity</span></div><ul><li>传统ANFIS在欧氏空间构建规则前件并完成推理，论文认为这限制了其表示能力与预测表现。
+                    </li><li>HyperANFIS保留模糊语义和基本架构，将规则原型学习、激活及后件聚合置于双曲空间。
+                    </li><li>作者报告，该方法在全部测试数据集上优于标准ANFIS及多种变体，并生成质量更高的模糊规则。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.8/10 · cs.AI</div>
+                <div class="read-links"><a href="https://arxiv.org/abs/2608.11768" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">HyperANFIS: Enhancing Rule Representation and Interpretability in Adaptive Neuro-Fuzzy Systems via Hyperbolic Geometry</div>
+            </article><article class="brief">
+                <div class="eyebrow">Interpretability &amp; Mechanisms</div>
+                <h3>符号机器学习为烃—氮相平衡修正状态方程</h3>
+                <div class="tags"></div><ul><li>烃—氮二元混合物的汽液平衡预测，在宽组成范围及不同烃链长度下，对立方型状态方程仍具挑战。
+                    </li><li>方法先为单一烃体系识别符号校正式，再将其系数表示为碳数函数，以覆盖多个体系。
+                    </li><li>作者报告称，该框架在全部考察的烃—氮体系中均较原始PR-EOS提高预测准确性，并保留显式解析形式。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.8/10 · cs.AI, cs.LG, physics.comp-ph</div>
+                <div class="read-links"><a href="https://arxiv.org/abs/2608.11255" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Symbolic Machine Learning for Vapor-Liquid Equilibrium Prediction in Cx-N2 Binary Mixtures</div>
+            </article><article class="brief">
+                <div class="eyebrow">Interpretability &amp; Mechanisms</div>
+                <h3>让AI成为理解AI的科学仪器</h3>
+                <div class="tags"><span class="tag">Mechanistic Interpretability</span><span class="tag">Causal Inference</span><span class="tag">Representation</span></div><ul><li>系统整合约1.3万篇可解释性论文知识图谱，并接入覆盖26个领域的4300万篇论文数据库。
+                    </li><li>配置32种机制分析、因果干预与验证方法；论文称，其假设质量和实验可靠性优于对比系统。
+                    </li><li>案例涉及跨模态不安全特征迁移、模型信念机制，以及定向生成具指定属性的DNA序列。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.8/10 · cs.AI, cs.CL, cs.HC, cs.LG, cs.MA</div>
+                <div class="read-links"><a href="https://arxiv.org/abs/2608.12036" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Mechanist: AI as a Scientific Instrument for Discovering the Mechanisms of Intelligence</div>
+            </article><article class="brief">
+                <div class="eyebrow">Interpretability &amp; Mechanisms</div>
+                <h3>视频异常检测试图弥合“何时”与“何事”的断层</h3>
+                <div class="tags"><span class="tag">Reasoning</span><span class="tag">Tool Use</span><span class="tag">Chain-of-Thought</span></div><ul><li>现有方法存在“何时—何事”脱节：深度网络偏重时间定位，大语言模型偏重语义解释。
+                    </li><li>GtS先全局浏览再局部细查；代理模型学习调用视频裁剪、检查密集重采样帧并自我修正。
+                    </li><li>VAGU-T覆盖21类异常，JeAUG同时衡量语义可解释性与时间精度；摘要称代理模型准确性和推理速度均提升。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.15/10 · cs.AI, cs.CV</div>
+                <div class="read-links"><a href="https://arxiv.org/abs/2608.11260" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Glance, Scrutinize, and Think: Advancing Video Anomaly Detection from Training-Free to Agentic Reasoning</div>
+            </article></section>        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
+                appear
+                only when officially verified.</span><span>Generated 2026-08-14 01:52 UTC</span></footer>
+    </main>
+</body>
+
+</html>

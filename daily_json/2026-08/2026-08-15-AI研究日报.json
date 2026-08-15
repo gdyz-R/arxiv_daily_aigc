@@ -1,0 +1,751 @@
+{
+  "schema_version": 2,
+  "report": {
+    "date": "2026-08-15",
+    "newspaper_name": "Daily AI Research Gazette",
+    "subtitle": "LLM Systems, Efficient Sequence Models, Agents & Theory",
+    "focus_topic": "world_models",
+    "focus_topic_name": "世界模型与生成式环境模拟",
+    "focus_topic_name_en": "World Models",
+    "search_query": "(cat:cs.AI OR cat:cs.LG OR cat:cs.RO OR cat:cs.CV) AND (ti:\"world model\" OR abs:\"world model\" OR ti:\"latent dynamics\" OR abs:\"latent dynamics\" OR ti:\"model-based reinforcement learning\" OR abs:\"model-based reinforcement learning\" OR ti:\"video world model\" OR abs:\"video world model\" OR ti:\"generative simulator\" OR abs:\"generative simulator\" OR ti:\"predictive environment model\" OR abs:\"predictive environment model\") AND submittedDate:[202608130000 TO 202608160000]",
+    "angle_id": "evaluation_methodology",
+    "angle_name": "评测可信度与实验方法学",
+    "angle_name_en": "Evaluation Methodology",
+    "schedule_days_unselected": 365,
+    "schedule_cooldown_readiness": 1.0,
+    "schedule_selection_reason": "starvation_guard",
+    "memory_read_status": "available",
+    "memory_write_status": "skipped_no_updates",
+    "memory_concept_update_count": 0,
+    "generated_at": "2026-08-15T00:42:36.341280+00:00",
+    "source_diagnostics": {
+      "arxiv": {
+        "status": "available",
+        "api_topics_attempted": 10,
+        "api_topics_succeeded": 10,
+        "api_topics_failed": 0,
+        "api_result_count": 127,
+        "fallback_used": false,
+        "result_count": 107,
+        "errors": []
+      },
+      "neurips": {
+        "status": "empty",
+        "result_count": 0
+      },
+      "openalex": {
+        "status": "empty",
+        "result_count": 0
+      },
+      "openalex_historical": {
+        "status": "available",
+        "result_count": 100,
+        "focus_topic": "world_models"
+      },
+      "merged_candidate_count": 206,
+      "semantic_scholar": {
+        "status": "disabled",
+        "paper_count": 206
+      }
+    },
+    "target_focus_count": 6,
+    "target_cross_topic_count": 1,
+    "actual_focus_count": 6,
+    "actual_cross_topic_count": 1,
+    "candidate_count": 12,
+    "selected_count": 7,
+    "distribution_note": "日级自主选文不可用（fallback_invalid_daily_json），已回退到稳定的规则选文与逐篇精编。",
+    "well_known_paper_count": 0,
+    "historical_anchor_count": 0,
+    "edition_selection_status": "fallback_invalid_daily_json",
+    "editorial_character_count": 2044,
+    "source_candidate_count": 18,
+    "shortlist_count": 12,
+    "prominence_policy_status": "degraded",
+    "prominence_policy_errors": [
+      "requires at least 1 focus-domain well-known paper(s)",
+      "requires at least one well-known paper older than recent_days"
+    ]
+  },
+  "papers": [
+    {
+      "paper_id": "arxiv:2608.13103",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.13103",
+      "arxiv_id": "2608.13103",
+      "title": "S2-HWM: Sparse Event-Structured Hierarchical World Model for Long-Horizon Surgical Robot Manipulation",
+      "summary": "Long-horizon surgical robot manipulation is challenging because task rewards are sparse, while meaningful interaction changes occur at irregular intervals. Existing world-model agents typically imagine at primitive-step resolution, leaving variable-duration task progress implicit. Manually specified stages can provide intermediate structure, but their task specific boundaries are difficult to align with state-dependent interaction transitions. We propose S2-HWM, a Sparse Event-Structured Hierarchical World Model that learns sparse event evidence from primitive latent trajectories to coordinate an event-level manager and a primitive-step worker. The event evidence schedules manager goal updates, and each selected latent goal conditions the worker's primitive actions until the next update. The learned event evidence also forms variable-duration segments for an Event Transition Model (ETM), which predicts the next?boundary stochastic state, segment duration, and accumulated segment reward. Chaining these event-level predictions provides a variable-duration continuation beyond the primitive imagination horizon for manager learning, while the worker retains primitive-step actor-critic learning. On a SurRoL-based PegTransfer task, S2-HWM achieves a success rate of 98.7%, outperforming the flat GAS DreamerV3 baseline by 22.7 percentage points.",
+      "url": "http://arxiv.org/abs/2608.13103v1",
+      "abstract_url": "http://arxiv.org/abs/2608.13103v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.13103v1",
+      "published_date": "2026-08-13T11:29:20+00:00",
+      "updated_date": "2026-08-13T11:29:20+00:00",
+      "categories": [
+        "cs.RO",
+        "eess.SY"
+      ],
+      "authors": [
+        "Shuzhe Zhang",
+        "Xin Zhu",
+        "Yinling Qian",
+        "Qiong Wang"
+      ],
+      "candidate_topics": [
+        "world_models"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "well_known": false,
+      "well_known_reasons": [],
+      "historical_anchor": false,
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 4.65,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "prefilter_score": 14.069,
+      "is_relevant": true,
+      "primary_topic": "world_models",
+      "topic_scores": {
+        "engineering_deployment": 1.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 1.0,
+        "process_reward_models": 0.0,
+        "world_models": 10.0,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 1.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 7.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "提出了一种基于稀疏事件结构的分层世界模型，用于长视距手术机器人操作，在PegTransfer任务上取得了显著性能提升。",
+      "contribution_tags": [
+        "World Model",
+        "Latent Dynamics",
+        "Model-Based RL",
+        "Planning"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 9.13,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "以稀疏事件重构手术机器人的长程想象",
+      "dek": "S2-HWM以状态相关的事件切分层级世界模型，在PegTransfer模拟任务中显著超过平坦式基线。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "模型从原始步长的潜变量轨迹中学习稀疏事件证据，用其决定管理器何时更新潜在目标；工作器则在两次更新之间按原始步长执行动作。",
+        "事件转移模型按可变时长片段预测下一边界随机状态、片段时长与累计奖励，使管理器可在原始想象视界之外续推；工作器仍采用原始步长的演员—评论家学习。",
+        "在SurRoL基础的PegTransfer任务上，S2-HWM成功率为98.7%，较平坦GAS DreamerV3基线高22.7个百分点。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.12939",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.12939",
+      "arxiv_id": "2608.12939",
+      "title": "Diagnosing JEPA World Models with Action-Conditioned Predictive Consistency",
+      "summary": "Joint-embedding predictive architectures (JEPAs) learn world models that predict in a compact latent space rather than in pixels, reducing the pressure to model nuisance appearance. Yet this provides no guarantee against visual perturbations: they can still alter the encoded representation and affect subsequent action-conditioned predictions. Bisimulation captures this requirement precisely: two observations should be treated as the same state only when their action-conditioned consequences agree. Guided by this criterion, we introduce Action-Conditioned Predictive Consistency (ACPC), a diagnostic that measures how far a clean history and a visually perturbed view of it diverge after being rolled forward under the same action sequence. We prove that this divergence bounds the perturbation-induced change in multi-step prediction error and planner cost. Building on pairwise ACPC, we define two complementary measures: the Invariance Radius (IR) summarizes clean-perturbed rollout spread, while the Separation Rate (SR) checks whether different states remain distinguishable after rollout. Experiments on four visual control tasks show that pairwise ACPC predicts perturbation-induced prediction and cost changes. On LeWM, the IR-SR screen transfers across tasks, and the joint diagnostic remains informative under blur and resize. PLDM exhibits similar diagnostic trends under a different architecture.",
+      "url": "http://arxiv.org/abs/2608.12939v1",
+      "abstract_url": "http://arxiv.org/abs/2608.12939v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.12939v1",
+      "published_date": "2026-08-13T08:18:41+00:00",
+      "updated_date": "2026-08-13T08:18:41+00:00",
+      "categories": [
+        "cs.LG"
+      ],
+      "authors": [
+        "Guo An",
+        "Zijing Wu",
+        "Honghua Dong",
+        "Yuhao Yan",
+        "Zixuan Gui",
+        "Haochong Chen",
+        "Shanzhao Ruan",
+        "Xiang Wang",
+        "Yurong Ling",
+        "Qi Tian"
+      ],
+      "candidate_topics": [
+        "world_models"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "well_known": false,
+      "well_known_reasons": [],
+      "historical_anchor": false,
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.6,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 4.65,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 14.069,
+      "is_relevant": true,
+      "primary_topic": "world_models",
+      "topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 10.0,
+        "causal_inference": 2.0,
+        "interpretability": 3.0,
+        "theory_loss_landscape": 1.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 7.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "本文针对JEPA世界模型提出了一种基于动作条件预测一致性的诊断方法，并验证了其在视觉扰动下的有效性。",
+      "contribution_tags": [
+        "World Model",
+        "Latent Dynamics",
+        "Planning",
+        "Model-Based RL"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 9.13,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "用动作条件一致性检验JEPA世界模型的视觉稳健性",
+      "dek": "研究提出ACPC诊断，以量化视觉扰动对潜在预测与规划成本的影响，并在多项视觉控制任务中验证其指示性。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "JEPA在潜在空间预测可减轻对外观细节的建模压力，但视觉扰动仍可能改变编码，并沿相同行动序列传导为预测与决策偏差。",
+        "ACPC比较干净历史与受扰视图的动作条件滚动；IR衡量不变性、SR检验状态可分性。四项任务及LeWM、PLDM结果显示，指标可预示预测误差和成本变化，并在模糊、缩放下保持信息量。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.13438",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.13438",
+      "arxiv_id": "2608.13438",
+      "title": "ContactGuard: Pre-Contact Execution Monitoring with Action-Conditioned Latent World Models",
+      "summary": "Contact-rich manipulation failures are often detected only after the robot has committed to contact. This is especially limiting in wrist-camera setups: close gripper--object views help observe contact, but a poor approach may already push, miss, slip, or disturb the object before conventional detectors react. We introduce \\emph{ContactGuard}, a pre-contact execution monitor for chunked visuomotor policies. Given the policy's planned action chunk, ContactGuard predicts its short-horizon consequence in latent visual space and aborts if the predicted future latent indicates likely failure. Its latent world model is trained from unlabelled robot trajectories to predict compact multi-view visual embeddings under planned actions, avoiding pixel-level video prediction. A lightweight failure probe is then trained from a small labelled set of pre-contact clips. At deployment, ContactGuard anchors prediction before an imminent contact event, rolls the model forward under the policy's own actions, and verifies the predicted post-contact latent. Across real-world contact-rich manipulation tasks, ContactGuard predicts failure more accurately than direct and corrupted-action ablations, and transfers to live robot as a pre-contact abort signal without modifying the underlying policy.",
+      "url": "http://arxiv.org/abs/2608.13438v1",
+      "abstract_url": "http://arxiv.org/abs/2608.13438v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.13438v1",
+      "published_date": "2026-08-13T16:25:54+00:00",
+      "updated_date": "2026-08-13T16:25:54+00:00",
+      "categories": [
+        "cs.RO",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "authors": [
+        "Gehan Zheng",
+        "Matthew Johnson-Roberson",
+        "Weiming Zhi"
+      ],
+      "candidate_topics": [
+        "cot_agentic_ai",
+        "world_models"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "well_known": false,
+      "well_known_reasons": [],
+      "historical_anchor": false,
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.6,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 2.1,
+        "process_reward_models": 0.6,
+        "world_models": 4.65,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 14.069,
+      "is_relevant": true,
+      "primary_topic": "world_models",
+      "topic_scores": {
+        "engineering_deployment": 1.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 9.0,
+        "causal_inference": 1.0,
+        "interpretability": 1.0,
+        "theory_loss_landscape": 0.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 8.0,
+      "clarity_score": 9.0,
+      "coarse_rationale": "本文提出利用潜在世界模型进行接触前执行监控，在机器人操作中预测并阻止即将发生的失败，属于世界模型在决策监控中的创新应用。",
+      "contribution_tags": [
+        "World Model",
+        "Latent Dynamics",
+        "Verifier"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 8.97,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "ContactGuard将机器人失误监测前移至接触之前",
+      "dek": "该方法根据策略拟执行的动作块，在潜在视觉空间预演短期后果，并在预判接触失败时中止执行。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "面向腕部相机等近距离操作，系统在接触前评估动作后果，力图避免推偏、扑空、打滑或扰动物体后才报警。",
+        "世界模型由无标注轨迹训练，少量标注用于失败探针；作者报告其在真实任务和在线机器人上优于直接预测及动作扰动基线。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.12959",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.12959",
+      "arxiv_id": "2608.12959",
+      "title": "The Objective Is the Bottleneck: Latent World Models Encode What Their Planners Cannot Use",
+      "summary": "Latent world models are judged by how well they predict, so when planning fails at long horizons the natural reading is that the predictor degrades. On a reproduction of LeWorldModel on TwoRoom we show the binding constraint is the planner's objective instead.\n  The predictor is not the limit: its imagined state seventy-five environment steps ahead is still only 0.189 as wrong as assuming the world froze, while the planner never imagines beyond twenty-five. The objective is. Cross-entropy-method planning minimises squared latent distance, which tracks true distance at r = 0.426, saturates by about eighty arena units and decreases beyond a hundred and twenty, so moving away from the goal can lower the cost. The information is present throughout: a ridge probe recovers position from the frozen embedding at R^2 0.9922.\n  The pathology is the method's, not one reimplementation's. It is present in the authors' released weights, and across four checkpoints long-horizon success rank-orders exactly with metric quality and inversely with prediction accuracy.\n  Replacing only the objective, with nothing retrained and no GPU, lifts goals reached at offset 100 from 26.0% to 98.0%, equals the 98.0% at offset 25, and reaches 92.0% under a third of the budget: planning stops depending on the horizon. The best cost is not the most accurate. A head learned from frame separation alone predicts spatial distance worse than a position probe (r = 0.819 against 0.9897) yet plans better, charging 24% more to cross the environment's dividing wall where squared latent distance charges 4% less. It has learned reachability, not proximity.",
+      "url": "http://arxiv.org/abs/2608.12959v1",
+      "abstract_url": "http://arxiv.org/abs/2608.12959v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.12959v1",
+      "published_date": "2026-08-13T08:43:54+00:00",
+      "updated_date": "2026-08-13T08:43:54+00:00",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "authors": [
+        "Joyjeet Singh"
+      ],
+      "candidate_topics": [
+        "cot_agentic_ai",
+        "world_models"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "well_known": false,
+      "well_known_reasons": [],
+      "historical_anchor": false,
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.6,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 2.85,
+        "process_reward_models": 0.6,
+        "world_models": 4.65,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 14.069,
+      "is_relevant": true,
+      "primary_topic": "world_models",
+      "topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 9.0,
+        "causal_inference": 0.0,
+        "interpretability": 3.0,
+        "theory_loss_landscape": 3.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 8.0,
+      "clarity_score": 7.0,
+      "coarse_rationale": "本文通过复现LeWorldModel指出，潜在世界模型规划失败的主因是规划目标（平方潜在距离）而非预测器，并证明仅替换目标即可大幅提升长程规划性能。",
+      "contribution_tags": [
+        "Planning",
+        "World Model",
+        "Latent Dynamics",
+        "Representation Geometry"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 8.97,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "长程规划受阻，瓶颈或在目标函数而非世界模型",
+      "dek": "在TwoRoom对LeWorldModel的复现中，潜在预测仍保留长期信息，失效的却是把潜在距离当作规划成本的目标函数。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "75步后的想象状态误差仅为“世界静止”基线的0.189倍，但规划器从不搜索超过25步；冻结嵌入可由线性探针以R²=0.9922恢复位置。",
+        "平方潜在距离与真实距离相关仅r=0.426，约80单位后饱和、120单位后反降。仅更换目标、无需重训，偏移100的到达率由26%升至98%。",
+        "跨四个检查点，长程成功率与度量质量完全同序、与预测准确度反向；强调可达性的目标在不足三分之一预算下达到92%。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "arxiv:2608.12904",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.12904",
+      "arxiv_id": "2608.12904",
+      "title": "HounsWorld: A Multimodal World Model for Hidden Patient-State Readout, Reconstruction, and Simulation",
+      "summary": "Clinical intelligence requires estimating a patient's underlying condition from incomplete observations rather than learning isolated mappings from scans to answers. Volumetric medical images provide dense observations of anatomy, attenuation, and lesions, whereas clinical language provides sparse but complementary semantic observations. We formulate CT-centered intelligence as inference over a shared latent patient state, under which readout, reconstruction, and simulation all become state-dependent prediction problems. To operationalize this view, we introduce HounsBench, a computed tomography (CT) centric patient-state benchmark that unifies these three task families with patient-disjoint splits and per-family metrics, and HounsWorld, a 3B multimodal world model that treats volumetric scans and language as observations of the shared state through Joint Understanding-Generation Learning. A shared transformer forms an implicit patient-state estimate and supports three outputs: query-conditioned answers that read out the state, reports and captions that reconstruct it in language, and condition-specific CT volumes for low-dose denoising, virtual contrast enhancement, and anatomy-constrained text-and-mask-to-volume generation. Zero-initialized CT adapters preserve pretrained multimodal mappings, while condition-explicit Hounsfield-unit window sampling exposes clinically meaningful density observations. HounsWorld shows strong performance across all three task families while consistently improving CT understanding through clinically structured completion. Our project is available at https://github.com/byhwhite/HounsWorld.git",
+      "url": "http://arxiv.org/abs/2608.12904v1",
+      "abstract_url": "http://arxiv.org/abs/2608.12904v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.12904v1",
+      "published_date": "2026-08-13T07:41:14+00:00",
+      "updated_date": "2026-08-13T07:41:14+00:00",
+      "categories": [
+        "cs.CV"
+      ],
+      "authors": [
+        "Yunhao Bai",
+        "Zhongwei Qiu",
+        "Guangyu Guo",
+        "Yiming Huang",
+        "Tony C. W. Mok",
+        "Qinji Yu",
+        "Ling Zhang",
+        "Yan Wang"
+      ],
+      "candidate_topics": [
+        "world_models"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "well_known": false,
+      "well_known_reasons": [],
+      "historical_anchor": false,
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 4.65,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "prefilter_score": 14.069,
+      "is_relevant": true,
+      "primary_topic": "world_models",
+      "topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 9.0,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 7.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "该论文提出多模态世界模型用于CT影像和临床语言的统一推理，与主题世界模型高度相关，且具有新颖性和临床应用潜力。",
+      "contribution_tags": [
+        "World Model",
+        "Representation"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 8.79,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "HounsWorld试图以“患者状态”统一CT理解与生成",
+      "dek": "这项工作提出3B多模态世界模型与CT基准，试图让影像和临床语言共同服务于患者状态推断。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "论文将CT体积影像与临床语言视为同一“隐含患者状态”的不完整观测，把问答、报告生成与影像生成纳入统一预测框架。",
+        "HounsBench按患者划分数据，并覆盖状态读出、语言重建及低剂量去噪、虚拟增强等模拟任务。",
+        "3B HounsWorld以共享Transformer和零初始化CT适配器联合理解生成；作者称其在各类任务上表现强劲。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    },
+    {
+      "paper_id": "openalex:W2168359464",
+      "source": "openalex_historical",
+      "sources": [
+        "openalex_historical"
+      ],
+      "source_id": "https://openalex.org/W2168359464",
+      "arxiv_id": null,
+      "title": "Planning and acting in partially observable stochastic domains",
+      "summary": "",
+      "url": "https://doi.org/10.1016/s0004-3702(98)00023-x",
+      "abstract_url": "https://doi.org/10.1016/s0004-3702(98)00023-x",
+      "pdf_url": "https://www.sciencedirect.com/science/article/pii/S000437029800023X/pdf",
+      "published_date": "1998-05-01T00:00:00+00:00",
+      "updated_date": null,
+      "categories": [],
+      "authors": [
+        "Leslie Pack Kaelbling",
+        "Michael L. Littman",
+        "Anthony R. Cassandra"
+      ],
+      "candidate_topics": [
+        "world_models"
+      ],
+      "citation_count": 4174,
+      "venue": "http://www.cis.upenn.edu/~mkearns/papers/barbados/klc-pomdp.pdf",
+      "venue_tags": [
+        "WWW"
+      ],
+      "presentation_type": "",
+      "official_venue_verified": false,
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_applicable",
+      "historical_discovery": true,
+      "well_known": true,
+      "well_known_reasons": [
+        "top_venue:WWW",
+        "high_citation:4174"
+      ],
+      "historical_anchor": true,
+      "metadata_quality_score": 8.337,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 1.8,
+        "process_reward_models": 0.0,
+        "world_models": 1.5,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "prefilter_score": 8.75,
+      "is_relevant": true,
+      "primary_topic": "cot_agentic_ai",
+      "topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 1.8,
+        "process_reward_models": 0.0,
+        "world_models": 1.5,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "novelty_score": 5.5,
+      "potential_impact_score": 5.9,
+      "clarity_score": 5.5,
+      "coarse_rationale": "规则降级：依据标题、摘要关键词和论文分类评分。",
+      "contribution_tags": [
+        "Planning",
+        "Representation"
+      ],
+      "coarse_model_status": "fallback_rules",
+      "selection_score": 8.779,
+      "major_candidate": true,
+      "major_reason": "top_venue",
+      "breakthrough": false,
+      "content_tier": "major",
+      "is_hero": true,
+      "newspaper_title": "看不见全局，智能体如何规划",
+      "dek": "这篇POMDP综述说明，智能体无法直接看见真实状态时，须依据历史观测更新信念，并在精确最优规划与可承受的计算成本之间取舍。",
+      "background_and_pain": "在许多序贯决策场景中，行动者拿到的并非环境真实状态，而是可能含噪、缺失且含义不唯一的观测。同一信号可能来自不同局面，眼前看似合理的动作也会改变日后能获得的信息。完全可观测MDP可直接据状态安排动态规划；部分可观测情形却要求系统从既往动作和观测中判断世界处于何种可能状态。随着交互延续，历史长度和不确定性同步累积，既要避免短视决策，也要控制推断与规划的计算成本。",
+      "core_innovations": [
+        "以“信念状态”压缩动作—观测历史：用对隐藏状态的概率分布承接过去信息，从而把部分可观测决策改写为连续信念空间上的MDP。",
+        "揭示有限时域POMDP最优价值函数的分段线性、凸结构，并以α向量集合刻画不同信念下的回报，为精确动态规划提供几何化表示。",
+        "系统整理有限时域动态规划、值迭代和策略迭代等思路，且将信念空间连续、候选α向量快速膨胀明确为精确求解的主要障碍。",
+        "把执行过程纳入规划框架：每次行动后，依据模型、所采取动作和获得的观测更新信念，再在更新后的信息状态上选择下一步动作。"
+      ],
+      "experimental_findings": "本文并非提出可由统一跑分衡量的单一算法，文中也没有可与当代基准直接横比的性能数字。它的结果以模型性质、求解条件和方法谱系的梳理为主：当问题扩大时，追求精确最优解将面临显著计算压力。对今天的读者而言，最重要的结论不是某项胜率，而是部署前必须先界定状态、观测、时域、模型已知程度及可接受的近似误差；缺少这些前提，算法优劣无从比较。",
+      "brief_points": [],
+      "editorial_model_status": "available",
+      "figure_explanation": "",
+      "figure_model_status": "not_available"
+    },
+    {
+      "paper_id": "arxiv:2608.13518",
+      "source": "arxiv",
+      "sources": [
+        "arxiv"
+      ],
+      "source_id": "2608.13518",
+      "arxiv_id": "2608.13518",
+      "title": "Intervention-Aware Clinical World Model for Post-Op Outcome Forecasting in Cardiology",
+      "summary": "Many clinical prediction models treat post-intervention outcomes as a one-step mapping from baseline measurements to a future endpoint. However, recovery after a procedure often unfolds as an irregular trajectory: clinical observations, medication changes, repeat interventions, and physiological measurements are recorded asynchronously and can change risk assessment over time. We propose an intervention-aware clinical world model that represents each patient with a structured latent state and evolves it through time-ordered post-intervention events. The model first encodes baseline imaging into a 3D spatial latent state. It then updates this state using procedural context, static covariates, elapsed time, and peri-event physiological embeddings. Follow-up imaging provides training-only supervision through a latent forecasting objective. We apply the framework to atrial fibrillation ablation. During the 90-day recovery window, irregular post-procedure records provide clinically meaningful evidence for long-term recurrence risk. In repeated internal cross-validation on DECAAF-II, our model achieves AUROC 0.756 and AUPRC 0.777 for recurrence prediction. It also achieves a scar-extent MAE of 2.971 percentage points without requiring follow-up MRI intensities at inference. The learned state supports recurrence-risk queries at different horizons and retrospective input editing of blanking-period records.",
+      "url": "http://arxiv.org/abs/2608.13518v1",
+      "abstract_url": "http://arxiv.org/abs/2608.13518v1",
+      "pdf_url": "https://arxiv.org/pdf/2608.13518v1",
+      "published_date": "2026-08-13T17:38:13+00:00",
+      "updated_date": "2026-08-13T17:38:13+00:00",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "authors": [
+        "Yunsung Chung",
+        "Yingshuo Liu",
+        "Abboud F. Hassan",
+        "Han Feng",
+        "Mary M. Maleckar",
+        "Nassir Marrouche",
+        "Jihun Hamm"
+      ],
+      "candidate_topics": [
+        "world_models"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "well_known": false,
+      "well_known_reasons": [],
+      "historical_anchor": false,
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.6,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 4.65,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 14.069,
+      "is_relevant": true,
+      "primary_topic": "world_models",
+      "topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 9.0,
+        "causal_inference": 3.0,
+        "interpretability": 1.0,
+        "theory_loss_landscape": 2.0
+      },
+      "novelty_score": 7.0,
+      "potential_impact_score": 7.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "一篇将世界模型应用于心脏病学术后预后预测的论文，提出干预感知的临床世界模型，用潜在状态演变建模不规则事件序列。",
+      "contribution_tags": [
+        "World Model",
+        "Latent Dynamics",
+        "Representation"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 8.55,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "用“世界模型”追踪房颤消融术后的风险演变",
+      "dek": "研究将术后不规则病历转化为随时间更新的潜在状态，以预测房颤复发风险。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "模型以术前影像建立三维空间潜在状态，并结合手术信息、静态协变量、事件间隔和围术期生理信号，按时间顺序更新患者状态。",
+        "在DECAAF-II重复内部交叉验证中，复发预测AUROC为0.756、AUPRC为0.777；瘢痕范围预测MAE为2.971个百分点。",
+        "系统在推理时不需随访MRI强度，并可查询不同预测期限的复发风险，及回溯编辑90天空白期内的记录。"
+      ],
+      "editorial_model_status": "available",
+      "figure_explanation": ""
+    }
+  ]
+}

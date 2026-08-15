@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Daily AI Research Gazette — 2026-08-15</title>
+    <link rel="stylesheet" href="../../assets/report.css">
+</head>
+
+<body style="--figure-max-height: 450px">
+    <main class="page">
+        <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
+                Theory</span><span>Saturday, 15 August 2026</span></div>
+        <header class="masthead">
+            <h1>Daily AI Research Gazette</h1>
+            <p>LLM Systems, Efficient Sequence Models, Agents &amp; Theory</p>
+        </header>
+        <div class="focus-strip">
+            <div><strong>今日焦点 · 世界模型与生成式环境模拟</strong><br>World Models</div>
+            <div><span class="strip-label">今日视角</span><br><b>评测可信度与实验方法学</b><br>Evaluation Methodology</div>
+            <div><b>7</b> 精选 / <b>12</b> 候选<br><b>0</b> 知名 / <b>0</b> 经典</div>
+            <div>日级自主选文不可用（fallback_invalid_daily_json），已回退到稳定的规则选文与逐篇精编。</div>
+        </div>
+<details class="query-strip">
+            <summary>Today's Search Query · 今日检索式</summary>
+            <code>(cat:cs.AI OR cat:cs.LG OR cat:cs.RO OR cat:cs.CV) AND (ti:&#34;world model&#34; OR abs:&#34;world model&#34; OR ti:&#34;latent dynamics&#34; OR abs:&#34;latent dynamics&#34; OR ti:&#34;model-based reinforcement learning&#34; OR abs:&#34;model-based reinforcement learning&#34; OR ti:&#34;video world model&#34; OR abs:&#34;video world model&#34; OR ti:&#34;generative simulator&#34; OR abs:&#34;generative simulator&#34; OR ti:&#34;predictive environment model&#34; OR abs:&#34;predictive environment model&#34;) AND submittedDate:[202608130000 TO 202608160000]</code>
+        </details><div class="section-kicker">Lead Story · 今日头条</div>
+        <article class="hero no-figure">
+            <div class="hero-copy">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h2>看不见全局，智能体如何规划</h2>
+                <p class="dek">这篇POMDP综述说明，智能体无法直接看见真实状态时，须依据历史观测更新信念，并在精确最优规划与可承受的计算成本之间取舍。</p>
+                <div class="tags"><span class="tag historical">经典知名论文</span><span class="tag venue">WWW</span><span class="tag">Planning</span><span class="tag">Representation</span></div>
+                <div class="meta-line">引用 4174 · 创新度 5.5/10 ·
+                    综合优先级 8.779</div>
+                <div class="analysis-grid">
+                    <section>
+                        <h4>背景与痛点</h4>
+                        <p>在许多序贯决策场景中，行动者拿到的并非环境真实状态，而是可能含噪、缺失且含义不唯一的观测。同一信号可能来自不同局面，眼前看似合理的动作也会改变日后能获得的信息。完全可观测MDP可直接据状态安排动态规划；部分可观测情形却要求系统从既往动作和观测中判断世界处于何种可能状态。随着交互延续，历史长度和不确定性同步累积，既要避免短视决策，也要控制推断与规划的计算成本。</p>
+                    </section>
+                    <section>
+                        <h4>核心创新</h4>
+                        <ul><li>以“信念状态”压缩动作—观测历史：用对隐藏状态的概率分布承接过去信息，从而把部分可观测决策改写为连续信念空间上的MDP。</li><li>揭示有限时域POMDP最优价值函数的分段线性、凸结构，并以α向量集合刻画不同信念下的回报，为精确动态规划提供几何化表示。</li><li>系统整理有限时域动态规划、值迭代和策略迭代等思路，且将信念空间连续、候选α向量快速膨胀明确为精确求解的主要障碍。</li><li>把执行过程纳入规划框架：每次行动后，依据模型、所采取动作和获得的观测更新信念，再在更新后的信息状态上选择下一步动作。</li></ul>
+                    </section>
+                    <section>
+                        <h4>实验结论</h4>
+                        <p>本文并非提出可由统一跑分衡量的单一算法，文中也没有可与当代基准直接横比的性能数字。它的结果以模型性质、求解条件和方法谱系的梳理为主：当问题扩大时，追求精确最优解将面临显著计算压力。对今天的读者而言，最重要的结论不是某项胜率，而是部署前必须先界定状态、观测、时域、模型已知程度及可接受的近似误差；缺少这些前提，算法优劣无从比较。</p>
+                    </section>
+                    <section>
+                        <h4>论文信息</h4>
+                        <p>Leslie Pack Kaelbling、Michael L. Littman、Anthony R. Cassandra</p>
+                        <p>http://www.cis.upenn.edu/~mkearns/papers/barbados/klc-pomdp.pdf</p>
+                    </section>
+                </div>
+                <div class="read-links"><a href="https://doi.org/10.1016/s0004-3702(98)00023-x" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="https://www.sciencedirect.com/science/article/pii/S000437029800023X/pdf" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: Planning and acting in partially observable stochastic domains</div>
+            </div>
+        </article><div class="section-kicker">Research Briefs · 论文快讯</div>
+        <section class="briefs-grid"><article class="brief">
+                <div class="eyebrow">World Models</div>
+                <h3>以稀疏事件重构手术机器人的长程想象</h3>
+                <div class="tags"><span class="tag">World Model</span><span class="tag">Latent Dynamics</span><span class="tag">Model-Based RL</span><span class="tag">Planning</span></div><ul><li>模型从原始步长的潜变量轨迹中学习稀疏事件证据，用其决定管理器何时更新潜在目标；工作器则在两次更新之间按原始步长执行动作。
+                    </li><li>事件转移模型按可变时长片段预测下一边界随机状态、片段时长与累计奖励，使管理器可在原始想象视界之外续推；工作器仍采用原始步长的演员—评论家学习。
+                    </li><li>在SurRoL基础的PegTransfer任务上，S2-HWM成功率为98.7%，较平坦GAS DreamerV3基线高22.7个百分点。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.RO, eess.SY</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.13103v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">S2-HWM: Sparse Event-Structured Hierarchical World Model for Long-Horizon Surgical Robot Manipulation</div>
+            </article><article class="brief">
+                <div class="eyebrow">World Models</div>
+                <h3>用动作条件一致性检验JEPA世界模型的视觉稳健性</h3>
+                <div class="tags"><span class="tag">World Model</span><span class="tag">Latent Dynamics</span><span class="tag">Planning</span><span class="tag">Model-Based RL</span></div><ul><li>JEPA在潜在空间预测可减轻对外观细节的建模压力，但视觉扰动仍可能改变编码，并沿相同行动序列传导为预测与决策偏差。
+                    </li><li>ACPC比较干净历史与受扰视图的动作条件滚动；IR衡量不变性、SR检验状态可分性。四项任务及LeWM、PLDM结果显示，指标可预示预测误差和成本变化，并在模糊、缩放下保持信息量。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.LG</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.12939v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Diagnosing JEPA World Models with Action-Conditioned Predictive Consistency</div>
+            </article><article class="brief">
+                <div class="eyebrow">World Models</div>
+                <h3>ContactGuard将机器人失误监测前移至接触之前</h3>
+                <div class="tags"><span class="tag">World Model</span><span class="tag">Latent Dynamics</span><span class="tag">Verifier</span></div><ul><li>面向腕部相机等近距离操作，系统在接触前评估动作后果，力图避免推偏、扑空、打滑或扰动物体后才报警。
+                    </li><li>世界模型由无标注轨迹训练，少量标注用于失败探针；作者报告其在真实任务和在线机器人上优于直接预测及动作扰动基线。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.RO, cs.AI, cs.CV</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.13438v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">ContactGuard: Pre-Contact Execution Monitoring with Action-Conditioned Latent World Models</div>
+            </article><article class="brief">
+                <div class="eyebrow">World Models</div>
+                <h3>长程规划受阻，瓶颈或在目标函数而非世界模型</h3>
+                <div class="tags"><span class="tag">Planning</span><span class="tag">World Model</span><span class="tag">Latent Dynamics</span><span class="tag">Representation Geometry</span></div><ul><li>75步后的想象状态误差仅为“世界静止”基线的0.189倍，但规划器从不搜索超过25步；冻结嵌入可由线性探针以R²=0.9922恢复位置。
+                    </li><li>平方潜在距离与真实距离相关仅r=0.426，约80单位后饱和、120单位后反降。仅更换目标、无需重训，偏移100的到达率由26%升至98%。
+                    </li><li>跨四个检查点，长程成功率与度量质量完全同序、与预测准确度反向；强调可达性的目标在不足三分之一预算下达到92%。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.LG, cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.12959v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">The Objective Is the Bottleneck: Latent World Models Encode What Their Planners Cannot Use</div>
+            </article><article class="brief">
+                <div class="eyebrow">World Models</div>
+                <h3>HounsWorld试图以“患者状态”统一CT理解与生成</h3>
+                <div class="tags"><span class="tag">World Model</span><span class="tag">Representation</span></div><ul><li>论文将CT体积影像与临床语言视为同一“隐含患者状态”的不完整观测，把问答、报告生成与影像生成纳入统一预测框架。
+                    </li><li>HounsBench按患者划分数据，并覆盖状态读出、语言重建及低剂量去噪、虚拟增强等模拟任务。
+                    </li><li>3B HounsWorld以共享Transformer和零初始化CT适配器联合理解生成；作者称其在各类任务上表现强劲。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.CV</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.12904v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">HounsWorld: A Multimodal World Model for Hidden Patient-State Readout, Reconstruction, and Simulation</div>
+            </article><article class="brief">
+                <div class="eyebrow">World Models</div>
+                <h3>用“世界模型”追踪房颤消融术后的风险演变</h3>
+                <div class="tags"><span class="tag">World Model</span><span class="tag">Latent Dynamics</span><span class="tag">Representation</span></div><ul><li>模型以术前影像建立三维空间潜在状态，并结合手术信息、静态协变量、事件间隔和围术期生理信号，按时间顺序更新患者状态。
+                    </li><li>在DECAAF-II重复内部交叉验证中，复发预测AUROC为0.756、AUPRC为0.777；瘢痕范围预测MAE为2.971个百分点。
+                    </li><li>系统在推理时不需随访MRI强度，并可查询不同预测期限的复发风险，及回溯编辑90天空白期内的记录。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 7.0/10 · cs.LG, cs.CV</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.13518v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Intervention-Aware Clinical World Model for Post-Op Outcome Forecasting in Cardiology</div>
+            </article></section>        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
+                appear
+                only when officially verified.</span><span>Generated 2026-08-15 00:42 UTC</span></footer>
+    </main>
+</body>
+
+</html>

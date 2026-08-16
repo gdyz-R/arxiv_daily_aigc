@@ -1,0 +1,361 @@
+{
+  "schema_version": 2,
+  "report": {
+    "date": "2026-08-16",
+    "newspaper_name": "Daily AI Research Gazette",
+    "subtitle": "LLM Systems, Efficient Sequence Models, Agents & Theory",
+    "focus_topic": "causal_inference",
+    "focus_topic_name": "因果推断与因果表征",
+    "focus_topic_name_en": "Causal Inference & Representation",
+    "search_query": "(cat:cs.LG OR cat:cs.AI OR cat:stat.ML OR cat:stat.ME) AND (ti:\"causal inference\" OR abs:\"causal inference\" OR ti:\"causal representation\" OR abs:\"causal representation\" OR ti:\"causal discovery\" OR abs:\"causal discovery\" OR ti:\"counterfactual\" OR abs:\"counterfactual\" OR ti:\"structural causal model\" OR abs:\"structural causal model\" OR ti:\"treatment effect\" OR abs:\"treatment effect\" OR ti:\"causal abstraction\" OR abs:\"causal abstraction\") AND submittedDate:[202608140000 TO 202608170000]",
+    "angle_id": "paradigm_evolution",
+    "angle_name": "范式冲突与技术演进",
+    "angle_name_en": "Paradigm Conflict & Evolution",
+    "schedule_days_unselected": 365,
+    "schedule_cooldown_readiness": 1.0,
+    "schedule_selection_reason": "starvation_guard",
+    "memory_read_status": "available",
+    "memory_write_status": "updated",
+    "memory_concept_update_count": 4,
+    "generated_at": "2026-08-16T00:35:40.385956+00:00",
+    "source_diagnostics": {
+      "arxiv": {
+        "status": "fallback_rss",
+        "api_topics_attempted": 10,
+        "api_topics_succeeded": 10,
+        "api_topics_failed": 0,
+        "api_result_count": 0,
+        "fallback_used": true,
+        "result_count": 58,
+        "errors": [],
+        "fallback_reason": "api_empty",
+        "rss": {
+          "status": "available",
+          "feed_count": 12,
+          "feeds_succeeded": 12,
+          "feeds_failed": 0,
+          "parsed_item_count": 299,
+          "result_count": 58,
+          "errors": []
+        }
+      },
+      "neurips": {
+        "status": "empty",
+        "result_count": 0
+      },
+      "openalex": {
+        "status": "empty",
+        "result_count": 0
+      },
+      "openalex_historical": {
+        "status": "available",
+        "result_count": 100,
+        "focus_topic": "causal_inference"
+      },
+      "merged_candidate_count": 157,
+      "semantic_scholar": {
+        "status": "disabled",
+        "paper_count": 157
+      }
+    },
+    "target_focus_count": null,
+    "target_cross_topic_count": null,
+    "actual_focus_count": 3,
+    "actual_cross_topic_count": 0,
+    "candidate_count": 12,
+    "selected_count": 3,
+    "distribution_note": "模型按质量自主精选 3 篇，并执行动态篇幅控制。",
+    "edition_selection_status": "available_daily",
+    "editorial_character_count": 1727,
+    "well_known_paper_count": 1,
+    "historical_anchor_count": 1,
+    "source_candidate_count": 17,
+    "shortlist_count": 12,
+    "prominence_policy_status": "compliant",
+    "prominence_policy_errors": []
+  },
+  "papers": [
+    {
+      "paper_id": "arxiv:2608.12640",
+      "source": "arxiv_rss",
+      "sources": [
+        "arxiv_rss"
+      ],
+      "source_id": "2608.12640",
+      "arxiv_id": "2608.12640",
+      "title": "Interpretable Causal Discovery via Causal-Effect Constraints",
+      "summary": "Causal discovery aims to uncover the underlying causal relationships given data generated from a system. The goal, however, is not merely to predict causal edges given data, but also to be able to interpret and explain either observed or hypothesized phenomena, such as a particularly large causal effect. We consider this task of conditional causal discovery and cast it as a Bayesian inference problem, in which we target the posterior over causal graphs and parameters conditional on an event such as a causal-effect constraint. Unfortunately, this poses a computational challenge: existing approaches to Bayesian causal discovery struggle when the event has small posterior mass. To address this, we adapt rare-event estimation techniques to perform inference the joint graph-parameter space. Our method gradually drives a particle population toward the constrained region while maintaining samples that approximate the conditional posterior. Empirical evaluation on synthetic graphs validates the accuracy of our approach at small and large scales, and we show in a case study on the Sachs protein dataset how our method can be used to aid scientific exploration by providing pathway-level summaries.",
+      "url": "https://arxiv.org/abs/2608.12640",
+      "abstract_url": "https://arxiv.org/abs/2608.12640",
+      "pdf_url": "https://arxiv.org/pdf/2608.12640",
+      "published_date": "2026-08-15T04:00:00+00:00",
+      "updated_date": null,
+      "categories": [
+        "cs.AI",
+        "cs.LG",
+        "stat.ML"
+      ],
+      "authors": [
+        "Cixuan Zhang",
+        "Guy Van den Broeck",
+        "Benjie Wang"
+      ],
+      "candidate_topics": [
+        "causal_inference"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "no_figure",
+      "rss_announce_type": "cross",
+      "well_known": false,
+      "well_known_reasons": [],
+      "historical_anchor": false,
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.6,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 4.65,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 14.132,
+      "is_relevant": true,
+      "primary_topic": "causal_inference",
+      "topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 1.0,
+        "causal_inference": 10.0,
+        "interpretability": 4.0,
+        "theory_loss_landscape": 2.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 7.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "该论文将因果发现视为贝叶斯推理问题，并引入稀有事件估计技术来高效处理因果效应约束条件下的后验推断，方法具有创新性和应用价值。",
+      "contribution_tags": [
+        "Causal Discovery"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 9.155,
+      "major_candidate": true,
+      "major_reason": "daily_editor_pick",
+      "breakthrough": false,
+      "content_tier": "major",
+      "is_hero": true,
+      "newspaper_title": "从“找一张因果图”到“解释一个效应事件”：条件因果发现重写查询对象",
+      "dek": "论文把“某个因果效应为何异常大”转化为对因果图及其参数的条件后验推断。它改变的是因果发现所回答的问题，而非以新的可识别性理论替代既有图发现范式；关键技术瓶颈转为如何进入后验概率很小的受约束区域。",
+      "background_and_pain": "因果发现的基本目标是由数据恢复系统中的因果关系，常见输出是对因果边、图结构或其不确定性的判断。但科学探索还会提出条件化的问题：已观察到或假设某一效应很大时，哪些图结构、参数配置和路径更能与该事件相容？论文将此称为条件因果发现。直接在贝叶斯图发现框架中对这类事件条件化会遇到稀有事件困难：当约束事件的后验质量很小时，常规采样难以获得足够的有效样本。",
+      "core_innovations": [
+        "将推断目标从无条件的图后验，改写为“给定因果效应约束事件”后的图—参数联合条件后验；这使因果发现能够面向具体科学疑问，而不止于预测或排序因果边。",
+        "把稀有事件估计技术引入图与参数的联合空间，通过逐步将粒子群驱向受约束区域，同时维持对条件后验的近似。",
+        "输出层面不只停留在单一候选图：论文强调可由条件样本形成路径级摘要，用于解释与效应约束相关的潜在机制。"
+      ],
+      "experimental_findings": "摘要报告在小规模和大规模合成图上验证了方法的准确性，并在 Sachs 蛋白数据集案例中展示了路径级摘要如何辅助科学探索。现有信息支持其作为针对稀有约束事件的后验计算方案；摘要未给出新的因果可识别性条件，也未提供跨真实领域的大规模比较，因此其范式推进应理解为“查询与推断工作流”的扩展，而非对因果发现基本假设的取消。",
+      "brief_points": [],
+      "editorial_model_status": "available_daily",
+      "figure_status_detail": "first HTML figure has no img element",
+      "figure_explanation": "",
+      "figure_model_status": "not_available"
+    },
+    {
+      "paper_id": "arxiv:2608.12935",
+      "source": "arxiv_rss",
+      "sources": [
+        "arxiv_rss"
+      ],
+      "source_id": "2608.12935",
+      "arxiv_id": "2608.12935",
+      "title": "Decomposition of Evidence, Contradiction, and Fragility in Perturbation Responses",
+      "summary": "Perturbation methods explain model decisions by measuring prediction changes under altered inputs, but response magnitude tells us only how much a model reacts, not what that reaction means. The same magnitude can support the final factual-counterfactual difference, oppose it, or arise strongly along the perturbation path yet vanish at the endpoint. We therefore track how the contrast develops as paired inputs are progressively revealed, using the final contrast to interpret the trajectory. We introduce DECAF (Decomposition of Evidence, Contradiction, And Fragility), which routes aligned, opposed, and endpoint-null responses into evidence E, contradiction C, and fragility F. The decomposition preserves ordinary magnitude exactly, Abs = E + C + F, and is unique under endpoint-relative axioms. Across controlled vision and tabular settings, the three components track independently measured behavior. In a 72-model ImageNet-9 audit, we compare cases with nearly identical response magnitude but different independently measured behaviors. The largest DECAF component agrees with an observed behavior in 96.4% of cases, compared with 35.0% for magnitude alone. Changing only the reveal path increases total response by nearly 80%, yet evidence barely changes while fragility grows by more than 4x. On FunnyBirds and ImageNet-1k, short forward-only DECAF trajectories outperform the tested general-purpose attribution baselines. On a 1B-scale DINOv2 model, a short trajectory matches a strong gradient-based baseline with 4.75x lower wall time and 2.36x lower peak memory.",
+      "url": "https://arxiv.org/abs/2608.12935",
+      "abstract_url": "https://arxiv.org/abs/2608.12935",
+      "pdf_url": "https://arxiv.org/pdf/2608.12935",
+      "published_date": "2026-08-15T04:00:00+00:00",
+      "updated_date": null,
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "authors": [
+        "Lei You"
+      ],
+      "candidate_topics": [
+        "causal_inference"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "no_figure",
+      "rss_announce_type": "new",
+      "well_known": false,
+      "well_known_reasons": [],
+      "historical_anchor": false,
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.6,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 2.85,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 9.992,
+      "is_relevant": true,
+      "primary_topic": "causal_inference",
+      "topic_scores": {
+        "engineering_deployment": 0.6,
+        "kv_cache_memory": 0.6,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 2.85,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "novelty_score": 6.8,
+      "potential_impact_score": 6.42,
+      "clarity_score": 7.0,
+      "coarse_rationale": "规则降级：依据标题、摘要关键词和论文分类评分。",
+      "contribution_tags": [
+        "Counterfactual"
+      ],
+      "coarse_model_status": "fallback_rules",
+      "selection_score": 6.331,
+      "major_candidate": true,
+      "major_reason": "daily_editor_pick",
+      "breakthrough": false,
+      "content_tier": "major",
+      "is_hero": false,
+      "newspaper_title": "DECAF：把扰动幅度拆成证据、矛盾与脆弱性，但不把扰动自动当作因果",
+      "dek": "DECAF 针对后验扰动解释中“响应越大越重要”的简化判断，利用输入逐步揭示时的轨迹，将响应分解为支持终点差异的证据、与其相反的矛盾，以及只在路径中出现的脆弱性。它推进的是解释语义，而不是结构因果意义上的效应识别。",
+      "background_and_pain": "扰动解释通常观察输入改变后预测如何变化，但单一响应幅度只说明模型“反应了多少”，不能说明这种反应是否支持最终的事实—反事实差异、是否与之相反，或是否仅在中间扰动路径上强烈而在终点消失。这里的“反事实”是模型对配对输入变化的计算性对照；它不同于以明确干预和结构假设定义的因果反事实。这个区分决定了该工作应被视为对模型解释的细化，而非因果效应估计。",
+      "core_innovations": [
+        "沿配对输入逐步揭示的过程跟踪对比如何形成，并以最终对比解释整条轨迹，而非只读取某个端点的预测差。",
+        "提出 DECAF 分解：将与终点差异同向、反向及终点为空的响应分别路由至证据 E、矛盾 C 与脆弱性 F。",
+        "在终点相对公理下，该分解保持普通绝对响应量，满足 Abs = E + C + F，并被论文表述为唯一分解。"
+      ],
+      "experimental_findings": "在受控视觉和表格设置中，三部分与独立测得的行为分别对应。对 72 个 ImageNet-9 模型的审计中，在响应幅度近似但行为不同的样例里，最大 DECAF 分量与观测行为的一致率为 96.4%，而仅用幅度为 35.0%。仅改变揭示路径可使总响应提高近 80%，证据几乎不变而脆弱性增长逾 4 倍。论文还报告短的纯前向轨迹在 FunnyBirds 和 ImageNet-1k 上优于所测试的通用归因基线；在 10 亿参数级 DINOv2 上，短轨迹匹配一项强梯度基线，同时墙钟时间低 4.75 倍、峰值内存低 2.36 倍。按摘要，该结果没有引入因果图、干预数据或混杂处理，不能据此推出因果识别结论。",
+      "brief_points": [],
+      "editorial_model_status": "available_daily",
+      "figure_status_detail": "first HTML figure has no img element",
+      "figure_explanation": "",
+      "figure_model_status": "not_available"
+    },
+    {
+      "paper_id": "openalex:W2092919341",
+      "source": "openalex_historical",
+      "sources": [
+        "openalex_historical"
+      ],
+      "source_id": "https://openalex.org/W2092919341",
+      "arxiv_id": null,
+      "title": "The Adaptive Character of Thought",
+      "summary": "Contents: Part I:Introduction. Preliminaries. Levels of a Cognitive Theory. Current Formulation of the Levels Issues. The New Theoretical Framework. Is Human Cognition Rational? The Rest of This Book. Appendix: Non-Identifiability and Response Time. Part II:Memory. Preliminaries. A Rational Analysis of Human Memory. The History Factor. The Contextual Factor. Relationship of Need and Probability to Probability and Latency of Recall. Combining Information From Cues. Implementation in the ACT Framework. Effects of Subject Strategy. Conclusions. Part III:Categorization. Preliminaries. The Goal of Categorization. The Structure of the Environment. Recapitulation of Goals and Environment. The Optimal Solution. An Iterative Algorithm for Categorization. Application of the Algorithm. Survey of the Experimental Literature. Conclusion. Appendix: The Ideal Algorithm. Part IV:Causal Inference. Preliminaries. Basic Formulation of the Causal Inference Problem. Causal Estimation. Cues for Causal Inference. Integration of Statistical and Temporal Cues. Discrimination. Abstraction of Causal Laws. Implementation in a Production System. Conclusion. Appendix. Part V:Problem Solving. Preliminaries. Making a Choice Among Simple Actions. Combining Steps. Studies of Hill Climbing. Means-Ends Analysis. Instantiation of Indefinite Objects. Conclusions on Rational Analysis of Problem Solving. Implementation in ACT. Appendix: Problem Solving and Clotheslines. Part VI:Retrospective. Preliminaries. Twelve Questions About Rational Analysis.",
+      "url": "https://doi.org/10.2307/1423253",
+      "abstract_url": "https://doi.org/10.2307/1423253",
+      "pdf_url": null,
+      "published_date": "1991-01-01T00:00:00+00:00",
+      "updated_date": null,
+      "categories": [],
+      "authors": [
+        "Dominic W. Massaro",
+        "Daniel Friedman",
+        "John R. Anderson"
+      ],
+      "candidate_topics": [
+        "causal_inference"
+      ],
+      "citation_count": 2240,
+      "venue": "The American Journal of Psychology",
+      "venue_tags": [],
+      "presentation_type": "",
+      "official_venue_verified": false,
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "historical_discovery": true,
+      "well_known": true,
+      "well_known_reasons": [
+        "high_citation:2240"
+      ],
+      "historical_anchor": true,
+      "metadata_quality_score": 7.715,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 0.0,
+        "causal_inference": 2.25,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "prefilter_score": 10.175,
+      "is_relevant": true,
+      "primary_topic": "causal_inference",
+      "topic_scores": {
+        "engineering_deployment": 0.0,
+        "kv_cache_memory": 0.0,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 0.0,
+        "causal_inference": 2.25,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "novelty_score": 5.5,
+      "potential_impact_score": 6.12,
+      "clarity_score": 7.0,
+      "coarse_rationale": "规则降级：依据标题、摘要关键词和论文分类评分。",
+      "contribution_tags": [
+        "Causal Inference"
+      ],
+      "coarse_model_status": "fallback_rules",
+      "selection_score": 8.63,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "历史锚点：把因果推断置于认知理论层级之中",
+      "dek": "《The Adaptive Character of Thought》的目录显示，因果推断曾被放在记忆、分类与问题求解并列的认知理论框架中；这为今日“图后验”与“模型扰动解释”的技术化路径提供了不同的参照系。",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "其因果推断部分覆盖因果问题的基本表述、因果估计、统计与时间线索的整合、因果规律的抽象，以及在产生式系统中的实现。",
+        "与条件因果发现针对图—参数后验的计算问题不同，该文献的组织目标是构建认知理论；与 DECAF 针对模型响应语义的目标也不同。",
+        "摘要主要提供章节目录，未给出可据以判断其与今日方法直接优劣的实验结果或方法细节。其价值在于提示：因果推断的演进不只有统计识别与算法计算，也曾服务于对推理过程本身的理论建模。"
+      ],
+      "editorial_model_status": "available_daily",
+      "figure_explanation": ""
+    }
+  ]
+}

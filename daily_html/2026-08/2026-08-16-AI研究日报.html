@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Daily AI Research Gazette — 2026-08-16</title>
+    <link rel="stylesheet" href="../../assets/report.css">
+</head>
+
+<body style="--figure-max-height: 450px">
+    <main class="page">
+        <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
+                Theory</span><span>Sunday, 16 August 2026</span></div>
+        <header class="masthead">
+            <h1>Daily AI Research Gazette</h1>
+            <p>LLM Systems, Efficient Sequence Models, Agents &amp; Theory</p>
+        </header>
+        <div class="focus-strip">
+            <div><strong>今日焦点 · 因果推断与因果表征</strong><br>Causal Inference &amp; Representation</div>
+            <div><span class="strip-label">今日视角</span><br><b>范式冲突与技术演进</b><br>Paradigm Conflict &amp; Evolution</div>
+            <div><b>3</b> 精选 / <b>12</b> 候选<br><b>1</b> 知名 / <b>1</b> 经典</div>
+            <div>模型按质量自主精选 3 篇，并执行动态篇幅控制。</div>
+        </div>
+<details class="query-strip">
+            <summary>Today's Search Query · 今日检索式</summary>
+            <code>(cat:cs.LG OR cat:cs.AI OR cat:stat.ML OR cat:stat.ME) AND (ti:&#34;causal inference&#34; OR abs:&#34;causal inference&#34; OR ti:&#34;causal representation&#34; OR abs:&#34;causal representation&#34; OR ti:&#34;causal discovery&#34; OR abs:&#34;causal discovery&#34; OR ti:&#34;counterfactual&#34; OR abs:&#34;counterfactual&#34; OR ti:&#34;structural causal model&#34; OR abs:&#34;structural causal model&#34; OR ti:&#34;treatment effect&#34; OR abs:&#34;treatment effect&#34; OR ti:&#34;causal abstraction&#34; OR abs:&#34;causal abstraction&#34;) AND submittedDate:[202608140000 TO 202608170000]</code>
+        </details><div class="section-kicker">Lead Story · 今日头条</div>
+        <article class="hero no-figure">
+            <div class="hero-copy">
+                <div class="eyebrow">Causal Inference &amp; Representation</div>
+                <h2>从“找一张因果图”到“解释一个效应事件”：条件因果发现重写查询对象</h2>
+                <p class="dek">论文把“某个因果效应为何异常大”转化为对因果图及其参数的条件后验推断。它改变的是因果发现所回答的问题，而非以新的可识别性理论替代既有图发现范式；关键技术瓶颈转为如何进入后验概率很小的受约束区域。</p>
+                <div class="tags"><span class="tag">Causal Discovery</span></div>
+                <div class="meta-line">引用 0 · 创新度 8.0/10 ·
+                    综合优先级 9.155</div>
+                <div class="analysis-grid">
+                    <section>
+                        <h4>背景与痛点</h4>
+                        <p>因果发现的基本目标是由数据恢复系统中的因果关系，常见输出是对因果边、图结构或其不确定性的判断。但科学探索还会提出条件化的问题：已观察到或假设某一效应很大时，哪些图结构、参数配置和路径更能与该事件相容？论文将此称为条件因果发现。直接在贝叶斯图发现框架中对这类事件条件化会遇到稀有事件困难：当约束事件的后验质量很小时，常规采样难以获得足够的有效样本。</p>
+                    </section>
+                    <section>
+                        <h4>核心创新</h4>
+                        <ul><li>将推断目标从无条件的图后验，改写为“给定因果效应约束事件”后的图—参数联合条件后验；这使因果发现能够面向具体科学疑问，而不止于预测或排序因果边。</li><li>把稀有事件估计技术引入图与参数的联合空间，通过逐步将粒子群驱向受约束区域，同时维持对条件后验的近似。</li><li>输出层面不只停留在单一候选图：论文强调可由条件样本形成路径级摘要，用于解释与效应约束相关的潜在机制。</li></ul>
+                    </section>
+                    <section>
+                        <h4>实验结论</h4>
+                        <p>摘要报告在小规模和大规模合成图上验证了方法的准确性，并在 Sachs 蛋白数据集案例中展示了路径级摘要如何辅助科学探索。现有信息支持其作为针对稀有约束事件的后验计算方案；摘要未给出新的因果可识别性条件，也未提供跨真实领域的大规模比较，因此其范式推进应理解为“查询与推断工作流”的扩展，而非对因果发现基本假设的取消。</p>
+                    </section>
+                    <section>
+                        <h4>论文信息</h4>
+                        <p>Cixuan Zhang、Guy Van den Broeck、Benjie Wang</p>
+                        <p>cs.AI, cs.LG, stat.ML</p>
+                    </section>
+                </div>
+                <div class="read-links"><a href="https://arxiv.org/abs/2608.12640" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="https://arxiv.org/pdf/2608.12640" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: Interpretable Causal Discovery via Causal-Effect Constraints</div>
+            </div>
+        </article><div class="section-kicker">Major Features · 重点论文</div>
+        <section class="feature-grid"><article
+                class="feature no-figure">
+                <div class="feature-copy">
+                    <div class="eyebrow">Causal Inference &amp; Representation</div>
+                    <h3>DECAF：把扰动幅度拆成证据、矛盾与脆弱性，但不把扰动自动当作因果</h3>
+                    <div class="tags"><span class="tag">Counterfactual</span>                    </div>
+                    <p class="dek">DECAF 针对后验扰动解释中“响应越大越重要”的简化判断，利用输入逐步揭示时的轨迹，将响应分解为支持终点差异的证据、与其相反的矛盾，以及只在路径中出现的脆弱性。它推进的是解释语义，而不是结构因果意义上的效应识别。</p>
+                    <div class="feature-analysis">
+                        <section>
+                            <h4>问题背景</h4>
+                            <p>扰动解释通常观察输入改变后预测如何变化，但单一响应幅度只说明模型“反应了多少”，不能说明这种反应是否支持最终的事实—反事实差异、是否与之相反，或是否仅在中间扰动路径上强烈而在终点消失。这里的“反事实”是模型对配对输入变化的计算性对照；它不同于以明确干预和结构假设定义的因果反事实。这个区分决定了该工作应被视为对模型解释的细化，而非因果效应估计。</p>
+                        </section>
+                        <section>
+                            <h4>方法与贡献</h4>
+                            <ul><li>沿配对输入逐步揭示的过程跟踪对比如何形成，并以最终对比解释整条轨迹，而非只读取某个端点的预测差。</li><li>提出 DECAF 分解：将与终点差异同向、反向及终点为空的响应分别路由至证据 E、矛盾 C 与脆弱性 F。</li><li>在终点相对公理下，该分解保持普通绝对响应量，满足 Abs = E + C + F，并被论文表述为唯一分解。</li></ul>
+                        </section>
+                        <section class="wide">
+                            <h4>实验与结论</h4>
+                            <p>在受控视觉和表格设置中，三部分与独立测得的行为分别对应。对 72 个 ImageNet-9 模型的审计中，在响应幅度近似但行为不同的样例里，最大 DECAF 分量与观测行为的一致率为 96.4%，而仅用幅度为 35.0%。仅改变揭示路径可使总响应提高近 80%，证据几乎不变而脆弱性增长逾 4 倍。论文还报告短的纯前向轨迹在 FunnyBirds 和 ImageNet-1k 上优于所测试的通用归因基线；在 10 亿参数级 DINOv2 上，短轨迹匹配一项强梯度基线，同时墙钟时间低 4.75 倍、峰值内存低 2.36 倍。按摘要，该结果没有引入因果图、干预数据或混杂处理，不能据此推出因果识别结论。</p>
+                        </section>
+                    </div>
+                    <div class="meta-line">引用 0 · 创新度 6.8/10
+                    </div>
+                    <div class="read-links"><a href="https://arxiv.org/abs/2608.12935" target="_blank" rel="noopener">Abstract
+                            ↗</a><a href="https://arxiv.org/pdf/2608.12935" target="_blank" rel="noopener">PDF ↗</a></div>
+                    <div class="original-title">Decomposition of Evidence, Contradiction, and Fragility in Perturbation Responses</div>
+                </div>
+            </article></section><div class="section-kicker">Research Briefs · 论文快讯</div>
+        <section class="briefs-grid"><article class="brief">
+                <div class="eyebrow">Causal Inference &amp; Representation</div>
+                <h3>历史锚点：把因果推断置于认知理论层级之中</h3>
+                <div class="tags"><span class="tag historical">经典知名论文</span><span class="tag">Causal Inference</span></div><ul><li>其因果推断部分覆盖因果问题的基本表述、因果估计、统计与时间线索的整合、因果规律的抽象，以及在产生式系统中的实现。
+                    </li><li>与条件因果发现针对图—参数后验的计算问题不同，该文献的组织目标是构建认知理论；与 DECAF 针对模型响应语义的目标也不同。
+                    </li><li>摘要主要提供章节目录，未给出可据以判断其与今日方法直接优劣的实验结果或方法细节。其价值在于提示：因果推断的演进不只有统计识别与算法计算，也曾服务于对推理过程本身的理论建模。
+                    </li></ul><div class="meta-line">引用 2240 · 创新度 5.5/10 · The American Journal of Psychology</div>
+                <div class="read-links"><a href="https://doi.org/10.2307/1423253" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">The Adaptive Character of Thought</div>
+            </article></section>        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
+                appear
+                only when officially verified.</span><span>Generated 2026-08-16 00:35 UTC</span></footer>
+    </main>
+</body>
+
+</html>

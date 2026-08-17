@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Daily AI Research Gazette — 2026-08-17</title>
+    <link rel="stylesheet" href="../../assets/report.css">
+</head>
+
+<body style="--figure-max-height: 450px">
+    <main class="page">
+        <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
+                Theory</span><span>Monday, 17 August 2026</span></div>
+        <header class="masthead">
+            <h1>Daily AI Research Gazette</h1>
+            <p>LLM Systems, Efficient Sequence Models, Agents &amp; Theory</p>
+        </header>
+        <div class="focus-strip">
+            <div><strong>今日焦点 · 过程奖励模型与推理监督</strong><br>Process Reward Models</div>
+            <div><span class="strip-label">今日视角</span><br><b>系统权衡与成本结构</b><br>System Trade-offs &amp; Cost Structure</div>
+            <div><b>3</b> 精选 / <b>3</b> 候选<br><b>3</b> 知名 / <b>3</b> 经典</div>
+            <div>模型按质量自主精选 3 篇，并执行动态篇幅控制。</div>
+        </div>
+<details class="query-strip">
+            <summary>Today's Search Query · 今日检索式</summary>
+            <code>(cat:cs.CL OR cat:cs.AI OR cat:cs.LG) AND (ti:&#34;process reward model&#34; OR abs:&#34;process reward model&#34; OR ti:&#34;process supervision&#34; OR abs:&#34;process supervision&#34; OR ti:&#34;step-level reward&#34; OR abs:&#34;step-level reward&#34; OR ti:&#34;outcome reward model&#34; OR abs:&#34;outcome reward model&#34; OR ti:&#34;reasoning verifier&#34; OR abs:&#34;reasoning verifier&#34; OR ti:&#34;process verifier&#34; OR abs:&#34;process verifier&#34; OR ti:&#34;reward hacking reasoning&#34; OR abs:&#34;reward hacking reasoning&#34;) AND submittedDate:[202608150000 TO 202608180000]</code>
+        </details><div class="section-kicker">Lead Story · 今日头条</div>
+        <article class="hero no-figure">
+            <div class="hero-copy">
+                <div class="eyebrow">Process Reward Models</div>
+                <h2>可验证任务上的纯强化学习：省去轨迹标注，但系统账本仍不完整</h2>
+                <p class="dek">DeepSeek-R1 将推理能力的获得路径从人工标注推理轨迹转向纯强化学习，并报告了自反思、验证与策略调整等模式的出现。对过程奖励模型议题而言，它提供的是“可验证任务奖励”这一相邻路径，而非对过程奖励模型本身的直接实现说明；候选摘要未披露时延、吞吐、显存或训练资源，不能据此判定总体成本更低。</p>
+                <div class="tags"><span class="tag historical">经典知名论文</span><span class="tag">Chain-of-Thought</span><span class="tag">Reasoning</span></div>
+                <div class="meta-line">引用 853 · 创新度 5.5/10 ·
+                    综合优先级 7.777</div>
+                <div class="analysis-grid">
+                    <section>
+                        <h4>背景与痛点</h4>
+                        <p>候选摘要将长链推理的既有进展描述为高度依赖人工标注的示范轨迹，并指出复杂推理能力仍受限。这里的系统问题不只是训练质量：人工轨迹的生产、质检与覆盖范围会限制扩展。由于摘要没有交代逐步奖励标注、过程奖励模型结构或结果奖励模型设计，不能把该工作直接等同于过程监督方案；它更明确地讨论了在可验证任务上用强化学习激励推理。</p>
+                    </section>
+                    <section>
+                        <h4>核心创新</h4>
+                        <ul><li>以纯强化学习替代对人工标注推理轨迹的依赖，目标是在数学、编程竞赛和STEM等可验证任务中激励推理能力。</li><li>摘要报告训练后出现自我反思、验证和动态策略调整等推理模式，强调这些模式并非由人工推理示范直接给出。</li><li>将大模型中出现的推理模式用于引导和增强较小模型的推理能力，形成从大模型到小模型的能力传递方向。</li></ul>
+                    </section>
+                    <section>
+                        <h4>实验结论</h4>
+                        <p>摘要声称，该方法在数学、编程竞赛和STEM等可验证任务上优于以人工示范进行常规监督训练的对应模型。可据此保留的结论是：纯强化学习在这些任务上具有竞争力。摘要未提供具体基准、模型规模、训练预算、奖励计算开销、采样数量、推理延迟、吞吐或显存数据，因此无法比较“减少人工标注”与“增加在线强化学习及验证成本”之间的净系统收益。</p>
+                    </section>
+                    <section>
+                        <h4>论文信息</h4>
+                        <p>Daya Guo、Dejian Yang、Haowei Zhang、Junxiao Song、Peiyi Wang、Qihao Zhu、Runxin Xu、Ruoyu Zhang、Shirong Ma、Xiao Bi、Xiaokang Zhang、Xingkai Yu、Yu Wu、Zhenhua Wu、Zhibin Gou、Zhihong Shao、Zhuoshu Li、Ziyi Gao、Aixin Liu、Bing Xue、Bingxuan Wang、Bowen Wu、Bei Feng、Chengda Lu、Chenggang Zhao、Chengqi Deng、Chong Ruan、Damai Dai、Deli Chen、Dongjie Ji、Erhang Li、Fangyun Lin、Fucong Dai、Fuli Luo、Guangbo Hao、Guan-Ting Chen、Guowei Li、Hongjun Zhang、Hanwei Xu、Honghui Ding、Huazuo Gao、Hui Qu、Hui Li、Jianzhong Guo、Jiashi Li、Jingchang Chen、Jingyang Yuan、Jiagang Tu、Junjie Qiu、Junlong Li、Jiali Cai、Jiaqi Ni、Jian Liang、Jing Chen、Kai Dong、Kai Hu、Kaichao You、Kaige Gao、Kang Guan、Kexin Huang、Kuai Yu、Lean Wang、Lecong Zhang、Liang Zhao、Litong Wang、Liyue Zhang、Lei Xu、L. Xia、Mingchuan Zhang、Minghua Zhang、Minghui Tang、Mingxu Zhou、Meng Li、Miaojun Wang、Mingming Li、Ning Tian、Panpan Huang、Peng Zhang、Qiancheng Wang、Qinyu Chen、Qiushi Du、Ruiqi Ge、Ruisong Zhang、Ruizhe Pan、Runji Wang、R. J. Chen、Rong Jin、Ruyi Chen、Shanghao Lu、Shangyan Zhou、Shanhuang Chen、Shengfeng Ye、Shiyu Wang、Shuiping Yu、Shunfeng Zhou、Shuting Pan、Sansan Li、Shuang Zhou、Shaoqing Wu、Tao Yun</p>
+                        <p>Nature</p>
+                    </section>
+                </div>
+                <div class="read-links"><a href="https://doi.org/10.1038/s41586-025-09422-z" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="https://www.nature.com/articles/s41586-025-09422-z.pdf" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: DeepSeek-R1 incentivizes reasoning in LLMs through reinforcement learning</div>
+            </div>
+        </article><div class="section-kicker">Research Briefs · 论文快讯</div>
+        <section class="briefs-grid"><article class="brief">
+                <div class="eyebrow">Process Reward Models</div>
+                <h3>《GPT-4 Technical Report》条目存在摘要归属冲突，不宜作技术证据</h3>
+                <div class="tags"><span class="tag historical">经典知名论文</span></div><ul><li>摘要提出五层架构、Mirror Test及用于评估生成输出结构遵从性的Vibe Integrity Score，但这些内容与标题标示论文之间的关系无法由候选信息确认。
+                    </li><li>摘要未交代数据、实验设置、资源占用，也未说明与过程奖励模型、结果奖励模型或逐步监督的关系；不构成今日成本结构比较的可用实证。
+                    </li><li>该条目虽被标为高被引历史锚点，但在标题与摘要未校正前，仅保留为数据质量告警，不纳入技术结论。
+                    </li></ul><div class="meta-line">引用 2466 · 创新度 6.15/10 · arXiv (Cornell University)</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2303.08774" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">GPT-4 Technical Report</div>
+            </article><article class="brief">
+                <div class="eyebrow">Process Reward Models</div>
+                <h3>可信AI的生命周期框架：为推理监督补上审计视角，未提供运行成本测量</h3>
+                <div class="tags"><span class="tag historical">经典知名论文</span></div><ul><li>摘要列出人类监督、稳健与安全、隐私与数据治理、透明度、公平、社会与环境福祉、问责等七项技术要求，并主张贯穿系统生命周期。
+                    </li><li>论文将审计过程与AI系统责任概念相连，并讨论监管沙盒带来的挑战；这提示推理验证或奖励机制的可追溯性是部署约束之一。
+                    </li><li>候选摘要没有给出过程或结果奖励模型、验证器调用链、训练成本或服务时延的测量，因而不能把治理要求外推为具体系统开销。
+                    </li></ul><div class="meta-line">引用 695 · 创新度 6.15/10 · Information Fusion</div>
+                <div class="read-links"><a href="https://doi.org/10.1016/j.inffus.2023.101896" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Connecting the dots in trustworthy Artificial Intelligence: From AI principles, ethics, and key requirements to responsible AI systems and regulation</div>
+            </article></section>        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
+                appear
+                only when officially verified.</span><span>Generated 2026-08-17 00:33 UTC</span></footer>
+    </main>
+</body>
+
+</html>

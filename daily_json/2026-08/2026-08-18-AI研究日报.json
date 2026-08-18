@@ -1,0 +1,379 @@
+{
+  "schema_version": 2,
+  "report": {
+    "date": "2026-08-18",
+    "newspaper_name": "Daily AI Research Gazette",
+    "subtitle": "LLM Systems, Efficient Sequence Models, Agents & Theory",
+    "focus_topic": "kv_cache_memory",
+    "focus_topic_name": "KV Cache 与推理内存系统",
+    "focus_topic_name_en": "KV Cache & Inference Memory",
+    "search_query": "(cat:cs.CL OR cat:cs.LG OR cat:cs.AI OR cat:cs.DC OR cat:cs.PF) AND (ti:\"KV cache\" OR abs:\"KV cache\" OR ti:\"key value cache\" OR abs:\"key value cache\" OR ti:\"paged attention\" OR abs:\"paged attention\" OR ti:\"prefix caching\" OR abs:\"prefix caching\" OR ti:\"cache eviction\" OR abs:\"cache eviction\" OR ti:\"cache compression\" OR abs:\"cache compression\" OR ti:\"context caching\" OR abs:\"context caching\" OR ti:\"attention memory\" OR abs:\"attention memory\") AND submittedDate:[202608160000 TO 202608190000]",
+    "angle_id": "first_principles",
+    "angle_name": "底层理论与第一性原理",
+    "angle_name_en": "Theory & First Principles",
+    "schedule_days_unselected": 365,
+    "schedule_cooldown_readiness": 1.0,
+    "schedule_selection_reason": "starvation_guard",
+    "memory_read_status": "available",
+    "memory_write_status": "updated",
+    "memory_concept_update_count": 3,
+    "generated_at": "2026-08-18T00:38:17.587508+00:00",
+    "source_diagnostics": {
+      "arxiv": {
+        "status": "fallback_rss",
+        "api_topics_attempted": 10,
+        "api_topics_succeeded": 10,
+        "api_topics_failed": 0,
+        "api_result_count": 0,
+        "fallback_used": true,
+        "result_count": 59,
+        "errors": [],
+        "fallback_reason": "api_empty",
+        "rss": {
+          "status": "available",
+          "feed_count": 12,
+          "feeds_succeeded": 12,
+          "feeds_failed": 0,
+          "parsed_item_count": 950,
+          "result_count": 59,
+          "errors": []
+        }
+      },
+      "neurips": {
+        "status": "empty",
+        "result_count": 0
+      },
+      "openalex": {
+        "status": "empty",
+        "result_count": 0
+      },
+      "openalex_historical": {
+        "status": "available",
+        "result_count": 100,
+        "focus_topic": "kv_cache_memory"
+      },
+      "merged_candidate_count": 158,
+      "semantic_scholar": {
+        "status": "disabled",
+        "paper_count": 158
+      }
+    },
+    "target_focus_count": null,
+    "target_cross_topic_count": null,
+    "actual_focus_count": 2,
+    "actual_cross_topic_count": 1,
+    "candidate_count": 12,
+    "selected_count": 3,
+    "distribution_note": "模型按质量自主精选 3 篇，并执行动态篇幅控制。",
+    "edition_selection_status": "available_daily",
+    "editorial_character_count": 1744,
+    "well_known_paper_count": 1,
+    "historical_anchor_count": 1,
+    "source_candidate_count": 18,
+    "shortlist_count": 12,
+    "prominence_policy_status": "compliant",
+    "prominence_policy_errors": []
+  },
+  "papers": [
+    {
+      "paper_id": "arxiv:2608.14191",
+      "source": "arxiv_rss",
+      "sources": [
+        "arxiv_rss"
+      ],
+      "source_id": "2608.14191",
+      "arxiv_id": "2608.14191",
+      "title": "KV Cache Compression Through the Lens of Transform Coding",
+      "summary": "The key-value (KV) cache stores information from past tokens and is a major memory bottleneck in long-context inference. Existing quantization methods address this bottleneck by representing the KV cache uniformly with lower-precision data types and designing quantization schemes to minimize reconstruction error in the cache itself, without accounting for how that error propagates through attention mechanisms. We prove that, under a white-noise quantization model, the expected attention-aware distortion decomposes into additive key and value contributions that factor across tokens and channels. Building on transform coding and reverse water-filling, which are classical tools from signal processing and rate-distortion theory, we introduce Attention-Aware Transform Coding (AATC), which allocates bits over a calibration set to minimize attention-aware distortion. On Llama-3.1-8B-Instruct and Qwen-2.5-7B-Instruct, evaluated across LongBench, RULER, GSM8K, MMLU-Pro, and MATH-500, our method achieves near-lossless accuracy at approximately $5.8\\times$ compression, whereas each baseline degrades in at least some settings.",
+      "url": "https://arxiv.org/abs/2608.14191",
+      "abstract_url": "https://arxiv.org/abs/2608.14191",
+      "pdf_url": "https://arxiv.org/pdf/2608.14191",
+      "published_date": "2026-08-17T04:00:00+00:00",
+      "updated_date": null,
+      "categories": [
+        "cs.CL",
+        "cs.LG",
+        "eess.SP"
+      ],
+      "authors": [
+        "Hannah Laus",
+        "Claudio Mayrink Verdun",
+        "Hao Wang",
+        "Flavio du Pin Calmon",
+        "Felix Krahmer"
+      ],
+      "candidate_topics": [
+        "engineering_deployment",
+        "kv_cache_memory"
+      ],
+      "citation_count": 0,
+      "venue": "",
+      "venue_tags": [],
+      "presentation_type": "",
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "html_unavailable",
+      "rss_announce_type": "cross",
+      "well_known": false,
+      "well_known_reasons": [],
+      "historical_anchor": false,
+      "metadata_quality_score": 0.0,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 5.4,
+        "kv_cache_memory": 6.45,
+        "subquadratic_attention": 0.6,
+        "ssm_mamba": 0.6,
+        "cot_agentic_ai": 0.6,
+        "process_reward_models": 0.6,
+        "world_models": 0.6,
+        "causal_inference": 0.6,
+        "interpretability": 0.6,
+        "theory_loss_landscape": 0.6
+      },
+      "prefilter_score": 18.272,
+      "is_relevant": true,
+      "primary_topic": "kv_cache_memory",
+      "topic_scores": {
+        "engineering_deployment": 8.0,
+        "kv_cache_memory": 10.0,
+        "subquadratic_attention": 1.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 0.0,
+        "causal_inference": 0.0,
+        "interpretability": 1.0,
+        "theory_loss_landscape": 2.0
+      },
+      "novelty_score": 8.0,
+      "potential_impact_score": 8.0,
+      "clarity_score": 8.0,
+      "coarse_rationale": "本文利用变换编码和反注水原理，提出注意力感知的KV缓存压缩方法，在理论上分析误差传播，并实现高压缩率下的近无损性能。",
+      "contribution_tags": [
+        "KV Cache",
+        "Quantization",
+        "Cache Compression"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 9.335,
+      "major_candidate": true,
+      "major_reason": "daily_editor_pick",
+      "breakthrough": false,
+      "content_tier": "major",
+      "is_hero": true,
+      "newspaper_title": "把 KV 压缩改写为“注意力失真最小化”",
+      "dek": "AATC 不再把缓存张量的重建误差当作最终目标，而是在白噪声量化假设下直接刻画误差如何穿过注意力机制，并以变换编码与反注水进行按重要性分配的比特预算。",
+      "background_and_pain": "自回归解码需要保留历史 token 的键和值，KV Cache 因而随上下文长度增长，成为长上下文推理的显存瓶颈。已有量化方法通常以缓存张量本身的重建误差为优化对象，并倾向于统一采用较低精度；但键的误差会影响注意力权重，值的误差会影响加权聚合结果。因而，“缓存误差小”并不自动推出“注意力输出失真小”。本文从这一信息流错位出发，改变了压缩目标函数。",
+      "core_innovations": [
+        "将优化目标从缓存自身的重建误差转为注意力感知失真：论文在白噪声量化模型下证明，期望注意力感知失真可分解为键、值两类加性贡献，且可在 token 与通道维度上因子化。",
+        "将该分解接入经典变换编码与反注水框架：在校准集上，AATC 按各成分对注意力失真的贡献分配比特，而非对整个 KV Cache 施加统一精度。",
+        "方法成立的关键前提并不可省略：量化误差的白噪声建模以及校准集对部署分布的代表性，决定了理论分解与实际码率分配是否仍然对齐。"
+      ],
+      "experimental_findings": "论文在 Llama-3.1-8B-Instruct 与 Qwen-2.5-7B-Instruct 上，覆盖 LongBench、RULER、GSM8K、MMLU-Pro 和 MATH-500 评测。摘要报告，AATC 在约 5.8× 压缩下达到近乎无损的准确率，而每个基线都至少在部分设置中出现退化。这支持“以注意力失真而非缓存误差配置码率”的方向；但摘要未给出压缩/重建额外时延、校准代价或不同工作负载下的服务吞吐，因此不能直接将准确率结论外推为端到端推理收益。",
+      "brief_points": [],
+      "editorial_model_status": "available_daily",
+      "figure_status_detail": "arXiv HTML returned 404",
+      "figure_explanation": "",
+      "figure_model_status": "not_available"
+    },
+    {
+      "paper_id": "openalex:W4387321091",
+      "source": "openalex_historical",
+      "sources": [
+        "openalex_historical"
+      ],
+      "source_id": "https://openalex.org/W4387321091",
+      "arxiv_id": null,
+      "title": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+      "summary": "High throughput serving of large language models (LLMs) requires batching sufficiently many requests at a time. However, existing systems struggle because the key-value cache (KV cache) memory for each request is huge and grows and shrinks dynamically. When managed inefficiently, this memory can be significantly wasted by fragmentation and redundant duplication, limiting the batch size. To address this problem, we propose PagedAttention, an attention algorithm inspired by the classical virtual memory and paging techniques in operating systems. On top of it, we build vLLM, an LLM serving system that achieves (1) near-zero waste in KV cache memory and (2) flexible sharing of KV cache within and across requests to further reduce memory usage. Our evaluations show that vLLM improves the throughput of popular LLMs by 2--4× with the same level of latency compared to the state-of-the-art systems, such as FasterTransformer and Orca. The improvement is more pronounced with longer sequences, larger models, and more complex decoding algorithms. vLLM's source code is publicly available at https://github.com/vllm-project/vllm.",
+      "url": "https://doi.org/10.1145/3600006.3613165",
+      "abstract_url": "https://doi.org/10.1145/3600006.3613165",
+      "pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3600006.3613165",
+      "published_date": "2023-10-03T00:00:00+00:00",
+      "updated_date": null,
+      "categories": [],
+      "authors": [
+        "Woosuk Kwon",
+        "Z. Li",
+        "Siyuan Zhuang",
+        "Ying Sheng",
+        "L Zheng",
+        "Cody Hao Yu",
+        "Joseph E. Gonzalez",
+        "Hao Zhang",
+        "Ion Stoica"
+      ],
+      "candidate_topics": [
+        "kv_cache_memory"
+      ],
+      "citation_count": 1361,
+      "venue": "Proceedings of the 29th Symposium on Operating Systems Principles",
+      "venue_tags": [],
+      "presentation_type": "",
+      "official_venue_verified": false,
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_applicable",
+      "historical_discovery": true,
+      "well_known": true,
+      "well_known_reasons": [
+        "high_citation:1361"
+      ],
+      "historical_anchor": true,
+      "metadata_quality_score": 7.217,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 2.25,
+        "kv_cache_memory": 2.25,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 0.0,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "prefilter_score": 10.175,
+      "is_relevant": true,
+      "primary_topic": "engineering_deployment",
+      "topic_scores": {
+        "engineering_deployment": 2.25,
+        "kv_cache_memory": 2.25,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 0.0,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "novelty_score": 6.8,
+      "potential_impact_score": 6.12,
+      "clarity_score": 7.0,
+      "coarse_rationale": "规则降级：依据标题、摘要关键词和论文分类评分。",
+      "contribution_tags": [
+        "KV Cache",
+        "Serving"
+      ],
+      "coarse_model_status": "fallback_rules",
+      "selection_score": 7.468,
+      "major_candidate": true,
+      "major_reason": "daily_editor_pick",
+      "breakthrough": false,
+      "content_tier": "major",
+      "is_hero": false,
+      "newspaper_title": "PagedAttention：不压缩信息，先消除 KV 内存的分配浪费",
+      "dek": "PagedAttention 的第一性原理不同于量化：它主要处理动态请求下的碎片与重复副本，而非以低精度交换缓存信息；这使 KV 优化同时具有“失真—码率”和“分配—共享”两条正交路径。",
+      "background_and_pain": "高吞吐服务必须并发批处理更多请求，但每个请求的 KV Cache 很大，且会随生成过程动态增长或释放。若内存管理不当，碎片和跨请求重复存储会吞噬可用于批处理的容量，进而限制吞吐。该问题的本质不是某个 token 的 KV 信息是否可删减，而是已有缓存能否以低浪费方式被放置、扩展和复用。",
+      "core_innovations": [
+        "提出受操作系统虚拟内存与分页启发的 PagedAttention，并据此构建 vLLM，使 KV Cache 的动态管理面向低浪费而非静态预分配。",
+        "支持请求内部及请求之间的 KV Cache 灵活共享，直接针对重复副本这一容量损耗来源。",
+        "从机制上看，该路线保留缓存表示本身，主要改善有效可用显存比例；它与注意力感知量化并非替代关系，而可被视为系统层与表示层的不同优化坐标。"
+      ],
+      "experimental_findings": "摘要报告，相比 FasterTransformer 和 Orca 等当时系统，vLLM 在相同延迟水平下将热门 LLM 的吞吐提高 2—4 倍；序列更长、模型更大、解码算法更复杂时，提升更明显。该结论直接支撑动态分页和共享对服务容量的价值，但其比较对象与评测配置属于论文报告范围，不能据此推断任意部署环境中的固定收益。",
+      "brief_points": [],
+      "editorial_model_status": "available_daily",
+      "figure_explanation": "",
+      "figure_model_status": "not_available"
+    },
+    {
+      "paper_id": "openalex:W4298289240",
+      "source": "openalex_historical",
+      "sources": [
+        "openalex_historical"
+      ],
+      "source_id": "https://openalex.org/W4298289240",
+      "arxiv_id": "1406.2661",
+      "title": "Generative Adversarial Networks",
+      "summary": "Large Language Models (LLMS) rely on Key-Value (KV) caches to store attention context during autoregressive decoding. In long-sequence settings, the KV cache can consume large amounts of VRAM and become a practical bottleneck for throughput . We introduce KVHALO, an auxiliary reconstruction model that restores higher-fidelity KV tensors from a compressed cache state when required, reducing persistent memory footprint during inference. In our evaluation, KVHALO achieves up to 91.85% directional cosine alignment at convergence and reduces long-context degradation relative to a low-bit baseline under our stress-test workloads. We used HRM instead of other architectures, which allowed for higher-quality results in only 18,600 steps.",
+      "url": "http://arxiv.org/abs/1406.2661",
+      "abstract_url": "http://arxiv.org/abs/1406.2661",
+      "pdf_url": "https://arxiv.org/pdf/1406.2661",
+      "published_date": "2014-06-10T00:00:00+00:00",
+      "updated_date": null,
+      "categories": [],
+      "authors": [
+        "Ian Goodfellow",
+        "Jean Pouget-Abadie",
+        "Mehdi Mirza",
+        "Bing Xu",
+        "David Warde-Farley",
+        "Sherjil Ozair",
+        "Aaron Courville",
+        "Yoshua Bengio"
+      ],
+      "candidate_topics": [
+        "kv_cache_memory"
+      ],
+      "citation_count": 4609,
+      "venue": "arXiv (Cornell University)",
+      "venue_tags": [],
+      "presentation_type": "",
+      "official_venue_verified": false,
+      "figure_url": null,
+      "figure_caption": "",
+      "figure_status": "not_requested",
+      "historical_discovery": true,
+      "well_known": true,
+      "well_known_reasons": [
+        "high_citation:4609"
+      ],
+      "historical_anchor": true,
+      "metadata_quality_score": 8.436,
+      "prefilter_topic_scores": {
+        "engineering_deployment": 0.75,
+        "kv_cache_memory": 2.25,
+        "subquadratic_attention": 0.0,
+        "ssm_mamba": 0.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 0.0,
+        "causal_inference": 0.0,
+        "interpretability": 0.0,
+        "theory_loss_landscape": 0.0
+      },
+      "prefilter_score": 10.175,
+      "is_relevant": true,
+      "primary_topic": "kv_cache_memory",
+      "topic_scores": {
+        "engineering_deployment": 8.0,
+        "kv_cache_memory": 10.0,
+        "subquadratic_attention": 2.0,
+        "ssm_mamba": 1.0,
+        "cot_agentic_ai": 0.0,
+        "process_reward_models": 0.0,
+        "world_models": 0.0,
+        "causal_inference": 0.0,
+        "interpretability": 1.0,
+        "theory_loss_landscape": 2.0
+      },
+      "novelty_score": 6.0,
+      "potential_impact_score": 7.0,
+      "clarity_score": 5.0,
+      "coarse_rationale": "该论文提出了一种通过辅助重建模型压缩KV缓存以降低推理显存占用的方法，属于KV缓存与推理内存优化方向。",
+      "contribution_tags": [
+        "KV Cache"
+      ],
+      "coarse_model_status": "available",
+      "selection_score": 11.94,
+      "major_candidate": false,
+      "major_reason": "brief",
+      "breakthrough": false,
+      "content_tier": "brief",
+      "is_hero": false,
+      "newspaper_title": "KVHALO 记录先过元数据关，再讨论重建式压缩",
+      "dek": "该候选条目的题名为《Generative Adversarial Networks》，摘要却描述名为 KVHALO 的 KV Cache 重建方法；题名、摘要与引文元数据的内部错配，使其技术主张目前只能作为待核验线索，而",
+      "background_and_pain": "",
+      "core_innovations": [],
+      "experimental_findings": "",
+      "brief_points": [
+        "候选摘要称，KVHALO 以辅助重建模型在需要时从压缩缓存状态恢复较高保真度的 KV 张量，目标是降低推理期间的持久显存占用；这是一种以按需计算换取常驻容量的思路。",
+        "摘要报告其在收敛时方向余弦对齐最高为 91.85%，并在压力测试工作负载上相较低比特基线减轻长上下文退化；同时提及使用 HRM，并在 18,600 步内获得较高质量结果。方向余弦对齐仍是张量层代理指标",
+        "由于候选记录的题名与摘要内容不一致，记录中的 4,609 次引用及 historical_anchor 标记无法可靠归因于摘要所述 KVHALO；在完成书目信息核验前，本日报不将其作为 KV 重建方法"
+      ],
+      "editorial_model_status": "available_daily",
+      "figure_explanation": ""
+    }
+  ]
+}

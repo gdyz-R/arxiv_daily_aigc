@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Daily AI Research Gazette — 2026-08-18</title>
+    <link rel="stylesheet" href="../../assets/report.css">
+</head>
+
+<body style="--figure-max-height: 450px">
+    <main class="page">
+        <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
+                Theory</span><span>Tuesday, 18 August 2026</span></div>
+        <header class="masthead">
+            <h1>Daily AI Research Gazette</h1>
+            <p>LLM Systems, Efficient Sequence Models, Agents &amp; Theory</p>
+        </header>
+        <div class="focus-strip">
+            <div><strong>今日焦点 · KV Cache 与推理内存系统</strong><br>KV Cache &amp; Inference Memory</div>
+            <div><span class="strip-label">今日视角</span><br><b>底层理论与第一性原理</b><br>Theory &amp; First Principles</div>
+            <div><b>3</b> 精选 / <b>12</b> 候选<br><b>1</b> 知名 / <b>1</b> 经典</div>
+            <div>模型按质量自主精选 3 篇，并执行动态篇幅控制。</div>
+        </div>
+<details class="query-strip">
+            <summary>Today's Search Query · 今日检索式</summary>
+            <code>(cat:cs.CL OR cat:cs.LG OR cat:cs.AI OR cat:cs.DC OR cat:cs.PF) AND (ti:&#34;KV cache&#34; OR abs:&#34;KV cache&#34; OR ti:&#34;key value cache&#34; OR abs:&#34;key value cache&#34; OR ti:&#34;paged attention&#34; OR abs:&#34;paged attention&#34; OR ti:&#34;prefix caching&#34; OR abs:&#34;prefix caching&#34; OR ti:&#34;cache eviction&#34; OR abs:&#34;cache eviction&#34; OR ti:&#34;cache compression&#34; OR abs:&#34;cache compression&#34; OR ti:&#34;context caching&#34; OR abs:&#34;context caching&#34; OR ti:&#34;attention memory&#34; OR abs:&#34;attention memory&#34;) AND submittedDate:[202608160000 TO 202608190000]</code>
+        </details><div class="section-kicker">Lead Story · 今日头条</div>
+        <article class="hero no-figure">
+            <div class="hero-copy">
+                <div class="eyebrow">KV Cache &amp; Inference Memory</div>
+                <h2>把 KV 压缩改写为“注意力失真最小化”</h2>
+                <p class="dek">AATC 不再把缓存张量的重建误差当作最终目标，而是在白噪声量化假设下直接刻画误差如何穿过注意力机制，并以变换编码与反注水进行按重要性分配的比特预算。</p>
+                <div class="tags"><span class="tag">KV Cache</span><span class="tag">Quantization</span><span class="tag">Cache Compression</span></div>
+                <div class="meta-line">引用 0 · 创新度 8.0/10 ·
+                    综合优先级 9.335</div>
+                <div class="analysis-grid">
+                    <section>
+                        <h4>背景与痛点</h4>
+                        <p>自回归解码需要保留历史 token 的键和值，KV Cache 因而随上下文长度增长，成为长上下文推理的显存瓶颈。已有量化方法通常以缓存张量本身的重建误差为优化对象，并倾向于统一采用较低精度；但键的误差会影响注意力权重，值的误差会影响加权聚合结果。因而，“缓存误差小”并不自动推出“注意力输出失真小”。本文从这一信息流错位出发，改变了压缩目标函数。</p>
+                    </section>
+                    <section>
+                        <h4>核心创新</h4>
+                        <ul><li>将优化目标从缓存自身的重建误差转为注意力感知失真：论文在白噪声量化模型下证明，期望注意力感知失真可分解为键、值两类加性贡献，且可在 token 与通道维度上因子化。</li><li>将该分解接入经典变换编码与反注水框架：在校准集上，AATC 按各成分对注意力失真的贡献分配比特，而非对整个 KV Cache 施加统一精度。</li><li>方法成立的关键前提并不可省略：量化误差的白噪声建模以及校准集对部署分布的代表性，决定了理论分解与实际码率分配是否仍然对齐。</li></ul>
+                    </section>
+                    <section>
+                        <h4>实验结论</h4>
+                        <p>论文在 Llama-3.1-8B-Instruct 与 Qwen-2.5-7B-Instruct 上，覆盖 LongBench、RULER、GSM8K、MMLU-Pro 和 MATH-500 评测。摘要报告，AATC 在约 5.8× 压缩下达到近乎无损的准确率，而每个基线都至少在部分设置中出现退化。这支持“以注意力失真而非缓存误差配置码率”的方向；但摘要未给出压缩/重建额外时延、校准代价或不同工作负载下的服务吞吐，因此不能直接将准确率结论外推为端到端推理收益。</p>
+                    </section>
+                    <section>
+                        <h4>论文信息</h4>
+                        <p>Hannah Laus、Claudio Mayrink Verdun、Hao Wang、Flavio du Pin Calmon、Felix Krahmer</p>
+                        <p>cs.CL, cs.LG, eess.SP</p>
+                    </section>
+                </div>
+                <div class="read-links"><a href="https://arxiv.org/abs/2608.14191" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="https://arxiv.org/pdf/2608.14191" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: KV Cache Compression Through the Lens of Transform Coding</div>
+            </div>
+        </article><div class="section-kicker">Major Features · 重点论文</div>
+        <section class="feature-grid"><article
+                class="feature no-figure">
+                <div class="feature-copy">
+                    <div class="eyebrow">Engineering &amp; Deployment</div>
+                    <h3>PagedAttention：不压缩信息，先消除 KV 内存的分配浪费</h3>
+                    <div class="tags"><span class="tag historical">经典知名论文</span><span class="tag">KV Cache</span><span class="tag">Serving</span>                    </div>
+                    <p class="dek">PagedAttention 的第一性原理不同于量化：它主要处理动态请求下的碎片与重复副本，而非以低精度交换缓存信息；这使 KV 优化同时具有“失真—码率”和“分配—共享”两条正交路径。</p>
+                    <div class="feature-analysis">
+                        <section>
+                            <h4>问题背景</h4>
+                            <p>高吞吐服务必须并发批处理更多请求，但每个请求的 KV Cache 很大，且会随生成过程动态增长或释放。若内存管理不当，碎片和跨请求重复存储会吞噬可用于批处理的容量，进而限制吞吐。该问题的本质不是某个 token 的 KV 信息是否可删减，而是已有缓存能否以低浪费方式被放置、扩展和复用。</p>
+                        </section>
+                        <section>
+                            <h4>方法与贡献</h4>
+                            <ul><li>提出受操作系统虚拟内存与分页启发的 PagedAttention，并据此构建 vLLM，使 KV Cache 的动态管理面向低浪费而非静态预分配。</li><li>支持请求内部及请求之间的 KV Cache 灵活共享，直接针对重复副本这一容量损耗来源。</li><li>从机制上看，该路线保留缓存表示本身，主要改善有效可用显存比例；它与注意力感知量化并非替代关系，而可被视为系统层与表示层的不同优化坐标。</li></ul>
+                        </section>
+                        <section class="wide">
+                            <h4>实验与结论</h4>
+                            <p>摘要报告，相比 FasterTransformer 和 Orca 等当时系统，vLLM 在相同延迟水平下将热门 LLM 的吞吐提高 2—4 倍；序列更长、模型更大、解码算法更复杂时，提升更明显。该结论直接支撑动态分页和共享对服务容量的价值，但其比较对象与评测配置属于论文报告范围，不能据此推断任意部署环境中的固定收益。</p>
+                        </section>
+                    </div>
+                    <div class="meta-line">引用 1361 · 创新度 6.8/10
+                    </div>
+                    <div class="read-links"><a href="https://doi.org/10.1145/3600006.3613165" target="_blank" rel="noopener">Abstract
+                            ↗</a><a href="https://dl.acm.org/doi/pdf/10.1145/3600006.3613165" target="_blank" rel="noopener">PDF ↗</a></div>
+                    <div class="original-title">Efficient Memory Management for Large Language Model Serving with PagedAttention</div>
+                </div>
+            </article></section><div class="section-kicker">Research Briefs · 论文快讯</div>
+        <section class="briefs-grid"><article class="brief">
+                <div class="eyebrow">KV Cache &amp; Inference Memory</div>
+                <h3>KVHALO 记录先过元数据关，再讨论重建式压缩</h3>
+                <div class="tags"><span class="tag historical">经典知名论文</span><span class="tag">KV Cache</span></div><ul><li>候选摘要称，KVHALO 以辅助重建模型在需要时从压缩缓存状态恢复较高保真度的 KV 张量，目标是降低推理期间的持久显存占用；这是一种以按需计算换取常驻容量的思路。
+                    </li><li>摘要报告其在收敛时方向余弦对齐最高为 91.85%，并在压力测试工作负载上相较低比特基线减轻长上下文退化；同时提及使用 HRM，并在 18,600 步内获得较高质量结果。方向余弦对齐仍是张量层代理指标
+                    </li><li>由于候选记录的题名与摘要内容不一致，记录中的 4,609 次引用及 historical_anchor 标记无法可靠归因于摘要所述 KVHALO；在完成书目信息核验前，本日报不将其作为 KV 重建方法
+                    </li></ul><div class="meta-line">引用 4609 · 创新度 6.0/10 · arXiv (Cornell University)</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/1406.2661" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Generative Adversarial Networks</div>
+            </article></section>        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
+                appear
+                only when officially verified.</span><span>Generated 2026-08-18 00:38 UTC</span></footer>
+    </main>
+</body>
+
+</html>

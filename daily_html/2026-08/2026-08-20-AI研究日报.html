@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Daily AI Research Gazette — 2026-08-20</title>
+    <link rel="stylesheet" href="../../assets/report.css">
+</head>
+
+<body style="--figure-max-height: 450px">
+    <main class="page">
+        <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
+                Theory</span><span>Thursday, 20 August 2026</span></div>
+        <header class="masthead">
+            <h1>Daily AI Research Gazette</h1>
+            <p>LLM Systems, Efficient Sequence Models, Agents &amp; Theory</p>
+        </header>
+        <div class="focus-strip">
+            <div><strong>今日焦点 · CoT 与 Agent 实现</strong><br>CoT &amp; Agentic AI</div>
+            <div><span class="strip-label">今日视角</span><br><b>反例、失效模式与适用边界</b><br>Failures &amp; Counterexamples</div>
+            <div><b>7</b> 精选 / <b>12</b> 候选<br><b>1</b> 知名 / <b>1</b> 经典</div>
+            <div>模型按质量自主精选 7 篇，并执行动态篇幅控制。</div>
+        </div>
+<details class="query-strip">
+            <summary>Today's Search Query · 今日检索式</summary>
+            <code>(cat:cs.CL OR cat:cs.AI OR cat:cs.LG OR cat:cs.MA OR cat:cs.SE) AND (ti:&#34;chain of thought&#34; OR abs:&#34;chain of thought&#34; OR ti:&#34;reasoning model&#34; OR abs:&#34;reasoning model&#34; OR ti:&#34;test-time reasoning&#34; OR abs:&#34;test-time reasoning&#34; OR ti:&#34;agentic workflow&#34; OR abs:&#34;agentic workflow&#34; OR ti:&#34;AI agent&#34; OR abs:&#34;AI agent&#34; OR ti:&#34;tool use&#34; OR abs:&#34;tool use&#34; OR ti:&#34;tool calling&#34; OR abs:&#34;tool calling&#34; OR ti:&#34;multi-agent&#34; OR abs:&#34;multi-agent&#34; OR ti:&#34;planning&#34; OR abs:&#34;planning&#34; OR ti:&#34;agent memory&#34; OR abs:&#34;agent memory&#34; OR ti:&#34;computer use agent&#34; OR abs:&#34;computer use agent&#34; OR ti:&#34;reasoning trace&#34; OR abs:&#34;reasoning trace&#34;) AND submittedDate:[202608180000 TO 202608210000]</code>
+        </details><div class="section-kicker">Lead Story · 今日头条</div>
+        <article class="hero">
+<div class="hero-media" data-figure-media>
+                <figure class="paper-figure">
+                    <div class="figure-frame"><img src="../../assets/figures/2026-08/2026-08-20-AI研究日报/2608.17756-figure1.png" alt="D$^2$ACCI: A Dual-Loop Diagnostic Protocol for Evidence-Preserving Agent Memory Figure 1"
+                            loading="eager" referrerpolicy="no-referrer"
+                            onerror="this.closest('.hero').classList.add('no-figure');this.closest('[data-figure-media]').remove()">
+                    </div><figcaption>Figure 1: (a) Current end-to-end evaluation reports only aggregate accuracy; internal pipeline states are hidden and failures cannot be attributed to a specific stage. (b) D 2 ACCI emits per-stage traces, enabling paired gates to localize failures and drive targeted repairs.</figcaption>                </figure>
+            </div>            <div class="hero-copy">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h2>把智能体记忆变成可追责的实验对象</h2>
+                <p class="dek">D²ACCI 的重点不在提出更复杂的记忆模块，而在于把记忆干预置于可回放、可定位、可回归检查的证据门控流程中。它提示：端到端分数上升，并不等于系统知道自己为何变好或变坏。</p>
+                <div class="tags"><span class="tag">Serving</span><span class="tag">Agent Memory</span></div>
+                <div class="meta-line">引用 0 · 创新度 7.0/10 ·
+                    综合优先级 8.37</div>
+                <div class="analysis-grid">
+                    <section>
+                        <h4>背景与痛点</h4>
+                        <p>持久化记忆包含摄取、检索、过滤和生成等多个阶段。仅看最终任务表现，只能确认结果是否出错，不能判断错误来自哪一环；摘要进一步指出，既有评估常缺少配对统计比较、切片级非回归检查和阶段级诊断轨迹。对需要跨会话工作的智能体而言，这会使记忆改动难以审计，也容易掩盖局部能力退化。</p>
+                    </section>
+                    <section>
+                        <h4>核心创新</h4>
+                        <ul><li>提出 D²ACCI 双循环诊断协议：外层诊断门依据配对证据、受保护切片和轨迹可定位性，对记忆干预执行晋级、特性开关保留或拒绝。</li><li>提出 DCR 可观测性指标与 D²ACCI-Eval 工件，用于衡量失败是否仍可被定位，并支持重放诊断门决策；在 MemStack 中实例化该协议。</li></ul>
+                    </section>
+                    <section>
+                        <h4>实验结论</h4>
+                        <p>在三个公开基准上，摘要报告 LoCoMo 为 93.59%、LongMemEval 为 90.93%、PersonaMem-V2 为 57.20%。五组配对消融中，补充提取、会话记忆检索和 Forget Guard 带来 +1.9 至 +3.7 个百分点的统计显著增益，均满足 p ≤ 0.003；BM25/RRF 被保留为受监控的特性开关，而不是直接上线。诊断审计中，带增强轨迹的工件达到 98% 至 100% 的 DCR@3，结果日志为 0%。但摘要没有给出各基准的样本构成、完整比较设置、置信区间或跨任务迁移证据，因此这些数字不能外推为所有记忆架构的普遍保证。</p>
+                    </section>
+                    <section>
+                        <h4>论文信息</h4>
+                        <p>Xule Liu、Yijun Liu、Chao Li、Shao Kun</p>
+                        <p>cs.AI</p>
+                    </section>
+                </div>
+<div class="figure-note">
+                    <h4>图解</h4>
+                    <p>图中上半部分表示传统端到端评估：信息依次经过摄取、检索、过滤和生成，最终只得到总体分数，内部状态被隐藏，因而难以定位具体失败阶段。下半部分表示 D²ACCI 在各阶段加入诊断记录，输出如源数据标识、检索结果、过滤日志和答案等阶段性轨迹，并将这些证据交给配对门控，以支持接受、保留为特征开关或拒绝干预；其声称的贡献是提高故障定位能力并据此驱动针对性修复。</p>
+                </div>                <div class="read-links"><a href="http://arxiv.org/abs/2608.17756v1" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="https://arxiv.org/pdf/2608.17756v1" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: D$^2$ACCI: A Dual-Loop Diagnostic Protocol for Evidence-Preserving Agent Memory</div>
+            </div>
+        </article><div class="section-kicker">Major Features · 重点论文</div>
+        <section class="feature-grid"><article
+                class="feature no-figure">
+                <div class="feature-copy">
+                    <div class="eyebrow">CoT &amp; Agentic AI</div>
+                    <h3>无标签推理的薄弱环节，是同源错误的自我强化</h3>
+                    <div class="tags"><span class="tag">Reasoning</span><span class="tag">Multi-Agent</span>                    </div>
+                    <p class="dek">Co-RL 将无监督推理训练从单模型自评改为多模型同伴奖励，并把模型与数据多样性作为抑制反馈回路的关键变量。其主要价值在于揭示：去掉人工标签后，奖励来源本身可能成为塌缩和偏差复制的瓶颈。</p>
+                    <div class="feature-analysis">
+                        <section>
+                            <h4>问题背景</h4>
+                            <p>推理强化学习的强结果通常依赖可验证奖励，但随着任务难度提升，人工可靠评估会变得稀缺。自奖励方法虽然降低标签依赖，却可能让模型重复自身偏差和次优行为，降低回答多样性，并形成同质化与训练塌缩。这里的“推理能力”应与显式 Chain-of-Thought 轨迹区分：摘要报告的是任务表现和行为多样性变化，并未声称验证了某种内部思维链机制。</p>
+                        </section>
+                        <section>
+                            <h4>方法与贡献</h4>
+                            <ul><li>构造 Co-RL 多智能体强化学习框架：多个解耦且不共享参数的模型同时训练，奖励来自同伴完成结果，而非真实标签。</li><li>通过异构模型家族、模型规模和改写训练样本提高 cohort 多样性，以降低相关错误，缓解自我强化反馈回路。</li></ul>
+                        </section>
+                        <section class="wide">
+                            <h4>实验与结论</h4>
+                            <p>摘要称，Co-RL 在七个文本基准上为 LLM 带来平均 3.0% 至 8.6% 的增益，在四个多模态基准上为 VLM 带来 2.3% 至 7.2% 的增益；在文本和多模态领域均超过基础模型及既有无标签方法，并达到或超过监督方法。失效边界同样明确：摘要只说明多样性能够降低相关错误，未报告所需训练成本、不同 cohort 规模的收益曲线、各基准的方差或失败样本。因此不能据此判断多样性在低资源、强分布外或更长交互任务中仍然有效，也不能把“超过监督方法”理解为普遍替代监督信号。</p>
+                        </section>
+                    </div>
+                    <div class="meta-line">引用 0 · 创新度 8.0/10
+                    </div>
+                    <div class="read-links"><a href="http://arxiv.org/abs/2608.17253v1" target="_blank" rel="noopener">Abstract
+                            ↗</a><a href="https://arxiv.org/pdf/2608.17253v1" target="_blank" rel="noopener">PDF ↗</a></div>
+                    <div class="original-title">Co-RL: Unsupervised Reasoning Emerges from Diverse Cohort in Multi-agent RL</div>
+                </div>
+            </article></section><div class="section-kicker">Research Briefs · 论文快讯</div>
+        <section class="briefs-grid"><article class="brief">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h3>集体规划的硬边界：无法表征的目标，不能被合法验证</h3>
+                <div class="tags"><span class="tag">Planning</span><span class="tag">Counterfactual</span><span class="tag">Representation</span></div><ul><li>模型要求每个智能体只能通过自身子空间感知状态、构想动作、表达同意并验证目标；集体可解性因此同时受执行联盟、构想、同意和验证资格四道门限制。
+                    </li><li>迭代式跨智能体 relay 可能解锁任何单次计划池都没有的方案；相反，若目标要求依赖整个团队都无法表征的状态，即使轨迹偶然达成，也不能被有效验证为完成。
+                    </li><li>摘要称，在精确表示 relay closure 的条件下，四步穷举的有限时域方案是可靠且完备的；受限实现虽对返回方案保持可靠，却不保证完备。该结论不能直接外推到近似表示或开放时域部署。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 8.0/10 · cs.MA, cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.17932v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Collective Counterfactual Planning: Coordination, Consent, and Verification under Representational Constraints</div>
+            </article><article class="brief">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h3>成功不应抹平路径差异：PlanPO 重估多轮交互效率</h3>
+                <div class="tags"><span class="tag">Planning</span></div><ul><li>当成功轨迹共享同一结果奖励时，任务完成但交互冗长的路径可能与高效路径获得相同优势，训练信号因而无法表达规划质量差异。
+                    </li><li>方法加入由粗到细的优势信号，同时考虑成功轨迹的总体长度和每轮响应长度，目标是学习更具泛化性的交互规划，而非退化为单纯追求更短输出。
+                    </li><li>在 ALFWorld、WebShop 和 SciWorld 上，摘要报告相对 GRPO 平均提升 27.2%，额外训练成本可忽略。摘要未提供绝对分数、方差、长度与成功率的拆分，因此无法判断收益主要来自
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.8/10 · cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.17289v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">PlanPO: Group Planning-Aware Policy Optimization for Multi-Turn Agentic LLMs</div>
+            </article><article class="brief">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h3>长时运行智能体的另一种失效：看不见过程，也无法及时纠偏</h3>
+                <div class="tags"><span class="tag">Reasoning</span><span class="tag">Representation</span></div><ul><li>论文认为，长时智能体数据分析同时需要可观测性和可操控性；面向离散、逐轮对话的界面难以表达并行分支、分析计划、执行进度和中间证据的变化。
+                    </li><li>AdaLens 用 storyline 统一呈现分析计划、执行进度、中间发现和涉及的数据列，并围绕这些分析元素提供方向引导与执行控制。
+                    </li><li>评估包括两个案例研究和一项用户研究，但摘要没有给出参与者数量、对照界面、量化指标或错误恢复结果。因此目前更适合作为监督接口设计的研究证据，不能据此证明它普遍降低了长时运行风险。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 7.0/10 · cs.HC, cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.17834v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">AdaLens: Interactive Storyline for Monitoring and Steering Long-Running Agentic Data Analysis</div>
+            </article><article class="brief">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h3>工具调用进入不可逆环境后，普通 Agent 安全假设失效</h3>
+                <div class="tags"><span class="tag">Tool Use</span></div><ul><li>论文将工具能够修改外部状态视为风险变化的信号，并主张区块链执行层会把原本可恢复的智能体失败转化为可能持续且不可逆的损失。
+                    </li><li>作者整理攻击面分类和 Web3 风险映射矩阵，将风险类别、放大因素、代表性缓解手段与剩余缺口关联起来，并综合讨论包括区块链机制在内的防御方案。
+                    </li><li>摘要报告现有测量型保护措施阻止的攻击少于 30%，模型级安全拒绝少于 3%；但未说明测量样本、攻击定义和评估协议，数字不应外推到所有 MCP 或工具调用部署。本文适合用于威胁建模与权限审查，不提供具体
+                    </li></ul><div class="meta-line">引用 0 · 创新度 5.5/10 · cs.CR, cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.17275v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">When Agents Act on Web3: An Attack-Surface Survey of MCP, Skills, and Tool Calling</div>
+            </article><article class="brief">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h3>历史锚点的反例：高被引不等于主题相关</h3>
+                <div class="tags"><span class="tag historical">经典知名论文</span><span class="tag">Planning</span></div><ul><li>该条目标注为 SIAM Review、引用量 7744、well-known 和 historical_anchor 均为 true，且输入贡献标签为 Planning。
+                    </li><li>但题名明确是 Fractional Brownian Motions、Fractional Noises 及其应用；摘要字段主要呈现书目信息和参考文献片段，没有提供 Chain-of-Thought、
+                    </li><li>因此它只能作为候选数据质量与主题相关性检查的反例，不能支撑今日主题的历史背景，也不应因引用量高而挤占真正相关论文的分析篇幅。
+                    </li></ul><div class="meta-line">引用 7744 · 创新度 6.8/10 · SIAM Review</div>
+                <div class="read-links"><a href="https://doi.org/10.1137/1010093" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Fractional Brownian Motions, Fractional Noises and Applications</div>
+            </article></section>        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
+                appear
+                only when officially verified.</span><span>Generated 2026-08-20 00:34 UTC</span></footer>
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Daily AI Research Gazette — 2026-08-21</title>
+    <link rel="stylesheet" href="../../assets/report.css">
+</head>
+
+<body style="--figure-max-height: 450px">
+    <main class="page">
+        <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
+                Theory</span><span>Friday, 21 August 2026</span></div>
+        <header class="masthead">
+            <h1>Daily AI Research Gazette</h1>
+            <p>LLM Systems, Efficient Sequence Models, Agents &amp; Theory</p>
+        </header>
+        <div class="focus-strip">
+            <div><strong>今日焦点 · 理论分析与机理研究</strong><br>Theory &amp; Loss Landscape</div>
+            <div><span class="strip-label">今日视角</span><br><b>工程落地与 Edge Case</b><br>Engineering &amp; Edge Cases</div>
+            <div><b>7</b> 精选 / <b>12</b> 候选<br><b>0</b> 知名 / <b>0</b> 经典</div>
+            <div>日级自主选文不可用（fallback_invalid_daily_json），已回退到稳定的规则选文与逐篇精编。</div>
+        </div>
+<details class="query-strip">
+            <summary>Today's Search Query · 今日检索式</summary>
+            <code>(cat:cs.LG OR cat:cs.AI OR cat:stat.ML OR cat:math.OC) AND (ti:&#34;mechanistic interpretability&#34; OR abs:&#34;mechanistic interpretability&#34; OR ti:&#34;loss landscape&#34; OR abs:&#34;loss landscape&#34; OR ti:&#34;optimization dynamics&#34; OR abs:&#34;optimization dynamics&#34; OR ti:&#34;representation geometry&#34; OR abs:&#34;representation geometry&#34; OR ti:&#34;expressivity&#34; OR abs:&#34;expressivity&#34; OR ti:&#34;feature learning theory&#34; OR abs:&#34;feature learning theory&#34; OR ti:&#34;neural scaling law&#34; OR abs:&#34;neural scaling law&#34; OR ti:&#34;in-context learning theory&#34; OR abs:&#34;in-context learning theory&#34; OR ti:&#34;grokking&#34; OR abs:&#34;grokking&#34; OR ti:&#34;training dynamics&#34; OR abs:&#34;training dynamics&#34; OR ti:&#34;circuit analysis&#34; OR abs:&#34;circuit analysis&#34;) AND submittedDate:[202608190000 TO 202608220000]</code>
+        </details><div class="section-kicker">Lead Story · 今日头条</div>
+        <article class="hero no-figure">
+            <div class="hero-copy">
+                <div class="eyebrow">World Models</div>
+                <h2>潜空间世界模型：从“看懂目标”到“做对决策”</h2>
+                <p class="dek">一项研究指出，潜空间世界模型即使能准确解码任务变量，也未必能用欧氏距离可靠衡量真实进展；新诊断指标与动作条件训练目标，试图校准MPC规划所依赖的几何关系。</p>
+                <div class="tags"><span class="tag">World Model</span><span class="tag">Latent Dynamics</span><span class="tag">Model-Based RL</span><span class="tag">Planning</span></div>
+                <div class="meta-line">引用 0 · 创新度 7.0/10 ·
+                    综合优先级 7.69</div>
+                <div class="analysis-grid">
+                    <section>
+                        <h4>背景与痛点</h4>
+                        <p>在基于JEPA的潜空间世界模型中，研究者常把当前状态与目标状态的潜变量欧氏距离作为模型预测控制（MPC）的代价，并用交叉熵方法（CEM）筛选动作序列。问题在于，探针或解码器能够恢复任务变量，只说明信息仍被表示，并不说明距离排序能对应真实任务进展。若候选计划的排序失真，规划器就可能在表示上选择“更近”的方案，却无法在真实任务中取得更好结果。</p>
+                    </section>
+                    <section>
+                        <h4>核心创新</h4>
+                        <ul><li>论文将“可解码”与“可决策”之间的差异定义为决策度量对齐，并把潜变量距离能否正确排列候选计划作为独立问题加以分析。</li><li>提出Plan-Real Spearman，在随机计划上比较潜空间排序与真实代价排序；另以CEM-stage Spearman追踪搜索逐步集中后的排序一致性。</li><li>理论分析给出保持真实代价排序的充分条件，指出编码器失真、终端滚动误差与候选计划间隔是决定对齐程度的关键量。</li><li>DA-LeWM在LeWM基础上加入逆动力学与示范条件的目标动作头，让训练目标直接约束欧氏代价与CEM规划所使用的几何结构。</li></ul>
+                    </section>
+                    <section>
+                        <h4>实验结论</h4>
+                        <p>实验结果显示，DA-LeWM在文中所报告的全部实验中都比LeWM更快收敛，并取得更高的在线成功率；与此同时，两者的探针分数相近。结果表明，改进解码或任务变量读取能力，并不自动修复用于规划的代价几何；动作条件目标能够改善潜空间距离对动作后果的组织方式。该研究没有把探针表现当作规划质量的替代指标，而是用排序一致性直接检查潜变量是否服务于MPC决策。</p>
+                    </section>
+                    <section>
+                        <h4>论文信息</h4>
+                        <p>Jiawei Wang、Ke Rui、Yushen Zuo、Yichun Feng、Minglei Li</p>
+                        <p>cs.LG, cs.CV</p>
+                    </section>
+                </div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.18746v1" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="https://arxiv.org/pdf/2608.18746v1" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: Decision-Metric Alignment in Latent World Models: Diagnostics and Action-Conditioned Objectives for MPC Planning</div>
+            </div>
+        </article><div class="section-kicker">Research Briefs · 论文快讯</div>
+        <section class="briefs-grid"><article class="brief">
+                <div class="eyebrow">Interpretability &amp; Mechanisms</div>
+                <h3>研究追踪 LLaMA 3.1 如何理解数字序列</h3>
+                <div class="tags"><span class="tag">Mechanistic Interpretability</span><span class="tag">Counterfactual</span><span class="tag">Circuit Analysis</span></div><ul><li>研究者让模型预测带有偏移重复模式的随机数序列，任务要求模型识别序列结构，而非依靠表面统计规律。
+                    </li><li>激活修补分析表明，模型先检索相关的一阶差分，再将其加到当前数值；论文将此视为较早对概念归纳机制的识别之一。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 7.0/10 · cs.LG, cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.18419v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Mechanistic Interpretability of Structure-Aware Numerical Reasoning in LLaMA 3.1 8B</div>
+            </article><article class="brief">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h3>让多智能体的隐性协作可被验证</h3>
+                <div class="tags"><span class="tag">Multi-Agent</span><span class="tag">Mechanistic Interpretability</span><span class="tag">Causal Inference</span><span class="tag">Counterfactual</span></div><ul><li>VLA 以共享事件标识，把潜在状态记录、信道状态与公开行动对应起来；监测器只用中立数据。
+                    </li><li>受控拍卖中，AUROC 同质模型为0.993、异质模型对为0.854；白盒干预令出价分布恢复率达100%。
+                    </li><li>低价串谋行为下降47.3个百分点，但恢复率是重放匹配反事实的构造性检验。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 7.0/10 · cs.AI, cs.CR</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.19161v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Beyond the Transcript: Detecting Covert Co ordination in Latent Multi-Agent Communication</div>
+            </article><article class="brief">
+                <div class="eyebrow">Theory &amp; Loss Landscape</div>
+                <h3>MLREF: Efficient Module Reuse for Reward Design in Reinforcement Learning via Large Language Models</h3>
+                <div class="tags"><span class="tag">Optimization Dynamics</span></div><ul><li>Reward function design remains a bottleneck in reinforcement learning.
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.8/10 · cs.LG, cs.AI, cs.CL</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.18827v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">MLREF: Efficient Module Reuse for Reward Design in Reinforcement Learning via Large Language Models</div>
+            </article><article class="brief">
+                <div class="eyebrow">Theory &amp; Loss Landscape</div>
+                <h3>多教师蒸馏的能力失衡，关键在优化预算</h3>
+                <div class="tags"><span class="tag">Optimization Dynamics</span></div><ul><li>在理想路由基准上，标准多教师在线策略蒸馏仅恢复领域专家集成可用上限的35.6%。
+                    </li><li>问题源于序列长度差异、非均匀学习率引发的收敛漂移，以及异步更新造成的奖励陈旧。
+                    </li><li>Open-MOPD结合令牌占比平衡、动态预算分配和奖励刷新，将上限恢复率提高至83.4%，并开放训练与评测资源。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.15/10 · cs.LG, cs.AI, cs.CL</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.19098v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Open-MOPD: Diagnosing and Fixing Capability Imbalance in Multi-Teacher On-Policy Distillation</div>
+            </article><article class="brief">
+                <div class="eyebrow">Theory &amp; Loss Landscape</div>
+                <h3>非泊松客户交易模型的规模化尝试</h3>
+                <div class="tags"><span class="tag">Inference Acceleration</span></div><ul><li>在500万在线零售客户专有数据集上，模型用时8分钟；现有最先进方法估计需3至4天。
+                    </li><li>理论与实证结果显示，效率提升未明显改变模型解释性或预测性能。
+                    </li><li>作者还在2020年美国大选周期400万名政治捐赠者的公开数据集上展示了协变量扩展。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.15/10 · stat.AP, stat.ME, stat.ML</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.19022v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Scalable Amortized Variational Inference for Non-Poisson Buy-&#39;Til-You-Die Models</div>
+            </article><article class="brief">
+                <div class="eyebrow">Theory &amp; Loss Landscape</div>
+                <h3>稀疏化未必削弱关系图网络的表达力</h3>
+                <div class="tags"><span class="tag">Expressivity</span><span class="tag">Optimization Dynamics</span></div><ul><li>研究以关系 Weisfeiler-Leman（RWL）为框架，证明参数足够的关系图神经网络中存在保持 1-RWL 表达力的稀疏子网络，并给出随机剪枝获得该子网络的概率下界。
+                    </li><li>论文显示，常见时序图神经网络和跨图消息传递可改写为关系图网络，实验则在合成数据、时序和分子基准上比较理论与经验概率，并考察表达力同优化及预测指标的关系。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 5.5/10 · cs.LG, stat.ML</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.18819v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">A Unifying Relational Perspective on Expressive Lottery Tickets</div>
+            </article></section>        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
+                appear
+                only when officially verified.</span><span>Generated 2026-08-21 00:49 UTC</span></footer>
+    </main>
+</body>
+
+</html>

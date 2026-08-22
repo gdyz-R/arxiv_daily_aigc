@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Daily AI Research Gazette — 2026-08-22</title>
+    <link rel="stylesheet" href="../../assets/report.css">
+</head>
+
+<body style="--figure-max-height: 450px">
+    <main class="page">
+        <div class="utility-bar"><span>Personal Research Edition</span><span>LLM Systems · Agents ·
+                Theory</span><span>Saturday, 22 August 2026</span></div>
+        <header class="masthead">
+            <h1>Daily AI Research Gazette</h1>
+            <p>LLM Systems, Efficient Sequence Models, Agents &amp; Theory</p>
+        </header>
+        <div class="focus-strip">
+            <div><strong>今日焦点 · CoT 与 Agent 实现</strong><br>CoT &amp; Agentic AI</div>
+            <div><span class="strip-label">今日视角</span><br><b>系统权衡与成本结构</b><br>System Trade-offs &amp; Cost Structure</div>
+            <div><b>7</b> 精选 / <b>12</b> 候选<br><b>1</b> 知名 / <b>1</b> 经典</div>
+            <div>日级自主选文不可用（fallback_invalid_daily_json），已回退到稳定的规则选文与逐篇精编。</div>
+        </div>
+<details class="query-strip">
+            <summary>Today's Search Query · 今日检索式</summary>
+            <code>(cat:cs.CL OR cat:cs.AI OR cat:cs.LG OR cat:cs.MA OR cat:cs.SE) AND (ti:&#34;chain of thought&#34; OR abs:&#34;chain of thought&#34; OR ti:&#34;reasoning model&#34; OR abs:&#34;reasoning model&#34; OR ti:&#34;test-time reasoning&#34; OR abs:&#34;test-time reasoning&#34; OR ti:&#34;agentic workflow&#34; OR abs:&#34;agentic workflow&#34; OR ti:&#34;AI agent&#34; OR abs:&#34;AI agent&#34; OR ti:&#34;tool use&#34; OR abs:&#34;tool use&#34; OR ti:&#34;tool calling&#34; OR abs:&#34;tool calling&#34; OR ti:&#34;multi-agent&#34; OR abs:&#34;multi-agent&#34; OR ti:&#34;planning&#34; OR abs:&#34;planning&#34; OR ti:&#34;agent memory&#34; OR abs:&#34;agent memory&#34; OR ti:&#34;computer use agent&#34; OR abs:&#34;computer use agent&#34; OR ti:&#34;reasoning trace&#34; OR abs:&#34;reasoning trace&#34;) AND submittedDate:[202608200000 TO 202608230000]</code>
+        </details><div class="section-kicker">Lead Story · 今日头条</div>
+        <article class="hero no-figure">
+            <div class="hero-copy">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h2>分数布朗运动：为长期记忆建立统一随机框架</h2>
+                <p class="dek">曼德尔布罗特与范·奈斯提出分数布朗运动及其增量噪声，用自相似性和赫斯特参数描述跨尺度相关，为水文、经济与通信记录中的长记忆现象提供统一随机模型。</p>
+                <div class="tags"><span class="tag historical">经典知名论文</span><span class="tag">Planning</span></div>
+                <div class="meta-line">引用 7749 · 创新度 6.8/10 ·
+                    综合优先级 9.624</div>
+                <div class="analysis-grid">
+                    <section>
+                        <h4>背景与痛点</h4>
+                        <p>传统布朗运动适合刻画独立、短记忆的随机扰动，却难以解释水库流量、经济变量和通信误差等记录中持续存在的尺度结构与长期相关。论文面对的核心问题，是如何在保持高斯随机过程可分析性的同时，描述不同时间尺度上的自相似行为，并把这些性质转化为可生成、可比较的噪声模型。作者因此把讨论从单一的白噪声框架，推进到带有参数化记忆结构的分数过程。难点在于，记忆越长，模型的统计解释也越需保持清晰。</p>
+                    </section>
+                    <section>
+                        <h4>核心创新</h4>
+                        <ul><li>定义分数布朗运动，以赫斯特参数 H 控制路径的自相似尺度；H=1/2 时退化为通常的布朗运动，参数变化对应不同的相关结构。</li><li>将分数布朗运动的连续增量表述为分数高斯噪声，连接非平稳的累计过程与具有平稳增量的噪声序列，便于分析长期依赖。</li><li>围绕协方差、增量相关和谱特征展开分析，说明同一参数如何连接路径粗糙度、长期依赖与频域中的幂律行为。</li><li>以水文、经济时间序列和通信系统为应用背景，说明该模型如何为观测到的长程相关与误差簇提供统一的建模语言。</li></ul>
+                    </section>
+                    <section>
+                        <h4>实验结论</h4>
+                        <p>论文给出的主要证据来自理论推导、过程性质分析以及对相关应用的讨论，而非今天常见的大规模数据集基准。结果表明，分数布朗运动能够在一个赫斯特参数下同时表达自相似性与平稳增量；其增量形成的分数高斯噪声，则把长期相关保留在可分析的高斯框架内。作者据此解释了水文记录、经济变量和通信误差中难以由白噪声说明的尺度与记忆现象，但论文并未提供现代机器学习意义上的预测精度比较。</p>
+                    </section>
+                    <section>
+                        <h4>论文信息</h4>
+                        <p>Benoît B. Mandelbrot、John W. Van Ness</p>
+                        <p>SIAM Review</p>
+                    </section>
+                </div>
+                <div class="read-links"><a href="https://doi.org/10.1137/1010093" target="_blank" rel="noopener">Abstract
+                        ↗</a><a href="None" target="_blank" rel="noopener">PDF ↗</a></div>
+                <div class="byline">Original title: Fractional Brownian Motions, Fractional Noises and Applications</div>
+            </div>
+        </article><div class="section-kicker">Major Features · 重点论文</div>
+        <section class="feature-grid"><article
+                class="feature no-figure">
+                <div class="feature-copy">
+                    <div class="eyebrow">CoT &amp; Agentic AI</div>
+                    <h3>隐藏思维链成为黑盒推理模型的新安全边界</h3>
+                    <div class="tags"><span class="tag breakthrough">重大突破</span><span class="tag">Chain-of-Thought</span><span class="tag">Reasoning</span><span class="tag">Tool Use</span>                    </div>
+                    <p class="dek">一项研究显示，模型提供商通过API隐藏的长篇推理轨迹，可能被多轮交互近乎逐字重建；这使思维链从内部能力变成需要保护的模型资产。</p>
+                    <div class="feature-analysis">
+                        <section>
+                            <h4>问题背景</h4>
+                            <p>大语言推理模型往往不向用户展示完整思维链，但这些轨迹包含模型解决问题时的中间推理，被视为有价值的模型资产。过去，研究者对黑盒模型能否通过API直接抽取隐藏思维链的系统性认识仍然有限。论文聚焦这一缺口，指出若攻击者能够复现内部轨迹，模型提供商面临的不只是答案泄露，也包括推理过程及其长度等信号的暴露。</p>
+                        </section>
+                        <section>
+                            <h4>方法与贡献</h4>
+                            <ul><li>论文识别出工具调用之间此前被忽视的“推理回放面”，并提出EchoCoT多步攻击，利用API返回的保真度信号迭代逼近隐藏轨迹。</li><li>研究进一步构建基于大语言模型的优化框架，自动搜索跨数据集有效的通用注入轨迹，并检验其在未见数据集上的迁移效果。</li></ul>
+                        </section>
+                        <section class="wide">
+                            <h4>实验与结论</h4>
+                            <p>在开源推理模型上，EchoCoT的近乎逐字抽取成功率最高达66.4%；按目标轨迹长度相差不超过10%、且至少90%的词元完全匹配计算，同一注入轨迹在未见数据集上的成功率最高达80%。在测试的五个前沿专有推理模型中，抽取出的相当一部分思维链与提供商报告的推理长度及可用摘要高度一致。对Gemini-2.5，方法还抽取出33,463个词元，而目标为32,948个。</p>
+                        </section>
+                    </div>
+                    <div class="meta-line">引用 0 · 创新度 9.0/10
+                    </div>
+                    <div class="read-links"><a href="http://arxiv.org/abs/2608.20055v1" target="_blank" rel="noopener">Abstract
+                            ↗</a><a href="https://arxiv.org/pdf/2608.20055v1" target="_blank" rel="noopener">PDF ↗</a></div>
+                    <div class="original-title">EchoCoT: Extracting Hidden Chain-of-Thought from Large Reasoning Models</div>
+                </div>
+            </article></section><div class="section-kicker">Research Briefs · 论文快讯</div>
+        <section class="briefs-grid"><article class="brief">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h3>工具使用进入大模型中期训练视野</h3>
+                <div class="tags"><span class="tag">Tool Use</span><span class="tag">Planning</span></div><ul><li>提出开放式数据构建流程，利用真实工具API、MCP技能及文档工作流合成监督，覆盖工具识别、参数依据与调用流程。
+                    </li><li>在Qwen3-4B-Base和Qwen3-8B-Base上训练MidTool-Mix，并结合监督微调与强化学习进行后续训练。
+                    </li><li>相较基线，模型在BFCL、tau2-Bench和MCP Universe上的表现均有所提升。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 7.0/10 · cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.20314v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">MidTool: Mid-training Data Synthesis for Agentic Tool Use</div>
+            </article><article class="brief">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h3>代理记忆的下一道考题：追踪变化中的状态</h3>
+                <div class="tags"><span class="tag">Agent Memory</span></div><ul><li>StateMemBench覆盖234个多会话场景，区分当前状态、已被取代状态与其他失误。
+                    </li><li>StateMem显式追踪状态取代关系及依赖，在两个模型设置中提升当前状态准确率。
+                    </li><li>作为现有记忆系统的轻量封装，状态结构在六类后端上带来32至67个百分点提升。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 7.0/10 · cs.AI, cs.CL</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.19652v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Can Agent Memory Systems Track Evolving State?</div>
+            </article><article class="brief">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h3>多模态模型迎来规则约束下的空间规划考验</h3>
+                <div class="tags"><span class="tag">Planning</span><span class="tag">Reasoning</span><span class="tag">Verifier</span></div><ul><li>RuleMaze要求模型在迷宫中遵守不同复杂度的自然语言规则，联合考察视觉感知、规则理解与行动规划。
+                    </li><li>DMP将感知、执行和规则验证解耦；实验显示，其规则遵循与规划成功率优于端到端文本规划基线，并能应对未见规则。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.0/10 · cs.AI</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.20237v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Rule-Compliant Visual Spatial Planning for Multimodal Large Language Models</div>
+            </article><article class="brief">
+                <div class="eyebrow">CoT &amp; Agentic AI</div>
+                <h3>奖励引导的拓扑设计降低多智能体通信成本</h3>
+                <div class="tags"><span class="tag">Multi-Agent</span></div><ul><li>研究将多智能体通信拓扑设计视为自回归图生成问题，并针对既有方法缺乏稀疏性激励的局限展开改进。
+                    </li><li>方法训练同时衡量任务正确性与结构紧凑度的奖励模型，再以其反馈微调预训练图生成器。
+                    </li><li>在任务准确率保持同等水平的情况下，令牌消耗平均减少20.5%。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 6.0/10 · cs.MA, cs.CL, cs.LG</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.20099v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">Reward-Guided Autoregressive Graph Generation for Efficient Multi-Agent Communication Topology Design</div>
+            </article><article class="brief">
+                <div class="eyebrow">Engineering &amp; Deployment</div>
+                <h3>大模型服务将前缀缓存纳入路由规划</h3>
+                <div class="tags"><span class="tag">KV Cache</span><span class="tag">Serving</span></div><ul><li>周期性规划前缀亲和路由，将高频键置于稳定热集合并按预期负载分配。
+                    </li><li>60张H100上，Llama-3.3-70B fp8达176±11 QPS，KV命中率93.2±0.5%。
+                    </li><li>两个32B负载显示，KV收益不足时，负载偏斜可能抵消改进；部署前应先做影子回放。
+                    </li></ul><div class="meta-line">引用 0 · 创新度 7.0/10 · cs.DC, cs.LG</div>
+                <div class="read-links"><a href="http://arxiv.org/abs/2608.19677v1" target="_blank" rel="noopener">Read ↗</a>
+                </div>
+                <div class="original-title">CacheRoute: Planned Prefix-Affinity Routing for Large-Scale LLM Serving</div>
+            </article></section>        <footer><span>Sources: arXiv · OpenAlex · Semantic Scholar · NeurIPS official proceedings. Oral/Spotlight labels
+                appear
+                only when officially verified.</span><span>Generated 2026-08-22 00:39 UTC</span></footer>
+    </main>
+</body>
+
+</html>
